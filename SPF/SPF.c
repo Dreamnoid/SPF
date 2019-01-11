@@ -53,8 +53,6 @@ DLLExport void Open(const char* title, int w, int h)
 	_window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL);
 	
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	_glContext = SDL_GL_CreateContext(_window);
 	SDL_GL_LoadLibrary(NULL);
 
@@ -66,7 +64,8 @@ DLLExport void Open(const char* title, int w, int h)
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_LIGHTING);
-	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_DEPTH_TEST);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -136,6 +135,7 @@ DLLExport void DeleteTexture(int texture)
 
 DLLExport void EndLoop()
 {
+	IssueVertices();
 	glFlush();
 	SDL_GL_SwapWindow(_window);
 }

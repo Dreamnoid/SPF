@@ -35,9 +35,9 @@ namespace SPFSharp
                     x += 100 * dt;
                 }
 
-                //Native.FillRectangle(20, 20, 100, 100, 0.5f, 0.1f, 0.2f, 1f);
-                //Native.FillRectangle(110, 110, 50, 20, 0.2f, 0.8f, 0.2f, 1f);
-                //Native.DrawTexture(tex, (int)x, (int)y, 100, 100, 1, 1, 1, 0.5f);
+                Native.FillRectangle(20, 20, 100, 100, 0.5f, 0.1f, 0.2f, 1f);
+                Native.FillRectangle(110, 110, 50, 20, 0.2f, 0.8f, 0.2f, 1f);
+                Native.DrawTexture(tex, (int)x, (int)y, 100, 100, 1, 1, 1, 0.5f);
 
                 Native.EndLoop();
             }

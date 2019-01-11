@@ -127,7 +127,7 @@ void InitRenderer(int w, int h)
 		"}\n");
 
 	glUseProgram(_program);
-
+	glUniform1i(glGetUniformLocation(_program, "Texture"), 0);
 	float m[16];
 	SetupOrthographic(m, 0, (float)w, (float)h, 0, -1.0f, 1.0f);
 	glUniformMatrix4fv(glGetUniformLocation(_program, "MVP"), 1, GL_FALSE, m);
@@ -139,15 +139,12 @@ void IssueVertices()
 	glBindBuffer(GL_ARRAY_BUFFER, _batchVBOID);
 	glBufferData(GL_ARRAY_BUFFER, VERTICES_COUNT * sizeof(Vertex), &Vertices, GL_STREAM_DRAW);
 
-	glDisable(GL_DEPTH_TEST);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	glActiveTextureARB(GL_TEXTURE0);
+	glActiveTexture2(GL_TEXTURE0);
+	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, _currentTexture);
 
 	glUseProgram(_program);
-	glUniform1i(glGetUniformLocation(_program, "Texture"), 0);
-
+	
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
@@ -156,7 +153,6 @@ void IssueVertices()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(8));
 	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(16));
 
-	glBindBuffer(GL_ARRAY_BUFFER, _batchVBOID);
 	glDrawArrays(GL_QUADS, 0, VertexCount);
 	VertexCount = 0;
 }
