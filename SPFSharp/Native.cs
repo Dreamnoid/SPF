@@ -24,22 +24,22 @@ namespace SPFSharp
         public static extern void Close();
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int LoadTexture(string filename);
+        public static extern UInt32 LoadTexture(string filename);
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void DeleteTexture(int texture);
+        public static extern void DeleteTexture(UInt32 texture);
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern uint CompileShader(string fragmentCode, string vertexCode);
+        public static extern int GetTextureWidth(UInt32 texture);
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void DeleteShader(uint id);
+        public static extern int GetTextureHeight(UInt32 texture);
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a);
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void DrawTexture(int tex, int x, int y, int w, int h, int srcx, int srcy, int srcw, int srch, float r, float g, float b, float a);
+        public static extern void DrawTexture(UInt32 tex, int x, int y, int w, int h, int srcx, int srcy, int srcw, int srch, bool flipx, bool flipy, float r, float g, float b, float a);
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool IsKeyDown(int key);
@@ -50,12 +50,19 @@ namespace SPFSharp
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool IsKeyReleased(int key);
 
-        public static int KeyUp = 0;
-        public static int KeyDown = 1;
-        public static int KeyRight = 2;
-        public static int KeyLeft = 3;
-        public static int KeySpace = 4;
-        public static int KeyEscape = 5;
+        [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern UInt32 CreateSurface(int w, int h);
 
+        [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void BeginSurface(UInt32 surface);
+
+        [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void EndSurface();
+
+        [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void DeleteSurface(UInt32 surface);
+
+        [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern UInt32 GetSurfaceTexture(UInt32 surface);
     }
 }

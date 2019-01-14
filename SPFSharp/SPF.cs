@@ -8,7 +8,13 @@ namespace SPFSharp
 {
 	public static class SPF
 	{
-		private static Dictionary<string, int> _loadedTextures = new Dictionary<string, int>();
+        public class Texture
+        {
+            public UInt32 ID;
+            public int Width;
+            public int Height;
+        }
+		private static Dictionary<string, Texture> _loadedTextures = new Dictionary<string, Texture>();
 
 		public static void Open(string title, int w, int h)
 		{
@@ -27,18 +33,22 @@ namespace SPFSharp
 
 		public static void Close()
 		{
-			foreach (var texID in _loadedTextures.Values)
+			foreach (var tex in _loadedTextures.Values)
 			{
-				Native.DeleteTexture(texID);
+				Native.DeleteTexture(tex.ID);
 			}
 			Native.Close();
 		}
 
-		public static int GetTexture(string filename)
+		public static Texture GetTexture(string filename)
 		{
 			if (_loadedTextures.ContainsKey(filename) == false)
 			{
-				_loadedTextures[filename] = Native.LoadTexture(filename);
+                var tex = new Texture();
+                tex.ID = Native.LoadTexture(filename);
+                tex.Width = Native.GetTextureWidth(tex.ID);
+                tex.Height = Native.GetTextureHeight(tex.ID);
+                _loadedTextures[filename] = tex;
 			}
 			return _loadedTextures[filename];
 		}
@@ -48,9 +58,14 @@ namespace SPFSharp
 			Native.FillRectangle(x, y, w, h, r, g, b, a);
 		}
 
-		public static void DrawTexture(int tex, int x, int y, int w, int h, int clipx, int clipy, int clipw, int cliph, float r, float g, float b, float a)
+        public static void DrawTexture(Texture tex, int x, int y)
+        {
+            Native.DrawTexture(tex.ID, x, y, tex.Width, tex.Height, 0, 0, tex.Width, tex.Height, false, false, 1, 1, 1, 1);
+        }
+
+        public static void DrawTexture(Texture tex, int x, int y, int w, int h, int clipx, int clipy, int clipw, int cliph, bool flipx, bool flipy, float r, float g, float b, float a)
 		{
-			Native.DrawTexture(tex, x, y, w, h, clipx, clipy, clipw, cliph, r, g, b, a);
+            Native.DrawTexture(tex.ID, x, y, w, h, clipx, clipy, clipw, cliph, flipx, flipy, r, g, b, a);
 		}
 
 		public static bool IsKeyDown(Key key)
@@ -77,5 +92,42 @@ namespace SPFSharp
 			Space = 4,
 			Escape = 5
 		}
-	}
+
+        public class Surface
+        {
+            public UInt32 ID;
+            public Texture Texture;
+            public int Width;
+            public int Height;
+        }
+
+        public static Surface CreateSurface(int w, int h)
+        {
+            var id = Native.CreateSurface(w, h);
+            return new Surface()
+            {
+                ID = id,
+                Texture = new Texture() { ID = Native.GetSurfaceTexture(id), Width = w, Height = h },
+                Width = w,
+                Height = h
+            };
+        }
+
+        public static void BeginSurface(Surface surface)
+        {
+            Native.BeginSurface(surface.ID);
+        }
+
+        public static void EndSurface()
+        {
+            Native.EndSurface();
+        }
+
+        public static void DeleteSurface(Surface surface)
+        {
+            Native.DeleteTexture(Native.GetSurfaceTexture(surface.ID));
+            Native.DeleteSurface(surface.ID);
+        }
+
+    }
 }

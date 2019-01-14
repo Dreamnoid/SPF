@@ -1,30 +1,27 @@
 #pragma once
 
-typedef struct
-{
-	float X;
-	float Y;
-	float U;
-	float V;
-	float R;
-	float G;
-	float B;
-	float A;
-} Vertex;
-#define MAX_SPRITES 2000
-#define VERTICES_PER_SPRITE 4
-#define VERTICES_COUNT MAX_SPRITES * VERTICES_PER_SPRITE
-Vertex Vertices[VERTICES_COUNT];
-int VertexCount = 0;
-
-GLuint _currentTexture;
-
-GLuint _batchVBOID;
-GLuint _emptyTexture;
-GLuint _program;
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
+void SetupOrthographic(float* m, float left, float right, float bottom, float top, float zNearPlane, float zFarPlane)
+{
+	m[0] = (float)(2.0 / ((double)right - (double)left));
+	m[1] = 0.0f;
+	m[2] = 0.0f;
+	m[3] = 0.0f;
+	m[4] = 0.0f;
+	m[5] = (float)(2.0 / ((double)top - (double)bottom));
+	m[6] = 0.0f;
+	m[7] = 0.0f;
+	m[8] = 0.0f;
+	m[9] = 0.0f;
+	m[10] = (float)(1.0 / ((double)zNearPlane - (double)zFarPlane));
+	m[11] = 0.0f;
+	m[12] = (float)(((double)left + (double)right) / ((double)left - (double)right));
+	m[13] = (float)(((double)top + (double)bottom) / ((double)bottom - (double)top));
+	m[14] = (float)((double)zNearPlane / ((double)zNearPlane - (double)zFarPlane));
+	m[15] = 1.0f;
+}
 
 unsigned int InternalCompileShader(GLenum type, const char* source)
 {
@@ -73,7 +70,7 @@ unsigned int CompileShader(const char* vertexCode, const char* fragmentCode)
 	return id;
 }
 
-DLLExport void DeleteShader(unsigned int id)
+void DeleteShader(unsigned int id)
 {
 	glDeleteProgram(id);
 }
@@ -82,14 +79,14 @@ void InitRenderer(int w, int h)
 {
 	GLuint ids[1];
 	glGenBuffers(1, ids);
-	_batchVBOID = ids[0];
-	glBindBuffer(GL_ARRAY_BUFFER, _batchVBOID);
+	Data.BatchVBOID = ids[0];
+	glBindBuffer(GL_ARRAY_BUFFER, Data.BatchVBOID);
 	glBufferData(GL_ARRAY_BUFFER, VERTICES_COUNT * sizeof(Vertex), NULL, GL_STREAM_DRAW);
 
 	glGenTextures(1, ids);
-	_emptyTexture = ids[0];
+	Data.EmptyTexture = ids[0];
 
-	glBindTexture(GL_TEXTURE_2D, _emptyTexture);
+	glBindTexture(GL_TEXTURE_2D, Data.EmptyTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -100,7 +97,7 @@ void InitRenderer(int w, int h)
 	pixels[0] = 0xFFFFFFFF;
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
 
-	_program = CompileShader("#version 330 core\n"
+	Data.Program = CompileShader("#version 330 core\n"
 		"layout (location = 0) in vec2 position;\n"
 		"layout (location = 1) in vec2 uv;\n"
 		"layout (location = 2) in vec4 color;\n"
@@ -126,24 +123,24 @@ void InitRenderer(int w, int h)
 		"	out_color = texColor * tex_color;\n"
 		"}\n");
 
-	glUseProgram(_program);
-	glUniform1i(glGetUniformLocation(_program, "Texture"), 0);
+	glUseProgram(Data.Program);
+	glUniform1i(glGetUniformLocation(Data.Program, "Texture"), 0);
 	float m[16];
 	SetupOrthographic(m, 0, (float)w, (float)h, 0, -1.0f, 1.0f);
-	glUniformMatrix4fv(glGetUniformLocation(_program, "MVP"), 1, GL_FALSE, m);
+	glUniformMatrix4fv(glGetUniformLocation(Data.Program, "MVP"), 1, GL_FALSE, m);
 
 }
 
 void IssueVertices()
 {
-	glBindBuffer(GL_ARRAY_BUFFER, _batchVBOID);
-	glBufferData(GL_ARRAY_BUFFER, VERTICES_COUNT * sizeof(Vertex), &Vertices, GL_STREAM_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, Data.BatchVBOID);
+	glBufferData(GL_ARRAY_BUFFER, VERTICES_COUNT * sizeof(Vertex), &Data.Vertices, GL_STREAM_DRAW);
 
 	glActiveTexture2(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, _currentTexture);
+	glBindTexture(GL_TEXTURE_2D, Data.BatchInfo.CurrentTexture);
 
-	glUseProgram(_program);
+	glUseProgram(Data.Program);
 	
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
@@ -153,18 +150,18 @@ void IssueVertices()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(8));
 	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(16));
 
-	glDrawArrays(GL_QUADS, 0, VertexCount);
-	VertexCount = 0;
+	glDrawArrays(GL_QUADS, 0, Data.BatchInfo.VertexCount);
+	memset(&Data.BatchInfo, 0, sizeof(Data.BatchInfo));
 }
 
 void PushVertex(GLuint texture, int x, int y, float u, float v, float r, float g, float b, float a)
 {
-	if (VertexCount == VERTICES_COUNT || texture != _currentTexture)
+	if (Data.BatchInfo.VertexCount == VERTICES_COUNT || texture != Data.BatchInfo.CurrentTexture)
 	{
 		IssueVertices();
-		_currentTexture = texture;
+		Data.BatchInfo.CurrentTexture = texture;
 	}
-	Vertex* vertex = &Vertices[VertexCount];
+	Vertex* vertex = &Data.Vertices[Data.BatchInfo.VertexCount];
 	vertex->X = (float)x;
 	vertex->Y = (float)y;
 	vertex->U = u;
@@ -173,29 +170,46 @@ void PushVertex(GLuint texture, int x, int y, float u, float v, float r, float g
 	vertex->G = g;
 	vertex->B = b;
 	vertex->A = a;
-	VertexCount++;
+	Data.BatchInfo.VertexCount++;
 }
 
 DLLExport void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a)
 {
-	PushVertex(_emptyTexture, x, y, 0, 0, r, g, b, a);
-	PushVertex(_emptyTexture, x+w, y,1, 0, r, g, b, a);
-	PushVertex(_emptyTexture, x+w, y+h, 1, 1, r, g, b, a);
-	PushVertex(_emptyTexture, x, y+h, 0, 1, r, g, b, a);
+	PushVertex(Data.EmptyTexture, x, y, 0, 0, r, g, b, a);
+	PushVertex(Data.EmptyTexture, x+w, y,1, 0, r, g, b, a);
+	PushVertex(Data.EmptyTexture, x+w, y+h, 1, 1, r, g, b, a);
+	PushVertex(Data.EmptyTexture, x, y+h, 0, 1, r, g, b, a);
 }
 
-DLLExport void DrawTexture(int tex, int x, int y, int w, int h, int srcx, int srcy, int srcw, int srch, float r, float g, float b, float a)
+DLLExport void DrawTexture(int tex, int x, int y, int w, int h, int srcx, int srcy, int srcw, int srch, bool flipX, bool flipY, float r, float g, float b, float a)
 {
-	unsigned int id = Textures[tex].GLID;
-	int texW = Textures[tex].Width;
-	int texH = Textures[tex].Height;
-	float u1 = srcx / texW;
-	float u2 = (srcx+srcw) / texW;
-	float v1 = srcy / texH;
-	float v2 = (srcy+srch) / texW;
+	unsigned int id = Data.Textures[tex].GLID;
+	int texW = Data.Textures[tex].Width;
+	int texH = Data.Textures[tex].Height;
+	float u1 = srcx / (float)texW;
+	float u2 = (srcx+srcw) / (float)texW;
+	float v1 = srcy / (float)texH;
+	float v2 = (srcy+srch) / (float)texH;
+	if (flipX)
+	{
+		float t = u1;
+		u1 = u2;
+		u2 = t;
+	}
+	if (Data.Textures[tex].Flipped)
+	{
+		float t = v1;
+		v1 = v2;
+		v2 = t;
+	}
+	if (flipY)
+	{
+		float t = v1;
+		v1 = v2;
+		v2 = t;
+	}
 	PushVertex(id, x, y, u1, v1, r, g, b, a);
 	PushVertex(id, x + w, y, u2, v1, r, g, b, a);
 	PushVertex(id, x + w, y + h, u2, v2, r, g, b, a);
 	PushVertex(id, x, y + h, u1, v2, r, g, b, a);
 }
-

@@ -1,8 +1,5 @@
 #pragma once
 
-int KeysDownPreviousFrame[SDL_NUM_SCANCODES];
-int KeysDown[SDL_NUM_SCANCODES];
-
 typedef enum
 {
 	Key_Up = 0,
@@ -29,17 +26,17 @@ SDL_Scancode TranslateKey(Key key)
 
 DLLExport int IsKeyDown(Key key)
 {
-	return KeysDown[TranslateKey(key)];
+	return Data.KeysDown[TranslateKey(key)];
 }
 
 DLLExport int IsKeyPressed(Key key)
 {
 	SDL_Scancode code = TranslateKey(key);
-	return !KeysDownPreviousFrame[code] && KeysDown[code];
+	return !Data.KeysDownPreviousFrame[code] && Data.KeysDown[code];
 }
 
 DLLExport int IsKeyReleased(Key key)
 {
 	SDL_Scancode code = TranslateKey(key);
-	return KeysDownPreviousFrame[code] && !KeysDown[code];
+	return Data.KeysDownPreviousFrame[code] && !Data.KeysDown[code];
 }

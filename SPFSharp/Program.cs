@@ -8,41 +8,52 @@ namespace SPFSharp
 {
     public static class Program
     {
+        const int WindowWidth = 320;
+        const int WindowHeight = 240;
+
+        const int SurfaceWidth = 320/2;
+        const int SurfaceHeight = 240/2;
+
         public static void Main()
         {
-            Native.Open("Test", 320, 240);
-            var tex = Native.LoadTexture("D:/Test/test.png");
+            SPF.Open("Test", WindowWidth, WindowHeight);
+            var tex = SPF.GetTexture("D:/Test/test.png");
+            var surface = SPF.CreateSurface(SurfaceWidth, SurfaceHeight);
 
             float x = 0, y = 0;
 
             float dt;
-            while (Native.BeginLoop(out dt))
+            while (SPF.BeginLoop(out dt))
             {
-                if (Native.IsKeyDown(Native.KeyDown))
+                if (SPF.IsKeyDown(SPF.Key.Down))
                 {
                     y += 100 * dt;
                 }
-                else if (Native.IsKeyDown(Native.KeyUp))
+                else if (SPF.IsKeyDown(SPF.Key.Up))
                 {
                     y -= 100 * dt;
                 }
-                if (Native.IsKeyDown(Native.KeyLeft))
+                if (SPF.IsKeyDown(SPF.Key.Left))
                 {
                     x -= 100 * dt;
                 }
-                else if (Native.IsKeyDown(Native.KeyRight))
+                else if (SPF.IsKeyDown(SPF.Key.Right))
                 {
                     x += 100 * dt;
                 }
 
-                Native.FillRectangle(20, 20, 100, 100, 0.5f, 0.1f, 0.2f, 1f);
-                Native.FillRectangle(110, 110, 50, 20, 0.2f, 0.8f, 0.2f, 1f);
-                Native.DrawTexture(tex, (int)x, (int)y, 100, 100, 1, 1, 1, 0.5f);
+                SPF.BeginSurface(surface);
 
-                Native.EndLoop();
+                SPF.FillRectangle(20, 20, 100, 100, 0.5f, 0.1f, 0.2f, 1f);
+                SPF.FillRectangle(110, 110, 50, 20, 0.2f, 0.8f, 0.2f, 1f);
+                SPF.DrawTexture(tex, (int)x, (int)y, 100, 100, 0, 0, tex.Width, tex.Height, false, false, 1, 1, 1, 0.5f);
+
+                SPF.EndSurface();
+                SPF.DrawTexture(surface.Texture, 0, 0, WindowWidth, WindowHeight, 0, 0, SurfaceWidth, SurfaceHeight, false, false, 1, 1, 1, 1);
+
+                SPF.EndLoop();
             }
-            Native.DeleteTexture(tex);
-            Native.Close();
+            SPF.Close();
         }
     }
 }
