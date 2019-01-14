@@ -35,7 +35,6 @@ DLLExport void Open(const char* title, int w, int h)
 	InitRenderer(w,h);
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
-	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_LIGHTING);

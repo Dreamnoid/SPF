@@ -56,6 +56,9 @@ struct
 	GLuint EmptyTexture;
 	GLuint Program;
 
+	int CurrentWidth;
+	int CurrentHeight;
+
 } Data;
 
 void InitData()
