@@ -184,12 +184,18 @@ DLLExport void FillRectangle(int x, int y, int w, int h, float r, float g, float
 	PushVertex(_emptyTexture, x, y+h, 0, 1, r, g, b, a);
 }
 
-DLLExport void DrawTexture(int tex, int x, int y, int w, int h, float r, float g, float b, float a)
+DLLExport void DrawTexture(int tex, int x, int y, int w, int h, int srcx, int srcy, int srcw, int srch, float r, float g, float b, float a)
 {
 	unsigned int id = Textures[tex].GLID;
-	PushVertex(id, x, y, 0, 0, r, g, b, a);
-	PushVertex(id, x + w, y, 1, 0, r, g, b, a);
-	PushVertex(id, x + w, y + h, 1, 1, r, g, b, a);
-	PushVertex(id, x, y + h, 0, 1, r, g, b, a);
+	int texW = Textures[tex].Width;
+	int texH = Textures[tex].Height;
+	float u1 = srcx / texW;
+	float u2 = (srcx+srcw) / texW;
+	float v1 = srcy / texH;
+	float v2 = (srcy+srch) / texW;
+	PushVertex(id, x, y, u1, v1, r, g, b, a);
+	PushVertex(id, x + w, y, u2, v1, r, g, b, a);
+	PushVertex(id, x + w, y + h, u2, v2, r, g, b, a);
+	PushVertex(id, x, y + h, u1, v2, r, g, b, a);
 }
 

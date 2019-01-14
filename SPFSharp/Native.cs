@@ -39,7 +39,7 @@ namespace SPFSharp
         public static extern void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a);
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void DrawTexture(int tex, int x, int y, int w, int h, float r, float g, float b, float a);
+        public static extern void DrawTexture(int tex, int x, int y, int w, int h, int srcx, int srcy, int srcw, int srch, float r, float g, float b, float a);
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool IsKeyDown(int key);
