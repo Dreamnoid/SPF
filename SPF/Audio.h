@@ -4,10 +4,11 @@ void InitAudio()
 {
 	SDL_memset(&Data.SFXPlaybackSpecs, 0, sizeof(Data.SFXPlaybackSpecs));
 	Data.SFXPlaybackSpecs.freq = 48000;
-	Data.SFXPlaybackSpecs.format = AUDIO_U8;
+	Data.SFXPlaybackSpecs.format = AUDIO_S16;
 	Data.SFXPlaybackSpecs.channels = 2;
 	Data.SFXPlaybackSpecs.samples = 4096;
 	Data.SFXDevice = SDL_OpenAudioDevice(NULL, 0, &Data.SFXPlaybackSpecs, NULL, 0);
+	SDL_PauseAudioDevice(Data.SFXDevice, 0);
 }
 
 DLLExport ResourceIndex LoadSound(const char* filename)
@@ -26,9 +27,9 @@ DLLExport ResourceIndex LoadSound(const char* filename)
 		cvt.buf = (Uint8 *)SDL_malloc(cvt.len * cvt.len_mult);
 		memcpy(cvt.buf, wav_buffer, wav_length);
 		SDL_ConvertAudio(&cvt);
+		SDL_FreeWAV(wav_buffer);
 		wav_buffer = cvt.buf;
 		wav_length = cvt.len_cvt;
-		// TODO: memory leak (the original buffer)
 	}
 	
 	for (ResourceIndex i = 0; i < SOUNDS_COUNT; ++i)
@@ -47,9 +48,7 @@ DLLExport ResourceIndex LoadSound(const char* filename)
 
 DLLExport void PlaySound(ResourceIndex sound)
 {
-
 	SDL_QueueAudio(Data.SFXDevice, Data.Sounds[sound].Buffer, Data.Sounds[sound].Length);
-	SDL_PauseAudioDevice(Data.SFXDevice, 0);
 }
 
 DLLExport void DeleteSound(ResourceIndex sound)
