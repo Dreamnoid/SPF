@@ -17,6 +17,7 @@ typedef int bool;
 #include "Input.h"
 #include "Textures.h"
 #include "Renderer.h"
+#include "Audio.h"
 
 DLLExport void Open(const char* title, int w, int h)
 {
