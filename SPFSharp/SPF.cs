@@ -37,7 +37,11 @@ namespace SPFSharp
 			{
 				Native.DeleteTexture(tex.ID);
 			}
-			Native.Close();
+            foreach (var sound in _loadedSounds.Values)
+            {
+                Native.DeleteSound(sound.ID);
+            }
+            Native.Close();
 		}
 
 		public static Texture GetTexture(string filename)
@@ -129,5 +133,62 @@ namespace SPFSharp
             Native.DeleteSurface(surface.ID);
         }
 
+        public static void SetFullscreen(bool fullscreen)
+        {
+            Native.SetFullscreen(fullscreen);
+        }
+
+        public class Sound
+        {
+            public UInt32 ID;
+        }
+        private static Dictionary<string, Sound> _loadedSounds = new Dictionary<string, Sound>();
+
+        public static Sound GetSound(string filename)
+        {
+            if (_loadedSounds.ContainsKey(filename) == false)
+            {
+                var sound = new Sound();
+                sound.ID = Native.LoadSound(filename);
+                _loadedSounds[filename] = sound;
+            }
+            return _loadedSounds[filename];
+        }
+
+        public static void PlaySound(Sound sound)
+        {
+            Native.PlaySound(sound.ID);
+        }
+
+        public enum Button : int
+        {
+            A = 0,
+            B = 1,
+            X = 2,
+            Y = 3,
+            Start = 4,
+            Select = 5,
+            DPadUp = 6,
+            DPadDown = 7,
+            DPadRight = 8,
+            DPadLeft = 9,
+            LeftShoulder = 10,
+            RightShoulder = 11
+        }
+
+        public static bool IsButtonDown(Button button)
+        {
+            return Native.IsButtonDown((int)button);
+        }
+
+        public static bool IsButtonPressed(Button button)
+        {
+            return Native.IsButtonPressed((int)button);
+        }
+
+        public static bool IsButtonReleased(Button button)
+        {
+            return Native.IsButtonReleased((int)button);
+        }
     }
 }

@@ -55,6 +55,9 @@ struct
 	int KeysDownPreviousFrame[SDL_NUM_SCANCODES];
 	int KeysDown[SDL_NUM_SCANCODES];
 
+	int ButtonsDownPreviousFrame[SDL_CONTROLLER_BUTTON_MAX];
+	int ButtonsDown[SDL_CONTROLLER_BUTTON_MAX];
+
 	Vertex Vertices[VERTICES_COUNT];
 	struct
 	{
@@ -73,6 +76,8 @@ struct
 
 	SDL_AudioSpec SFXPlaybackSpecs;
 	SDL_AudioDeviceID SFXDevice;
+
+	SDL_GameController* Controller;
 
 } Data;
 

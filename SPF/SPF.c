@@ -35,6 +35,7 @@ DLLExport void Open(const char* title, int w, int h)
 	InitOpenGL4();
 	InitRenderer(w,h);
 	InitAudio();
+	InitInput();
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -54,7 +55,7 @@ DLLExport bool BeginLoop(float* dt)
 	Data.LastTick = currentTick;
 	*dt = timeElapsed / 1000.0f;
 
-	memcpy(Data.KeysDownPreviousFrame, Data.KeysDown, sizeof(Data.KeysDownPreviousFrame));
+	UpdateInput();
 
 	SDL_Event evt;
 	while (SDL_PollEvent(&evt))
@@ -71,6 +72,22 @@ DLLExport bool BeginLoop(float* dt)
 		{
 			Data.KeysDown[evt.key.keysym.scancode] = 0;
 		}
+		if (evt.type == SDL_CONTROLLERBUTTONDOWN)
+		{
+			Data.ButtonsDown[evt.cbutton.button] = 1;
+		}
+		if (evt.type == SDL_CONTROLLERBUTTONUP)
+		{
+			Data.ButtonsDown[evt.cbutton.button] = 0;
+		}
+		if (evt.type == SDL_CONTROLLERDEVICEADDED || evt.type == SDL_CONTROLLERDEVICEREMOVED)
+		{
+			InitInput();
+			if(evt.type == SDL_CONTROLLERDEVICEREMOVED)
+			{ 
+				memset(&Data.ButtonsDown, 0, sizeof(Data.ButtonsDown)); // All buttons released
+			}
+		}
 	}
 	glClear(GL_COLOR_BUFFER_BIT);
 	return 1;
@@ -85,8 +102,14 @@ DLLExport void EndLoop()
 
 DLLExport void Close()
 {
+	QuitInput();
 	QuitAudio();
 	SDL_GL_DeleteContext(Data.OpenGLContext);
 	SDL_DestroyWindow(Data.Window);
 	SDL_Quit();
+}
+
+DLLExport void SetFullscreen(bool fullscreen)
+{
+	SDL_SetWindowFullscreen(Data.Window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 }

@@ -73,5 +73,17 @@ namespace SPFSharp
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void DeleteSound(UInt32 sound);
+
+        [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void SetFullscreen(bool fullscreen);
+
+        [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool IsButtonDown(int button);
+
+        [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool IsButtonPressed(int button);
+
+        [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool IsButtonReleased(int button);
     }
 }
