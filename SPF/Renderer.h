@@ -125,10 +125,6 @@ void InitRenderer(int w, int h)
 
 	glUseProgram(Data.Program);
 	glUniform1i(glGetUniformLocation(Data.Program, "Texture"), 0);
-	float m[16];
-	SetupOrthographic(m, 0, (float)w, (float)h, 0, -1.0f, 1.0f);
-	glUniformMatrix4fv(glGetUniformLocation(Data.Program, "MVP"), 1, GL_FALSE, m);
-
 }
 
 void IssueVertices()
@@ -141,6 +137,9 @@ void IssueVertices()
 	glBindTexture(GL_TEXTURE_2D, Data.BatchInfo.CurrentTexture);
 
 	glUseProgram(Data.Program);
+	float m[16];
+	SetupOrthographic(m, 0, (float)Data.CurrentWidth, (float)Data.CurrentHeight, 0, -1.0f, 1.0f);
+	glUniformMatrix4fv(glGetUniformLocation(Data.Program, "MVP"), 1, GL_FALSE, m);
 	
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);

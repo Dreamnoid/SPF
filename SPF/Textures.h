@@ -87,7 +87,9 @@ DLLExport void BeginSurface(ResourceIndex surface)
 {
 	ResourceIndex texture = Data.Surfaces[surface].Texture;
 	glBindFramebuffer(GL_FRAMEBUFFER, Data.Surfaces[surface].GLID);
-	glViewport(0, 0, (GLsizei)Data.Textures[texture].Width, (GLsizei)Data.Textures[texture].Height);
+	Data.CurrentWidth = Data.Textures[texture].Width;
+	Data.CurrentHeight = Data.Textures[texture].Height;
+	glViewport(0, 0, (GLsizei)Data.CurrentWidth, (GLsizei)Data.CurrentHeight);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -95,7 +97,9 @@ DLLExport void EndSurface()
 {
 	IssueVertices();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, (GLsizei)Data.WindowWidth, (GLsizei)Data.WindowHeight);
+	Data.CurrentWidth = Data.WindowWidth;
+	Data.CurrentHeight = Data.WindowHeight;
+	glViewport(0, 0, (GLsizei)Data.CurrentWidth, (GLsizei)Data.CurrentHeight);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
