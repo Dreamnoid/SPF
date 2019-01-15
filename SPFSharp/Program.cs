@@ -11,14 +11,16 @@ namespace SPFSharp
         const int WindowWidth = 320;
         const int WindowHeight = 240;
 
-        const int SurfaceWidth = 320/2;
-        const int SurfaceHeight = 240/2;
+        const int SurfaceWidth = 320;
+        const int SurfaceHeight = 240;
 
         public static void Main()
         {
             SPF.Open("Test", WindowWidth, WindowHeight);
             var tex = SPF.GetTexture("D:/Test/test.png");
             var surface = SPF.CreateSurface(SurfaceWidth, SurfaceHeight);
+
+            var sound = Native.LoadSound("D:/Test/tada.wav");
 
             float x = 0, y = 0;
 
@@ -42,17 +44,23 @@ namespace SPFSharp
 					x += 100 * dt;
 				}
 
-				SPF.BeginSurface(surface);
+                if (SPF.IsKeyPressed(SPF.Key.Space))
+                {
+                    Native.PlaySound(sound);
+                }
 
-				SPF.FillRectangle(20, 20, 100, 100, 0.5f, 0.1f, 0.2f, 1f);
-				SPF.FillRectangle(110, 110, 50, 20, 0.2f, 0.8f, 0.2f, 1f);
-				SPF.DrawTexture(tex, (int)x, (int)y, 100, 100, 0, 0, tex.Width, tex.Height, false, false, 1, 1, 1, 0.5f);
+                SPF.BeginSurface(surface);
+
+				//SPF.FillRectangle(20, 20, 100, 100, 0.5f, 0.1f, 0.2f, 1f);
+				//SPF.FillRectangle(110, 110, 50, 20, 0.2f, 0.8f, 0.2f, 1f);
+				//SPF.DrawTexture(tex, (int)x, (int)y, 100, 100, 0, 0, tex.Width, tex.Height, false, false, 1, 1, 1, 0.5f);
 
 				SPF.EndSurface();
 				SPF.DrawTexture(surface.Texture, 0, 0, WindowWidth, WindowHeight, 0, 0, SurfaceWidth, SurfaceHeight, false, false, 1, 1, 1, 1);
 
 				SPF.EndLoop();
 			}
+            Native.DeleteSound(sound);
             SPF.Close();
         }
     }

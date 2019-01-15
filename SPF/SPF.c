@@ -34,6 +34,7 @@ DLLExport void Open(const char* title, int w, int h)
 
 	InitOpenGL4();
 	InitRenderer(w,h);
+	InitAudio();
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -84,6 +85,7 @@ DLLExport void EndLoop()
 
 DLLExport void Close()
 {
+	QuitAudio();
 	SDL_GL_DeleteContext(Data.OpenGLContext);
 	SDL_DestroyWindow(Data.Window);
 	SDL_Quit();

@@ -1,5 +1,6 @@
 #define TEXTURES_COUNT 200
 #define SURFACES_COUNT 20
+#define SOUNDS_COUNT 100
 
 typedef struct
 {
@@ -16,6 +17,15 @@ typedef struct
 #define MAX_SPRITES 2000
 #define VERTICES_PER_SPRITE 4
 #define VERTICES_COUNT MAX_SPRITES * VERTICES_PER_SPRITE
+
+typedef struct
+{
+	bool InUse;
+	SDL_AudioSpec Spec;
+	Uint8* Buffer;
+	Uint32 Length;
+} Sound;
+
 
 // All the data stored by the platform layer itself
 struct
@@ -58,6 +68,11 @@ struct
 
 	int CurrentWidth;
 	int CurrentHeight;
+
+	Sound Sounds[SOUNDS_COUNT];
+
+	SDL_AudioSpec SFXPlaybackSpecs;
+	SDL_AudioDeviceID SFXDevice;
 
 } Data;
 
