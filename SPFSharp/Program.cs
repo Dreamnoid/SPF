@@ -20,40 +20,46 @@ namespace SPFSharp
             var tex = SPF.GetTexture("D:/Test/test.png");
             var surface = SPF.CreateSurface(SurfaceWidth, SurfaceHeight);
 
-            var sound = Native.LoadSound("D:/Test/tada.wav");
+			//SPF.SetFullscreen(true);
+
+			var sound = Native.LoadSound("D:/Test/tada.wav");
 
             float x = 0, y = 0;
 
             float dt;
 			while (SPF.BeginLoop(out dt))
 			{
-				if (SPF.IsKeyDown(SPF.Key.Down))
+				if (SPF.IsKeyDown(SPF.Key.Down) || SPF.IsButtonDown(SPF.Button.DPadDown))
 				{
 					y += 100 * dt;
 				}
-				else if (SPF.IsKeyDown(SPF.Key.Up))
+				else if (SPF.IsKeyDown(SPF.Key.Up) || SPF.IsButtonDown(SPF.Button.DPadUp))
 				{
 					y -= 100 * dt;
 				}
-				if (SPF.IsKeyDown(SPF.Key.Left))
+				if (SPF.IsKeyDown(SPF.Key.Left) || SPF.IsButtonDown(SPF.Button.DPadLeft))
 				{
 					x -= 100 * dt;
 				}
-				else if (SPF.IsKeyDown(SPF.Key.Right))
+				else if (SPF.IsKeyDown(SPF.Key.Right) || SPF.IsButtonDown(SPF.Button.DPadRight))
 				{
 					x += 100 * dt;
 				}
 
-                if (SPF.IsKeyPressed(SPF.Key.Space))
+                if (SPF.IsKeyPressed(SPF.Key.Space) || SPF.IsButtonPressed(SPF.Button.A))
                 {
                     Native.PlaySound(sound);
                 }
+				if (SPF.IsKeyPressed(SPF.Key.Escape))
+				{
+					break;
+				}
 
-                SPF.BeginSurface(surface);
+				SPF.BeginSurface(surface);
 
-				//SPF.FillRectangle(20, 20, 100, 100, 0.5f, 0.1f, 0.2f, 1f);
-				//SPF.FillRectangle(110, 110, 50, 20, 0.2f, 0.8f, 0.2f, 1f);
-				//SPF.DrawTexture(tex, (int)x, (int)y, 100, 100, 0, 0, tex.Width, tex.Height, false, false, 1, 1, 1, 0.5f);
+				SPF.FillRectangle(20, 20, 100, 100, 0.5f, 0.1f, 0.2f, 1f);
+				SPF.FillRectangle(110, 110, 50, 20, 0.2f, 0.8f, 0.2f, 1f);
+				SPF.DrawTexture(tex, (int)x, (int)y, 100, 100, 0, 0, tex.Width, tex.Height, false, false, 1, 1, 1, 0.5f);
 
 				SPF.EndSurface();
 				SPF.DrawTexture(surface.Texture, 0, 0, WindowWidth, WindowHeight, 0, 0, SurfaceWidth, SurfaceHeight, false, false, 1, 1, 1, 1);

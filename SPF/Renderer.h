@@ -125,10 +125,14 @@ void InitRenderer(int w, int h)
 
 	glUseProgram(Data.Program);
 	glUniform1i(glGetUniformLocation(Data.Program, "Texture"), 0);
+
+	Data.FinalSurface = CreateSurface(w, h);
 }
 
 void IssueVertices()
 {
+	if (Data.BatchInfo.VertexCount == 0) return;
+
 	glBindBuffer(GL_ARRAY_BUFFER, Data.BatchVBOID);
 	glBufferData(GL_ARRAY_BUFFER, VERTICES_COUNT * sizeof(Vertex), &Data.Vertices, GL_STREAM_DRAW);
 

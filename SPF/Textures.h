@@ -96,11 +96,7 @@ DLLExport void BeginSurface(ResourceIndex surface)
 DLLExport void EndSurface()
 {
 	IssueVertices();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	Data.CurrentWidth = Data.WindowWidth;
-	Data.CurrentHeight = Data.WindowHeight;
-	glViewport(0, 0, (GLsizei)Data.CurrentWidth, (GLsizei)Data.CurrentHeight);
-	glClear(GL_COLOR_BUFFER_BIT);
+	BeginSurface(Data.FinalSurface);
 }
 
 DLLExport void DeleteSurface(ResourceIndex surface)

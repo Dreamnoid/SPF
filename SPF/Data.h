@@ -68,6 +68,7 @@ struct
 	GLuint BatchVBOID;
 	GLuint EmptyTexture;
 	GLuint Program;
+	ResourceIndex FinalSurface;
 
 	int CurrentWidth;
 	int CurrentHeight;

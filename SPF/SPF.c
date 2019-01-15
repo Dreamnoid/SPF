@@ -25,7 +25,7 @@ DLLExport void Open(const char* title, int w, int h)
 	Data.WindowWidth = w;
 	Data.WindowHeight = h;
 
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
 	Data.Window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL);
 	
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -35,6 +35,7 @@ DLLExport void Open(const char* title, int w, int h)
 	InitOpenGL4();
 	InitRenderer(w,h);
 	InitAudio();
+	SDL_GameControllerEventState(SDL_ENABLE);
 	InitInput();
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -89,12 +90,21 @@ DLLExport bool BeginLoop(float* dt)
 			}
 		}
 	}
-	glClear(GL_COLOR_BUFFER_BIT);
+	BeginSurface(Data.FinalSurface);
 	return 1;
 }
 
 DLLExport void EndLoop()
 {
+	IssueVertices();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	SDL_GetWindowSize(Data.Window, &Data.CurrentWidth, &Data.CurrentHeight);
+	glViewport(0, 0, (GLsizei)Data.CurrentWidth, (GLsizei)Data.CurrentHeight);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	DrawTexture(GetSurfaceTexture(Data.FinalSurface), 0, 0, Data.CurrentWidth, Data.CurrentHeight, 0, 0, Data.WindowWidth, Data.WindowHeight, 0, 0, 1, 1, 1, 1);
+
 	IssueVertices();
 	glFlush();
 	SDL_GL_SwapWindow(Data.Window);
