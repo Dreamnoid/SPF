@@ -85,5 +85,9 @@ namespace SPFSharp
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool IsButtonReleased(int button);
-    }
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void LoadArchive(string filename);
+
+	}
 }

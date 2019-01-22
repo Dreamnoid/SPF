@@ -16,17 +16,19 @@ namespace SPFSharp
 
         public static void Main()
         {
-            SPF.Open("Test", WindowWidth, WindowHeight);
-            var tex = SPF.GetTexture("D:/Test/test.png");
-            var surface = SPF.CreateSurface(SurfaceWidth, SurfaceHeight);
+			SPF.Open("Test", WindowWidth, WindowHeight);
+			SPF.LoadArchive("D:/Test/Test.zip");
 
-			//SPF.SetFullscreen(true);
+			var tex = SPF.GetTexture("test.png");
+			var surface = SPF.CreateSurface(SurfaceWidth, SurfaceHeight);
 
-			var sound = Native.LoadSound("D:/Test/tada.wav");
+			////SPF.SetFullscreen(true);
 
-            float x = 0, y = 0;
+			//var sound = Native.LoadSound("D:/Test/tada.wav");
 
-            float dt;
+			float x = 0, y = 0;
+
+			float dt;
 			while (SPF.BeginLoop(out dt))
 			{
 				if (SPF.IsKeyDown(SPF.Key.Down) || SPF.IsButtonDown(SPF.Button.DPadDown))
@@ -46,10 +48,10 @@ namespace SPFSharp
 					x += 100 * dt;
 				}
 
-                if (SPF.IsKeyPressed(SPF.Key.Space) || SPF.IsButtonPressed(SPF.Button.A))
-                {
-                    Native.PlaySound(sound);
-                }
+				if (SPF.IsKeyPressed(SPF.Key.Space) || SPF.IsButtonPressed(SPF.Button.A))
+				{
+					//Native.PlaySound(sound);
+				}
 				if (SPF.IsKeyPressed(SPF.Key.Escape))
 				{
 					break;
@@ -66,8 +68,8 @@ namespace SPFSharp
 
 				SPF.EndLoop();
 			}
-            Native.DeleteSound(sound);
-            SPF.Close();
-        }
+			//         Native.DeleteSound(sound);
+			SPF.Close();
+		}
     }
 }

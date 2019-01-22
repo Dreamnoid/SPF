@@ -190,5 +190,11 @@ namespace SPFSharp
         {
             return Native.IsButtonReleased((int)button);
         }
-    }
+
+		public static void LoadArchive(string filename)
+		{
+			Native.LoadArchive(filename);
+		}
+
+	}
 }

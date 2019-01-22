@@ -8,6 +8,8 @@
 #define STBI_ONLY_PNG
 #include "stb_image.h"
 
+#include "FS.h"
+
 #define DLLExport __declspec(dllexport)
 
 typedef unsigned int ResourceIndex;
@@ -21,6 +23,8 @@ typedef int bool;
 
 DLLExport void Open(const char* title, int w, int h)
 {
+	FS_Init();
+
 	InitData();
 	Data.WindowWidth = w;
 	Data.WindowHeight = h;
@@ -122,4 +126,9 @@ DLLExport void Close()
 DLLExport void SetFullscreen(bool fullscreen)
 {
 	SDL_SetWindowFullscreen(Data.Window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+}
+
+DLLExport void LoadArchive(const char* filename)
+{
+	FS_AddToSearchPath(filename);
 }
