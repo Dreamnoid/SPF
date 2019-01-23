@@ -17,6 +17,11 @@ namespace SPFSharp
 			_archives.Add(new ZipArchive(File.OpenRead(filename), ZipArchiveMode.Read, false));
 		}
 
+		public static string[] ListArchivedFiles()
+		{
+			return _archives.SelectMany(a => a.Entries).Select(e => e.FullName).ToArray();
+		}
+
 		public static byte[] Read(string filename)
 		{
 			if (File.Exists(filename))
@@ -26,7 +31,7 @@ namespace SPFSharp
 
 			foreach (var archive in _archives)
 			{
-				var entry = archive.GetEntry(filename);
+				var entry = archive.GetEntry(filename.Replace('\\', '/'));
 				if (entry != null)
 				{
 					using (var stream = entry.Open())

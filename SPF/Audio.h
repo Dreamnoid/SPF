@@ -48,6 +48,7 @@ DLLExport ResourceIndex LoadSound(unsigned char* buffer, int length)
 
 DLLExport void PlaySound(ResourceIndex sound)
 {
+	SDL_ClearQueuedAudio(Data.SFXDevice);
 	SDL_QueueAudio(Data.SFXDevice, Data.Sounds[sound].Buffer, Data.Sounds[sound].Length);
 }
 
