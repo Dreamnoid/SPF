@@ -11,12 +11,12 @@ void InitAudio()
 	SDL_PauseAudioDevice(Data.SFXDevice, 0);
 }
 
-DLLExport ResourceIndex LoadSound(const char* filename)
+DLLExport ResourceIndex LoadSound(unsigned char* buffer, int length)
 {
 	SDL_AudioSpec spec;
 	Uint32 wav_length;
 	Uint8 *wav_buffer;
-	SDL_LoadWAV(filename, &spec, &wav_buffer, &wav_length);
+	SDL_LoadWAV_RW(SDL_RWFromMem(buffer, length), 1, &spec, &wav_buffer, &wav_length);
 
 	// Convert the WAV file to our desired format
 	SDL_AudioCVT cvt;

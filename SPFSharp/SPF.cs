@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,6 +34,7 @@ namespace SPFSharp
 
 		public static void Close()
 		{
+			VirtualFileSystem.CloseAll();
 			foreach (var tex in _loadedTextures.Values)
 			{
 				Native.DeleteTexture(tex.ID);
@@ -49,7 +51,16 @@ namespace SPFSharp
 			if (_loadedTextures.ContainsKey(filename) == false)
 			{
                 var tex = new Texture();
-                tex.ID = Native.LoadTexture(filename);
+
+				var buffer = VirtualFileSystem.Read(filename);
+
+				var cbuffer = Marshal.AllocHGlobal(buffer.Length);
+				Marshal.Copy(buffer, 0, cbuffer, buffer.Length);
+
+                tex.ID = Native.LoadTexture(cbuffer, buffer.Length);
+
+				Marshal.FreeHGlobal(cbuffer);
+
                 tex.Width = Native.GetTextureWidth(tex.ID);
                 tex.Height = Native.GetTextureHeight(tex.ID);
                 _loadedTextures[filename] = tex;
@@ -149,7 +160,16 @@ namespace SPFSharp
             if (_loadedSounds.ContainsKey(filename) == false)
             {
                 var sound = new Sound();
-                sound.ID = Native.LoadSound(filename);
+
+				var buffer = VirtualFileSystem.Read(filename);
+
+				var cbuffer = Marshal.AllocHGlobal(buffer.Length);
+				Marshal.Copy(buffer, 0, cbuffer, buffer.Length);
+
+				sound.ID = Native.LoadSound(cbuffer, buffer.Length);
+
+				Marshal.FreeHGlobal(cbuffer);
+				
                 _loadedSounds[filename] = sound;
             }
             return _loadedSounds[filename];
@@ -191,10 +211,14 @@ namespace SPFSharp
             return Native.IsButtonReleased((int)button);
         }
 
-		public static void LoadArchive(string filename)
+		public static void AddArchive(string filename)
 		{
-			Native.LoadArchive(filename);
+			VirtualFileSystem.AddArchive(filename);
 		}
 
+		public static byte[] ReadFile(string filename)
+		{
+			return VirtualFileSystem.Read(filename);
+		}
 	}
 }

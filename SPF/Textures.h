@@ -29,17 +29,12 @@ ResourceIndex CreateTexture(int w, int h, GLvoid* pixels, bool flipped)
 	exit(1); // All slots used
 }
 
-DLLExport ResourceIndex LoadTexture(const char* filename)
+DLLExport ResourceIndex LoadTexture(unsigned char* buffer, int length)
 {
-	Buffer buffer = FS_LoadBuffer(filename);
-
 	int w, h, bpp;
-	stbi_uc* pixels = stbi_load_from_memory(buffer.Start, buffer.Length, &w, &h, &bpp, 4);
+	stbi_uc* pixels = stbi_load_from_memory(buffer, length, &w, &h, &bpp, 4);
 	ResourceIndex index = CreateTexture(w, h, (GLvoid*)pixels, 0);
-	
 	stbi_image_free((void*)pixels);
-	FS_FreeBuffer(&buffer);
-
 	return index;
 }
 

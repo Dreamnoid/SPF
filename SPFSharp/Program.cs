@@ -14,17 +14,16 @@ namespace SPFSharp
         const int SurfaceWidth = 320;
         const int SurfaceHeight = 240;
 
-        public static void Main()
-        {
+		public static void Main()
+		{
 			SPF.Open("Test", WindowWidth, WindowHeight);
-			SPF.LoadArchive("D:/Test/Test.zip");
+			SPF.AddArchive("D:/Test/Test.zip");
 
 			var tex = SPF.GetTexture("test.png");
 			var surface = SPF.CreateSurface(SurfaceWidth, SurfaceHeight);
 
 			////SPF.SetFullscreen(true);
-
-			//var sound = Native.LoadSound("D:/Test/tada.wav");
+			var sound = SPF.GetSound("tada.wav");
 
 			float x = 0, y = 0;
 
@@ -50,7 +49,7 @@ namespace SPFSharp
 
 				if (SPF.IsKeyPressed(SPF.Key.Space) || SPF.IsButtonPressed(SPF.Button.A))
 				{
-					//Native.PlaySound(sound);
+					SPF.PlaySound(sound);
 				}
 				if (SPF.IsKeyPressed(SPF.Key.Escape))
 				{
@@ -68,7 +67,6 @@ namespace SPFSharp
 
 				SPF.EndLoop();
 			}
-			//         Native.DeleteSound(sound);
 			SPF.Close();
 		}
     }

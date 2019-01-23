@@ -24,7 +24,7 @@ namespace SPFSharp
         public static extern void Close();
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern UInt32 LoadTexture(string filename);
+        public static extern UInt32 LoadTexture(IntPtr buffer, int length);
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void DeleteTexture(UInt32 texture);
@@ -66,7 +66,7 @@ namespace SPFSharp
         public static extern UInt32 GetSurfaceTexture(UInt32 surface);
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern UInt32 LoadSound(string filename);
+        public static extern UInt32 LoadSound(IntPtr buffer, int length);
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void PlaySound(UInt32 sound);
@@ -85,9 +85,6 @@ namespace SPFSharp
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool IsButtonReleased(int button);
-
-		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void LoadArchive(string filename);
 
 	}
 }
