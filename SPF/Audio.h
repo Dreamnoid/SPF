@@ -1,5 +1,42 @@
 #pragma once
 
+void AudioCallback(void *userdata, Uint8 *stream, int len)
+{
+	SDL_memset(stream, Data.SFXPlaybackSpecs.silence, len);
+
+	int playingChannels = 0;
+	for (int i = 0; i < CHANNELS_COUNT; ++i)
+	{
+		if (Data.Channels[i].CurrentSound)
+		{
+			playingChannels++;
+		}
+	}
+	
+	for (int i = 0; i < CHANNELS_COUNT; ++i)
+	{
+		Channel* channel = &Data.Channels[i];
+		if (channel->CurrentSound)
+		{
+			Uint8* start = channel->CurrentSound->Buffer + channel->Cursor;
+			int lengthRemaining = channel->CurrentSound->Length - channel->Cursor;
+
+			int playedLen = (len > lengthRemaining ? lengthRemaining : len); // TODO: if looping, Mix twice
+			SDL_MixAudioFormat(stream, start, Data.SFXPlaybackSpecs.format, playedLen, (int)((Data.Volume / (float)playingChannels) * SDL_MIX_MAXVOLUME));
+
+			channel->Cursor += playedLen;
+			if (channel->Cursor >= channel->CurrentSound->Length)
+			{
+				if (!channel->Looping)
+				{
+					channel->CurrentSound = NULL;
+				}
+				channel->Cursor = 0;
+			}
+		}
+	}
+}
+
 void InitAudio()
 {
 	SDL_memset(&Data.SFXPlaybackSpecs, 0, sizeof(Data.SFXPlaybackSpecs));
@@ -7,8 +44,14 @@ void InitAudio()
 	Data.SFXPlaybackSpecs.format = AUDIO_S16;
 	Data.SFXPlaybackSpecs.channels = 2;
 	Data.SFXPlaybackSpecs.samples = 4096;
+	Data.SFXPlaybackSpecs.callback = AudioCallback;
 	Data.SFXDevice = SDL_OpenAudioDevice(NULL, 0, &Data.SFXPlaybackSpecs, NULL, 0);
 	SDL_PauseAudioDevice(Data.SFXDevice, 0);
+	for (int i = 0; i < CHANNELS_COUNT; ++i)
+	{
+		Data.Channels[i].CurrentSound = NULL;
+		Data.Channels[i].Cursor = 0;
+	}
 }
 
 DLLExport ResourceIndex LoadSound(unsigned char* buffer, int length)
@@ -46,16 +89,43 @@ DLLExport ResourceIndex LoadSound(unsigned char* buffer, int length)
 	exit(1);
 }
 
-DLLExport void PlaySound(ResourceIndex sound)
+DLLExport int PlaySound(ResourceIndex sound, bool looping)
 {
-	SDL_ClearQueuedAudio(Data.SFXDevice);
-	SDL_QueueAudio(Data.SFXDevice, Data.Sounds[sound].Buffer, Data.Sounds[sound].Length);
+	for (int i = 0; i < CHANNELS_COUNT; ++i)
+	{
+		if(!Data.Channels[i].CurrentSound)
+		{
+			Data.Channels[i].CurrentSound = &Data.Sounds[sound];
+			Data.Channels[i].Cursor = 0;
+			Data.Channels[i].Looping = looping;
+			return i;
+		}
+	}
+	return -1;
+}
+
+
+DLLExport void StopChannel(int channel)
+{
+	Data.Channels[channel].CurrentSound = NULL;
+	Data.Channels[channel].Cursor = 0;
+	Data.Channels[channel].Looping = 0;
 }
 
 DLLExport void DeleteSound(ResourceIndex sound)
 {
 	SDL_FreeWAV(Data.Sounds[sound].Buffer);
 	Data.Sounds[sound].InUse = 0;
+}
+
+DLLExport float GetVolume()
+{
+	return Data.Volume;
+}
+
+DLLExport void SetVolume(float volume)
+{
+	Data.Volume = volume;
 }
 
 void QuitAudio()

@@ -177,7 +177,17 @@ namespace SPFSharp
 
 		public static void PlaySound(Sound sound)
 		{
-			Native.PlaySound(sound.ID);
+			Native.PlaySound(sound.ID, false);
+		}
+
+		public static int PlaySound(Sound sound, bool looping)
+		{
+			return Native.PlaySound(sound.ID, looping);
+		}
+
+		public static void StopChannel(int channel)
+		{
+			Native.StopChannel(channel);
 		}
 
 		public enum Button : int
@@ -224,6 +234,16 @@ namespace SPFSharp
 		public static string[] ListArchivedFiles()
 		{
 			return VirtualFileSystem.ListArchivedFiles();
+		}
+
+		public static float GetVolume()
+		{
+			return Native.GetVolume();
+		}
+
+		public static void SetVolume(float volume)
+		{
+			Native.SetVolume(volume);
 		}
 	}
 }

@@ -69,9 +69,12 @@ namespace SPFSharp
         public static extern UInt32 LoadSound(IntPtr buffer, int length);
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void PlaySound(UInt32 sound);
+        public static extern int PlaySound(UInt32 sound, bool looping);
 
-        [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void StopChannel(int channel);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void DeleteSound(UInt32 sound);
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
@@ -86,5 +89,10 @@ namespace SPFSharp
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool IsButtonReleased(int button);
 
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern float GetVolume();
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SetVolume(float volume);
 	}
 }

@@ -1,6 +1,7 @@
 #define TEXTURES_COUNT 200
 #define SURFACES_COUNT 20
 #define SOUNDS_COUNT 100
+#define CHANNELS_COUNT 4
 
 typedef struct
 {
@@ -25,6 +26,13 @@ typedef struct
 	Uint8* Buffer;
 	Uint32 Length;
 } Sound;
+
+typedef struct
+{
+	Sound* CurrentSound;
+	int Cursor;
+	bool Looping;
+} Channel;
 
 
 // All the data stored by the platform layer itself
@@ -77,6 +85,8 @@ struct
 
 	SDL_AudioSpec SFXPlaybackSpecs;
 	SDL_AudioDeviceID SFXDevice;
+	float Volume;
+	Channel Channels[CHANNELS_COUNT];
 
 	SDL_GameController* Controller;
 
@@ -85,4 +95,5 @@ struct
 void InitData()
 {
 	memset(&Data, 0, sizeof(Data));
+	Data.Volume = 1;
 }
