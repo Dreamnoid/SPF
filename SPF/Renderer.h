@@ -134,7 +134,7 @@ void IssueVertices()
 	if (Data.BatchInfo.VertexCount == 0) return;
 
 	glBindBuffer(GL_ARRAY_BUFFER, Data.BatchVBOID);
-	glBufferData(GL_ARRAY_BUFFER, VERTICES_COUNT * sizeof(Vertex), &Data.Vertices, GL_STREAM_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, VERTICES_COUNT * sizeof(Vertex), &Data.Vertices);
 
 	glActiveTexture2(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);
