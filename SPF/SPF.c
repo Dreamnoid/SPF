@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include <SDL_mixer.h>
 #include "gl4.h"
 
 #define STB_IMAGE_IMPLEMENTATION

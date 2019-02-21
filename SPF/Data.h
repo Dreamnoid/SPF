@@ -22,18 +22,8 @@ typedef struct
 typedef struct
 {
 	bool InUse;
-	SDL_AudioSpec Spec;
-	Uint8* Buffer;
-	Uint32 Length;
+	Mix_Chunk* Sample;
 } Sound;
-
-typedef struct
-{
-	Sound* CurrentSound;
-	int Cursor;
-	bool Looping;
-} Channel;
-
 
 // All the data stored by the platform layer itself
 struct
@@ -82,11 +72,7 @@ struct
 	int CurrentHeight;
 
 	Sound Sounds[SOUNDS_COUNT];
-
-	SDL_AudioSpec SFXPlaybackSpecs;
-	SDL_AudioDeviceID SFXDevice;
 	float Volume;
-	Channel Channels[CHANNELS_COUNT];
 
 	SDL_GameController* Controller;
 
