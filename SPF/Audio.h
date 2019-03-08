@@ -29,7 +29,7 @@ DLLExport ResourceIndex LoadSound(unsigned char* buffer, int length)
 DLLExport int PlaySound(ResourceIndex sound, bool looping)
 {
 	Mix_Chunk* sample = Data.Sounds[sound].Sample;
-	return Mix_PlayChannel(-1, sample, 0);
+	return Mix_PlayChannel(-1, sample, looping ? -1 : 0);
 }
 
 

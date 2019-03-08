@@ -7,7 +7,8 @@ typedef enum
 	Key_Right = 2,
 	Key_Left = 3,
 	Key_Space = 4,
-	Key_Escape = 5
+	Key_Escape = 5,
+	Key_Delete = 6
 } Key;
 
 SDL_Scancode TranslateKey(Key key)
@@ -20,6 +21,7 @@ SDL_Scancode TranslateKey(Key key)
 		case Key_Right: return SDL_SCANCODE_RIGHT;
 		case Key_Space: return SDL_SCANCODE_SPACE;
 		case Key_Escape: return SDL_SCANCODE_ESCAPE;
+		case Key_Delete: return SDL_SCANCODE_DELETE;
 		default: return SDL_SCANCODE_RETURN;
 	}
 }

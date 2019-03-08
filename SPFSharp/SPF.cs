@@ -105,7 +105,8 @@ namespace SPFSharp
 			Right = 2,
 			Left = 3,
 			Space = 4,
-			Escape = 5
+			Escape = 5,
+			Delete = 6
 		}
 
 		public class Surface
@@ -142,6 +143,17 @@ namespace SPFSharp
 		{
 			Native.DeleteTexture(Native.GetSurfaceTexture(surface.ID));
 			Native.DeleteSurface(surface.ID);
+		}
+
+		public enum BlendMode : int
+		{
+			Alpha = 0,
+			Additive = 1
+		}
+
+		public static void SetBlending(BlendMode blendMode)
+		{
+			Native.SetBlending((int)blendMode);
 		}
 
 		public static void SetFullscreen(bool fullscreen)

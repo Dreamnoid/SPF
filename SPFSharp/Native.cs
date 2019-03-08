@@ -65,7 +65,10 @@ namespace SPFSharp
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
         public static extern UInt32 GetSurfaceTexture(UInt32 surface);
 
-        [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SetBlending(int blendMode);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
         public static extern UInt32 LoadSound(IntPtr buffer, int length);
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]

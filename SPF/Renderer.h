@@ -216,3 +216,16 @@ DLLExport void DrawTexture(int tex, int x, int y, int w, int h, int srcx, int sr
 	PushVertex(id, x + w, y + h, u2, v2, r, g, b, a);
 	PushVertex(id, x, y + h, u1, v2, r, g, b, a);
 }
+
+DLLExport void SetBlending(int blendMode)
+{
+	IssueVertices();
+	if (blendMode == 0)
+	{
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	else if (blendMode == 1)
+	{
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	}
+}
