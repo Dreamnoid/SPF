@@ -83,6 +83,16 @@ namespace SPFSharp
 			Native.DrawTexture(tex.ID, x, y, w, h, clipx, clipy, clipw, cliph, flipx, flipy, r, g, b, a);
 		}
 
+		public static void DrawTexturedQuad(Texture tex, float Ax, float Ay, float Bx, float By, float Cx, float Cy, float Dx, float Dy, int srcx, int srcy, int srcw, int srch, bool flipX, bool flipY, float r, float g, float b, float a)
+		{
+			Native.DrawTexturedQuad(tex.ID, Ax, Ay, Bx, By, Cx, Cy, Dx, Dy, srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a);
+		}
+
+		public static void SetTextureFiltering(Texture texture, bool filtering)
+		{
+			Native.SetTextureFiltering(texture.ID, filtering);
+		}
+
 		public static bool IsKeyDown(Key key)
 		{
 			return Native.IsKeyDown((int)key);

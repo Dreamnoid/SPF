@@ -184,15 +184,18 @@ DLLExport void FillRectangle(int x, int y, int w, int h, float r, float g, float
 	PushVertex(Data.EmptyTexture, x, y+h, 0, 1, r, g, b, a);
 }
 
-DLLExport void DrawTexture(int tex, int x, int y, int w, int h, int srcx, int srcy, int srcw, int srch, bool flipX, bool flipY, float r, float g, float b, float a)
+DLLExport void DrawTexturedQuad(
+	int tex, 
+	float Ax, float Ay, float Bx, float By, float Cx, float Cy, float Dx, float Dy,
+	int srcx, int srcy, int srcw, int srch, bool flipX, bool flipY, float r, float g, float b, float a)
 {
 	unsigned int id = Data.Textures[tex].GLID;
 	int texW = Data.Textures[tex].Width;
 	int texH = Data.Textures[tex].Height;
 	float u1 = srcx / (float)texW;
-	float u2 = (srcx+srcw) / (float)texW;
+	float u2 = (srcx + srcw) / (float)texW;
 	float v1 = srcy / (float)texH;
-	float v2 = (srcy+srch) / (float)texH;
+	float v2 = (srcy + srch) / (float)texH;
 	if (flipX)
 	{
 		float t = u1;
@@ -211,10 +214,20 @@ DLLExport void DrawTexture(int tex, int x, int y, int w, int h, int srcx, int sr
 		v1 = v2;
 		v2 = t;
 	}
-	PushVertex(id, x, y, u1, v1, r, g, b, a);
-	PushVertex(id, x + w, y, u2, v1, r, g, b, a);
-	PushVertex(id, x + w, y + h, u2, v2, r, g, b, a);
-	PushVertex(id, x, y + h, u1, v2, r, g, b, a);
+	PushVertex(id, Ax, Ay, u1, v1, r, g, b, a);
+	PushVertex(id, Bx, By, u2, v1, r, g, b, a);
+	PushVertex(id, Cx, Cy, u2, v2, r, g, b, a);
+	PushVertex(id, Dx, Dy, u1, v2, r, g, b, a);
+}
+
+DLLExport void DrawTexture(int tex, int x, int y, int w, int h, int srcx, int srcy, int srcw, int srch, bool flipX, bool flipY, float r, float g, float b, float a)
+{
+	DrawTexturedQuad(tex,
+		x, y,
+		x + w, y,
+		x + w, y + h,
+		x, y + h,
+		srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a);
 }
 
 DLLExport void SetBlending(int blendMode)
@@ -222,7 +235,7 @@ DLLExport void SetBlending(int blendMode)
 	IssueVertices();
 	if (blendMode == 0)
 	{
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	}
 	else if (blendMode == 1)
 	{
