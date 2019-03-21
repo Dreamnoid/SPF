@@ -8,7 +8,10 @@ typedef enum
 	Key_Left = 3,
 	Key_Space = 4,
 	Key_Escape = 5,
-	Key_Delete = 6
+	Key_Delete = 6,
+	Key_Z = 7,
+	Key_X = 8,
+	Key_C = 9,
 } Key;
 
 SDL_Scancode TranslateKey(Key key)
@@ -22,6 +25,9 @@ SDL_Scancode TranslateKey(Key key)
 		case Key_Space: return SDL_SCANCODE_SPACE;
 		case Key_Escape: return SDL_SCANCODE_ESCAPE;
 		case Key_Delete: return SDL_SCANCODE_DELETE;
+		case Key_Z: return SDL_SCANCODE_Z;
+		case Key_X: return SDL_SCANCODE_X;
+		case Key_C: return SDL_SCANCODE_C;
 		default: return SDL_SCANCODE_RETURN;
 	}
 }
@@ -107,6 +113,11 @@ SDL_GameControllerButton TranslateButton(Button button)
 	case Button_RightShoulder: return SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
 	default: return SDL_CONTROLLER_BUTTON_A;
 	}
+}
+
+DLLExport bool IsControllerConnected()
+{
+	return Data.Controller;
 }
 
 DLLExport bool IsButtonDown(Button button)

@@ -103,5 +103,8 @@ namespace SPFSharp
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SetVolume(float volume);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool IsControllerConnected();
 	}
 }

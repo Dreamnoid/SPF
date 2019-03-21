@@ -116,7 +116,10 @@ namespace SPFSharp
 			Left = 3,
 			Space = 4,
 			Escape = 5,
-			Delete = 6
+			Delete = 6,
+			Z = 7,
+			X = 8,
+			C = 9
 		}
 
 		public class Surface
@@ -266,6 +269,11 @@ namespace SPFSharp
 		public static void SetVolume(float volume)
 		{
 			Native.SetVolume(volume);
+		}
+
+		public static bool IsControllerConnected()
+		{
+			return Native.IsControllerConnected();
 		}
 	}
 }
