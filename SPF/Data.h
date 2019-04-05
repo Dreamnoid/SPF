@@ -13,6 +13,10 @@ typedef struct
 	float G;
 	float B;
 	float A;
+	float OverlayR;
+	float OverlayG;
+	float OverlayB;
+	float OverlayA;
 } Vertex;
 
 #define MAX_SPRITES 2000

@@ -75,17 +75,36 @@ namespace SPFSharp
 
 		public static void DrawTexture(Texture tex, int x, int y)
 		{
-			Native.DrawTexture(tex.ID, x, y, tex.Width, tex.Height, 0, 0, tex.Width, tex.Height, false, false, 1, 1, 1, 1);
+			Native.DrawTexture(tex.ID, x, y, tex.Width, tex.Height, 0, 0, tex.Width, tex.Height, false, false, 1, 1, 1, 1, 0, 0, 0, 0);
 		}
 
-		public static void DrawTexture(Texture tex, int x, int y, int w, int h, int clipx, int clipy, int clipw, int cliph, bool flipx, bool flipy, float r, float g, float b, float a)
+		public static void DrawTexture(Texture tex,
+			int x, int y, int w, int h,
+			int clipx, int clipy, int clipw, int cliph,
+			bool flipx, bool flipy,
+			float r, float g, float b, float a)
 		{
-			Native.DrawTexture(tex.ID, x, y, w, h, clipx, clipy, clipw, cliph, flipx, flipy, r, g, b, a);
+			Native.DrawTexture(tex.ID, x, y, w, h, clipx, clipy, clipw, cliph, flipx, flipy, r, g, b, a, 0, 0, 0, 0);
 		}
 
-		public static void DrawTexturedQuad(Texture tex, float Ax, float Ay, float Bx, float By, float Cx, float Cy, float Dx, float Dy, int srcx, int srcy, int srcw, int srch, bool flipX, bool flipY, float r, float g, float b, float a)
+		public static void DrawTexture(Texture tex, 
+			int x, int y, int w, int h, 
+			int clipx, int clipy, int clipw, int cliph, 
+			bool flipx, bool flipy, 
+			float r, float g, float b, float a,
+			float overlayR, float overlayG, float overlayB, float overlayA)
 		{
-			Native.DrawTexturedQuad(tex.ID, Ax, Ay, Bx, By, Cx, Cy, Dx, Dy, srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a);
+			Native.DrawTexture(tex.ID, x, y, w, h, clipx, clipy, clipw, cliph, flipx, flipy, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+		}
+
+		public static void DrawTexturedQuad(Texture tex, 
+			float Ax, float Ay, float Bx, float By, float Cx, float Cy, float Dx, float Dy, 
+			int srcx, int srcy, int srcw, int srch, 
+			bool flipX, bool flipY, 
+			float r, float g, float b, float a,
+			float overlayR, float overlayG, float overlayB, float overlayA)
+		{
+			Native.DrawTexturedQuad(tex.ID, Ax, Ay, Bx, By, Cx, Cy, Dx, Dy, srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 		}
 
 		public static void SetTextureFiltering(Texture texture, bool filtering)

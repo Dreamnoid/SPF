@@ -98,29 +98,33 @@ void InitRenderer(int w, int h)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
 
 	Data.Program = CompileShader("#version 330 core\n"
-		"layout (location = 0) in vec2 position;\n"
-		"layout (location = 1) in vec2 uv;\n"
-		"layout (location = 2) in vec4 color;\n"
+		"layout (location = 0) in vec2 in_Position;\n"
+		"layout (location = 1) in vec2 in_UV;\n"
+		"layout (location = 2) in vec4 in_Color;\n"
+		"layout (location = 3) in vec4 in_OverlayColor;\n"
 		"uniform mat4 MVP;\n"
-		"out vec2 tex_uv;\n"
-		"out vec4 tex_color;\n"
+		"out vec2 share_UV;\n"
+		"out vec4 share_Color;\n"
+		"out vec4 share_OverlayColor;\n"
 		"void main()\n"
 		"{\n"
-		"	gl_Position = MVP * vec4(position,0.0,1.0);\n"
-		"   tex_uv = uv;\n"
-		"	tex_color = color;\n"
+		"	gl_Position = MVP * vec4(in_Position,0.0,1.0);\n"
+		"   share_UV = in_UV;\n"
+		"	share_Color = in_Color;\n"
+		"	share_OverlayColor = in_OverlayColor;\n"
 		"}\n"
 		,
 		"#version 330 core\n"
 		"uniform sampler2D Texture;\n"
-		"in vec2 tex_uv;\n"
-		"in vec4 tex_color;\n"
-		"out vec4 out_color;\n"
+		"in vec2 share_UV;\n"
+		"in vec4 share_Color;\n"
+		"in vec4 share_OverlayColor;\n"
+		"out vec4 out_Color;\n"
 		"void main()\n"
 		"{\n"
-		"	vec4 texColor = texture2D(Texture, tex_uv);\n"
+		"	vec4 texColor = texture2D(Texture, share_UV) * share_Color;\n"
 		"	if (texColor.a <= 0) discard;\n"
-		"	out_color = texColor * tex_color;\n"
+		"	out_Color = mix(texColor, vec4(share_OverlayColor.rgb, texColor.a), share_OverlayColor.a);\n"
 		"}\n");
 
 	glUseProgram(Data.Program);
@@ -148,16 +152,20 @@ void IssueVertices()
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0));
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(8));
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(16));
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(2 * sizeof(float)));
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(4 * sizeof(float)));
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(8 * sizeof(float)));
 
 	glDrawArrays(GL_QUADS, 0, Data.BatchInfo.VertexCount);
 	memset(&Data.BatchInfo, 0, sizeof(Data.BatchInfo));
 }
 
-void PushVertex(GLuint texture, int x, int y, float u, float v, float r, float g, float b, float a)
+void PushVertex(GLuint texture, int x, int y, float u, float v,
+	float r, float g, float b, float a,
+	float overlayR, float overlayG, float overlayB, float overlayA)
 {
 	if (Data.BatchInfo.VertexCount == VERTICES_COUNT || texture != Data.BatchInfo.CurrentTexture)
 	{
@@ -173,21 +181,28 @@ void PushVertex(GLuint texture, int x, int y, float u, float v, float r, float g
 	vertex->G = g;
 	vertex->B = b;
 	vertex->A = a;
+	vertex->OverlayR = overlayR;
+	vertex->OverlayG = overlayG;
+	vertex->OverlayB = overlayB;
+	vertex->OverlayA = overlayA;
 	Data.BatchInfo.VertexCount++;
 }
 
 DLLExport void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a)
 {
-	PushVertex(Data.EmptyTexture, x, y, 0, 0, r, g, b, a);
-	PushVertex(Data.EmptyTexture, x+w, y,1, 0, r, g, b, a);
-	PushVertex(Data.EmptyTexture, x+w, y+h, 1, 1, r, g, b, a);
-	PushVertex(Data.EmptyTexture, x, y+h, 0, 1, r, g, b, a);
+	PushVertex(Data.EmptyTexture, x, y, 0, 0, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
+	PushVertex(Data.EmptyTexture, x + w, y, 1, 0, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
+	PushVertex(Data.EmptyTexture, x + w, y + h, 1, 1, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
+	PushVertex(Data.EmptyTexture, x, y + h, 0, 1, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
 }
 
 DLLExport void DrawTexturedQuad(
 	int tex, 
 	float Ax, float Ay, float Bx, float By, float Cx, float Cy, float Dx, float Dy,
-	int srcx, int srcy, int srcw, int srch, bool flipX, bool flipY, float r, float g, float b, float a)
+	int srcx, int srcy, int srcw, int srch, 
+	bool flipX, bool flipY, 
+	float r, float g, float b, float a,
+	float overlayR, float overlayG, float overlayB, float overlayA)
 {
 	unsigned int id = Data.Textures[tex].GLID;
 	int texW = Data.Textures[tex].Width;
@@ -214,20 +229,28 @@ DLLExport void DrawTexturedQuad(
 		v1 = v2;
 		v2 = t;
 	}
-	PushVertex(id, Ax, Ay, u1, v1, r, g, b, a);
-	PushVertex(id, Bx, By, u2, v1, r, g, b, a);
-	PushVertex(id, Cx, Cy, u2, v2, r, g, b, a);
-	PushVertex(id, Dx, Dy, u1, v2, r, g, b, a);
+	PushVertex(id, Ax, Ay, u1, v1, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+	PushVertex(id, Bx, By, u2, v1, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+	PushVertex(id, Cx, Cy, u2, v2, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+	PushVertex(id, Dx, Dy, u1, v2, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 }
 
-DLLExport void DrawTexture(int tex, int x, int y, int w, int h, int srcx, int srcy, int srcw, int srch, bool flipX, bool flipY, float r, float g, float b, float a)
+DLLExport void DrawTexture(int tex,
+	int x, int y, int w, int h, 
+	int srcx, int srcy, int srcw, int srch, 
+	bool flipX, bool flipY, 
+	float r, float g, float b, float a,
+	float overlayR, float overlayG, float overlayB, float overlayA)
 {
 	DrawTexturedQuad(tex,
 		x, y,
 		x + w, y,
 		x + w, y + h,
 		x, y + h,
-		srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a);
+		srcx, srcy, srcw, srch,
+		flipX, flipY, 
+		r, g, b, a, 
+		overlayR, overlayG, overlayB, overlayA);
 }
 
 DLLExport void SetBlending(int blendMode)

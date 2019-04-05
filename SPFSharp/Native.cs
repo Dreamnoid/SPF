@@ -39,10 +39,20 @@ namespace SPFSharp
         public static extern void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a);
 
         [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void DrawTexture(UInt32 tex, int x, int y, int w, int h, int srcx, int srcy, int srcw, int srch, bool flipx, bool flipy, float r, float g, float b, float a);
+        public static extern void DrawTexture(UInt32 tex, 
+			int x, int y, int w, int h,
+			int srcx, int srcy, int srcw, int srch, 
+			bool flipx, bool flipy, 
+			float r, float g, float b, float a,
+			float overlayR, float overlayG, float overlayB, float overlayA);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void DrawTexturedQuad(UInt32 tex, float Ax, float Ay, float Bx, float By, float Cx, float Cy, float Dx, float Dy, int srcx, int srcy, int srcw, int srch, bool flipX, bool flipY, float r, float g, float b, float a);
+		public static extern void DrawTexturedQuad(UInt32 tex, 
+			float Ax, float Ay, float Bx, float By, float Cx, float Cy, float Dx, float Dy, 
+			int srcx, int srcy, int srcw, int srch, 
+			bool flipX, bool flipY, 
+			float r, float g, float b, float a,
+			float overlayR, float overlayG, float overlayB, float overlayA);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SetTextureFiltering(UInt32 texture, bool filtering);

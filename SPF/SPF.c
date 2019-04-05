@@ -104,7 +104,7 @@ DLLExport void EndLoop()
 	glViewport(0, 0, (GLsizei)Data.CurrentWidth, (GLsizei)Data.CurrentHeight);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	DrawTexture(GetSurfaceTexture(Data.FinalSurface), 0, 0, Data.CurrentWidth, Data.CurrentHeight, 0, 0, Data.WindowWidth, Data.WindowHeight, 0, 0, 1, 1, 1, 1);
+	DrawTexture(GetSurfaceTexture(Data.FinalSurface), 0, 0, Data.CurrentWidth, Data.CurrentHeight, 0, 0, Data.WindowWidth, Data.WindowHeight, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0);
 
 	IssueVertices();
 	glFlush();
