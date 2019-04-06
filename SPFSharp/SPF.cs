@@ -9,13 +9,42 @@ namespace SPFSharp
 {
 	public static class SPF
 	{
-		public class Texture
+		public class Texture : IDisposable
 		{
-			public UInt32 ID;
-			public int Width;
-			public int Height;
+			public UInt32 ID { get; private set; }
+			public int Width { get; private set; }
+			public int Height { get; private set; }
+
+			internal Texture(UInt32 id, int w, int h)
+			{
+				ID = id;
+				Width = w;
+				Height = h;
+			}
+
+			public Texture(byte[] buffer)
+			{
+				var cbuffer = Marshal.AllocHGlobal(buffer.Length);
+				Marshal.Copy(buffer, 0, cbuffer, buffer.Length);
+
+				ID = Native.LoadTexture(cbuffer, buffer.Length);
+
+				Marshal.FreeHGlobal(cbuffer);
+
+				Width = Native.GetTextureWidth(ID);
+				Height = Native.GetTextureHeight(ID);
+			}
+
+			public void Dispose()
+			{
+				Native.DeleteTexture(ID);
+			}
+
+			public void SetFiltering(bool filtering)
+			{
+				Native.SetTextureFiltering(ID, filtering);
+			}
 		}
-		private static Dictionary<string, Texture> _loadedTextures = new Dictionary<string, Texture>();
 
 		public static void Open(string title, int w, int h)
 		{
@@ -35,38 +64,9 @@ namespace SPFSharp
 		public static void Close()
 		{
 			VirtualFileSystem.CloseAll();
-			foreach (var tex in _loadedTextures.Values)
-			{
-				Native.DeleteTexture(tex.ID);
-			}
-			foreach (var sound in _loadedSounds.Values)
-			{
-				Native.DeleteSound(sound.ID);
-			}
 			Native.Close();
 		}
 
-		public static Texture GetTexture(string filename)
-		{
-			if (_loadedTextures.ContainsKey(filename) == false)
-			{
-				var tex = new Texture();
-
-				var buffer = VirtualFileSystem.Read(filename);
-
-				var cbuffer = Marshal.AllocHGlobal(buffer.Length);
-				Marshal.Copy(buffer, 0, cbuffer, buffer.Length);
-
-				tex.ID = Native.LoadTexture(cbuffer, buffer.Length);
-
-				Marshal.FreeHGlobal(cbuffer);
-
-				tex.Width = Native.GetTextureWidth(tex.ID);
-				tex.Height = Native.GetTextureHeight(tex.ID);
-				_loadedTextures[filename] = tex;
-			}
-			return _loadedTextures[filename];
-		}
 
 		public static void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a)
 		{
@@ -107,11 +107,6 @@ namespace SPFSharp
 			Native.DrawTexturedQuad(tex.ID, Ax, Ay, Bx, By, Cx, Cy, Dx, Dy, srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 		}
 
-		public static void SetTextureFiltering(Texture texture, bool filtering)
-		{
-			Native.SetTextureFiltering(texture.ID, filtering);
-		}
-
 		public static bool IsKeyDown(Key key)
 		{
 			return Native.IsKeyDown((int)key);
@@ -141,40 +136,36 @@ namespace SPFSharp
 			C = 9
 		}
 
-		public class Surface
+		public class Surface : IDisposable
 		{
-			public UInt32 ID;
-			public Texture Texture;
-			public int Width;
-			public int Height;
-		}
+			public UInt32 ID { get; private set; }
+			public Texture Texture { get; private set; }
+			public int Width { get; private set; }
+			public int Height { get; private set; }
 
-		public static Surface CreateSurface(int w, int h)
-		{
-			var id = Native.CreateSurface(w, h);
-			return new Surface()
+			public Surface(int w, int h)
 			{
-				ID = id,
-				Texture = new Texture() { ID = Native.GetSurfaceTexture(id), Width = w, Height = h },
-				Width = w,
-				Height = h
-			};
-		}
+				ID = Native.CreateSurface(w, h);
+				Texture = new Texture(Native.GetSurfaceTexture(ID), w, h);
+				Width = w;
+				Height = h;
+			}
+			
+			public void Dispose()
+			{
+				Native.DeleteTexture(Native.GetSurfaceTexture(ID));
+				Native.DeleteSurface(ID);
+			}
 
-		public static void BeginSurface(Surface surface)
-		{
-			Native.BeginSurface(surface.ID);
-		}
+			public void Begin()
+			{
+				Native.BeginSurface(ID);
+			}
 
-		public static void EndSurface()
-		{
-			Native.EndSurface();
-		}
-
-		public static void DeleteSurface(Surface surface)
-		{
-			Native.DeleteTexture(Native.GetSurfaceTexture(surface.ID));
-			Native.DeleteSurface(surface.ID);
+			public void End()
+			{
+				Native.EndSurface();
+			}
 		}
 
 		public enum BlendMode : int
@@ -193,40 +184,29 @@ namespace SPFSharp
 			Native.SetFullscreen(fullscreen);
 		}
 
-		public class Sound
+		public class Sound : IDisposable
 		{
-			public UInt32 ID;
-		}
-		private static Dictionary<string, Sound> _loadedSounds = new Dictionary<string, Sound>();
+			public UInt32 ID { get; private set; }
 
-		public static Sound GetSound(string filename)
-		{
-			if (_loadedSounds.ContainsKey(filename) == false)
+			public Sound(byte[] buffer)
 			{
-				var sound = new Sound();
-
-				var buffer = VirtualFileSystem.Read(filename);
-
 				var cbuffer = Marshal.AllocHGlobal(buffer.Length);
 				Marshal.Copy(buffer, 0, cbuffer, buffer.Length);
 
-				sound.ID = Native.LoadSound(cbuffer, buffer.Length);
+				ID = Native.LoadSound(cbuffer, buffer.Length);
 
 				Marshal.FreeHGlobal(cbuffer);
-
-				_loadedSounds[filename] = sound;
 			}
-			return _loadedSounds[filename];
-		}
 
-		public static void PlaySound(Sound sound)
-		{
-			Native.PlaySound(sound.ID, false);
-		}
+			public void Dispose()
+			{
+				Native.DeleteSound(ID);
+			}
 
-		public static int PlaySound(Sound sound, bool looping)
-		{
-			return Native.PlaySound(sound.ID, looping);
+			public int Play(bool looping = false)
+			{
+				return Native.PlaySound(ID, looping);
+			}
 		}
 
 		public static void StopChannel(int channel)
@@ -297,9 +277,9 @@ namespace SPFSharp
 
 		public class Image : IDisposable
 		{
-			public UInt32 ID;
-			public int Width;
-			public int Height;
+			public UInt32 ID { get; private set; }
+			public int Width { get; private set; }
+			public int Height { get; private set; }
 
 			public Image(byte[] buffer)
 			{
