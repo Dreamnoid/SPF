@@ -1,4 +1,5 @@
 #define TEXTURES_COUNT 200
+#define IMAGES_COUNT 20
 #define SURFACES_COUNT 20
 #define SOUNDS_COUNT 100
 #define CHANNELS_COUNT 4
@@ -40,6 +41,14 @@ struct
 		unsigned int Height;
 		bool Flipped;
 	} Textures[TEXTURES_COUNT];
+
+	struct
+	{
+		bool InUse;
+		void* Pixels;
+		unsigned int Width;
+		unsigned int Height;
+	} Images[IMAGES_COUNT];
 
 	struct
 	{

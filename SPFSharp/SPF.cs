@@ -87,20 +87,20 @@ namespace SPFSharp
 			Native.DrawTexture(tex.ID, x, y, w, h, clipx, clipy, clipw, cliph, flipx, flipy, r, g, b, a, 0, 0, 0, 0);
 		}
 
-		public static void DrawTexture(Texture tex, 
-			int x, int y, int w, int h, 
-			int clipx, int clipy, int clipw, int cliph, 
-			bool flipx, bool flipy, 
+		public static void DrawTexture(Texture tex,
+			int x, int y, int w, int h,
+			int clipx, int clipy, int clipw, int cliph,
+			bool flipx, bool flipy,
 			float r, float g, float b, float a,
 			float overlayR, float overlayG, float overlayB, float overlayA)
 		{
 			Native.DrawTexture(tex.ID, x, y, w, h, clipx, clipy, clipw, cliph, flipx, flipy, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 		}
 
-		public static void DrawTexturedQuad(Texture tex, 
-			float Ax, float Ay, float Bx, float By, float Cx, float Cy, float Dx, float Dy, 
-			int srcx, int srcy, int srcw, int srch, 
-			bool flipX, bool flipY, 
+		public static void DrawTexturedQuad(Texture tex,
+			float Ax, float Ay, float Bx, float By, float Cx, float Cy, float Dx, float Dy,
+			int srcx, int srcy, int srcw, int srch,
+			bool flipX, bool flipY,
 			float r, float g, float b, float a,
 			float overlayR, float overlayG, float overlayB, float overlayA)
 		{
@@ -294,5 +294,45 @@ namespace SPFSharp
 		{
 			return Native.IsControllerConnected();
 		}
+
+		public class Image : IDisposable
+		{
+			public UInt32 ID;
+			public int Width;
+			public int Height;
+
+			public Image(byte[] buffer)
+			{
+				var cbuffer = Marshal.AllocHGlobal(buffer.Length);
+				Marshal.Copy(buffer, 0, cbuffer, buffer.Length);
+				ID = Native.LoadImage(cbuffer, buffer.Length);
+				Marshal.FreeHGlobal(cbuffer);
+
+				Width = Native.GetImageWidth(ID);
+				Height = Native.GetImageHeight(ID);
+			}
+
+			public struct RGBA
+			{
+				public byte R, G, B, A;
+			}
+			public RGBA GetPixel(int x, int y)
+			{
+				if (x < 0 || y < 0 || x >= Width || y >= Height) return new RGBA();
+
+				UInt32 pixel = Native.GetImagePixel(ID, x, y);
+				byte r = (byte)((pixel & 0xFF000000) >> 24);
+				byte g = (byte)((pixel & 0x00FF0000) >> 16);
+				byte b = (byte)((pixel & 0x0000FF00) >> 8);
+				byte a = (byte)(pixel & 0x0000000FF);
+				return new RGBA() { R = r, G = g, B = b, A = a };
+			}
+
+			public void Dispose()
+			{
+				Native.DeleteImage(ID);
+			}
+		}
+
 	}
 }

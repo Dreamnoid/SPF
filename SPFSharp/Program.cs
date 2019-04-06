@@ -17,56 +17,15 @@ namespace SPFSharp
 		public static void Main()
 		{
 			SPF.Open("Test", WindowWidth, WindowHeight);
-			SPF.AddArchive("D:/Test/Test.zip");
 
-			var tex = SPF.GetTexture("test.png");
-			var surface = SPF.CreateSurface(SurfaceWidth, SurfaceHeight);
-
-			////SPF.SetFullscreen(true);
-			var sound = SPF.GetSound("tada.wav");
-
-			float x = 0, y = 0;
-
-			float dt;
-			while (SPF.BeginLoop(out dt))
+			using (var img = new SPF.Image(System.IO.File.ReadAllBytes("test.png")))
 			{
-				if (SPF.IsKeyDown(SPF.Key.Down) || SPF.IsButtonDown(SPF.Button.DPadDown))
-				{
-					y += 100 * dt;
-				}
-				else if (SPF.IsKeyDown(SPF.Key.Up) || SPF.IsButtonDown(SPF.Button.DPadUp))
-				{
-					y -= 100 * dt;
-				}
-				if (SPF.IsKeyDown(SPF.Key.Left) || SPF.IsButtonDown(SPF.Button.DPadLeft))
-				{
-					x -= 100 * dt;
-				}
-				else if (SPF.IsKeyDown(SPF.Key.Right) || SPF.IsButtonDown(SPF.Button.DPadRight))
-				{
-					x += 100 * dt;
-				}
-
-				if (SPF.IsKeyPressed(SPF.Key.Space) || SPF.IsButtonPressed(SPF.Button.A))
-				{
-					SPF.PlaySound(sound);
-				}
-				if (SPF.IsKeyPressed(SPF.Key.Escape))
-				{
-					break;
-				}
-
-				SPF.BeginSurface(surface);
-
-				SPF.FillRectangle(20, 20, 100, 100, 0.5f, 0.1f, 0.2f, 1f);
-				SPF.FillRectangle(110, 110, 50, 20, 0.2f, 0.8f, 0.2f, 1f);
-				SPF.DrawTexture(tex, (int)x, (int)y, 100, 100, 0, 0, tex.Width, tex.Height, false, false, 1, 1, 1, 0.5f);
-
-				SPF.EndSurface();
-				SPF.DrawTexture(surface.Texture, 0, 0, WindowWidth, WindowHeight, 0, 0, SurfaceWidth, SurfaceHeight, false, false, 1, 1, 1, 1);
-
-				SPF.EndLoop();
+				var rgba = img.GetPixel(93, 45);
+				var pixel = Native.GetImagePixel(img.ID, 93, 45);
+				Console.WriteLine(pixel + " = " + rgba.R + ";" + rgba.G + ";" + rgba.B + ";" + rgba.A);
 			}
+			Console.ReadKey();
+
 			SPF.Close();
 		}
     }

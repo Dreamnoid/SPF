@@ -116,5 +116,20 @@ namespace SPFSharp
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern bool IsControllerConnected();
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern UInt32 LoadImage(IntPtr buffer, int length);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void DeleteImage(UInt32 image);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern int GetImageWidth(UInt32 image);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern int GetImageHeight(UInt32 image);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern UInt32 GetImagePixel(UInt32 image, int x, int y);
 	}
 }

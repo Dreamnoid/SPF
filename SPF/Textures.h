@@ -126,3 +126,51 @@ DLLExport ResourceIndex GetSurfaceTexture(ResourceIndex surface)
 {
 	return Data.Surfaces[surface].Texture;
 }
+
+#undef LoadImage
+DLLExport ResourceIndex LoadImage(unsigned char* buffer, int length)
+{
+	int w, h, bpp;
+	stbi_uc* pixels = stbi_load_from_memory(buffer, length, &w, &h, &bpp, 4);
+
+	ResourceIndex imgID = 0;
+	for (ResourceIndex texID = 0; imgID < IMAGES_COUNT; ++imgID)
+	{
+		if (!Data.Images[imgID].InUse)
+		{
+			Data.Images[imgID].Width = w;
+			Data.Images[imgID].Height = h;
+			Data.Images[imgID].InUse = 1;
+			Data.Images[imgID].Pixels = pixels;
+			return imgID;
+		}
+	}
+	exit(1); // All slots used
+}
+
+DLLExport void DeleteImage(ResourceIndex image)
+{
+	stbi_image_free(Data.Images[image].Pixels);
+	Data.Images[image].InUse = 0;
+}
+
+DLLExport int GetImageWidth(ResourceIndex image)
+{
+	return Data.Images[image].Width;
+}
+
+DLLExport int GetImageHeight(ResourceIndex image)
+{
+	return Data.Images[image].Height;
+}
+
+DLLExport unsigned int GetImagePixel(ResourceIndex image, int x, int y)
+{
+	int index = (y * Data.Images[image].Width + x) * 4;
+	stbi_uc* pixels = Data.Images[image].Pixels;
+	unsigned int r = pixels[index + 0];
+	unsigned int g = pixels[index + 1];
+	unsigned int b = pixels[index + 2];
+	unsigned int a = pixels[index + 3];
+	return (r << 24) | (g << 16) | (b << 8) | a;
+}
