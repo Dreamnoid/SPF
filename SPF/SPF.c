@@ -124,3 +124,13 @@ DLLExport void SetFullscreen(bool fullscreen)
 {
 	SDL_SetWindowFullscreen(Data.Window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 }
+
+DLLExport int GetWindowWidth()
+{
+	return Data.CurrentWidth;
+}
+
+DLLExport int GetWindowHeight()
+{
+	return Data.CurrentHeight;
+}

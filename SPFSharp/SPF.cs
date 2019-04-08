@@ -184,6 +184,16 @@ namespace SPFSharp
 			Native.SetFullscreen(fullscreen);
 		}
 
+		public static int GetWindowWidth()
+		{
+			return Native.GetWindowWidth();
+		}
+
+		public static int GetWindowHeight()
+		{
+			return Native.GetWindowHeight();
+		}
+
 		public class Sound : IDisposable
 		{
 			public UInt32 ID { get; private set; }

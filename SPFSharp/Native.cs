@@ -131,5 +131,11 @@ namespace SPFSharp
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern UInt32 GetImagePixel(UInt32 image, int x, int y);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern int GetWindowWidth();
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern int GetWindowHeight();
 	}
 }
