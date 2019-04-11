@@ -69,6 +69,11 @@ struct
 	int ButtonsDownPreviousFrame[SDL_CONTROLLER_BUTTON_MAX];
 	int ButtonsDown[SDL_CONTROLLER_BUTTON_MAX];
 
+	int MouseX;
+	int MouseY;
+	unsigned int CurrentMouseState;
+	unsigned int PreviousMouseState;
+
 	Vertex Vertices[VERTICES_COUNT];
 	struct
 	{

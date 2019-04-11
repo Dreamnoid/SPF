@@ -255,6 +255,37 @@ namespace SPFSharp
 			return Native.IsButtonReleased((int)button);
 		}
 
+		public enum MouseButton : int
+		{
+			Left = 0,
+			Right = 1
+		}
+
+		public static int GetMousePositionX()
+		{
+			return Native.GetMousePositionX();
+		}
+
+		public static int GetMousePositionY()
+		{
+			return Native.GetMousePositionY();
+		}
+
+		public static bool IsMouseButtonDown(MouseButton button)
+		{
+			return Native.IsMouseButtonDown((int)button);
+		}
+
+		public static bool IsMouseButtonPressed(MouseButton button)
+		{
+			return Native.IsMouseButtonPressed((int)button);
+		}
+
+		public static bool IsMouseButtonReleased(MouseButton button)
+		{
+			return Native.IsMouseButtonReleased((int)button);
+		}
+
 		public static void AddArchive(string filename)
 		{
 			VirtualFileSystem.AddArchive(filename);

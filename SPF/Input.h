@@ -69,6 +69,9 @@ void UpdateInput()
 {
 	memcpy(Data.KeysDownPreviousFrame, Data.KeysDown, sizeof(Data.KeysDownPreviousFrame));
 	memcpy(Data.ButtonsDownPreviousFrame, Data.ButtonsDown, sizeof(Data.ButtonsDownPreviousFrame));
+
+	Data.PreviousMouseState = Data.CurrentMouseState;
+	Data.CurrentMouseState = SDL_GetMouseState(&Data.MouseX, &Data.MouseY);
 }
 
 void QuitInput()
@@ -94,6 +97,12 @@ typedef enum
 	Button_LeftShoulder = 10,
 	Button_RightShoulder = 11,
 } Button;
+
+typedef enum
+{
+	MouseButton_Left = 0,
+	MouseButton_Right = 1
+} MouseButton;
 
 SDL_GameControllerButton TranslateButton(Button button)
 {
@@ -135,4 +144,42 @@ DLLExport bool IsButtonReleased(Button button)
 {
 	SDL_GameControllerButton code = TranslateButton(button);
 	return Data.ButtonsDownPreviousFrame[code] && !Data.ButtonsDown[code];
+}
+
+DLLExport int GetMousePositionX()
+{
+	return Data.MouseX;
+}
+
+DLLExport int GetMousePositionY()
+{
+	return Data.MouseY;
+}
+
+
+unsigned int TranslateMouseButton(MouseButton button)
+{
+	switch (button)
+	{
+	case MouseButton_Left: return SDL_BUTTON_LEFT;
+	case MouseButton_Right: return SDL_BUTTON_RIGHT;
+	default: return SDL_BUTTON_LEFT;
+	}
+}
+
+DLLExport bool IsMouseButtonDown(MouseButton button) 
+{
+	return (Data.CurrentMouseState & SDL_BUTTON(TranslateMouseButton(button)));
+}
+
+DLLExport bool IsMouseButtonPressed(MouseButton button) 
+{
+	auto mask = SDL_BUTTON(TranslateMouseButton(button));
+	return ((Data.CurrentMouseState & mask) && !(Data.PreviousMouseState & mask));
+}
+
+DLLExport bool IsMouseButtonReleased(MouseButton button) 
+{
+	auto mask = SDL_BUTTON(TranslateMouseButton(button));
+	return (!(Data.CurrentMouseState & mask) && (Data.PreviousMouseState & mask));
 }
