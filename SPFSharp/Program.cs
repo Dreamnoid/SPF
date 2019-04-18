@@ -17,15 +17,14 @@ namespace SPFSharp
 		public static void Main()
 		{
 			SPF.Open("Test", WindowWidth, WindowHeight);
-
-			using (var img = new SPF.Image(System.IO.File.ReadAllBytes("test.png")))
+			using (var tex = new SPF.Texture(SPF.IO.ReadFile("test.png")))
 			{
-				var rgba = img.GetPixel(93, 45);
-				var pixel = Native.GetImagePixel(img.ID, 93, 45);
-				Console.WriteLine(pixel + " = " + rgba.R + ";" + rgba.G + ";" + rgba.B + ";" + rgba.A);
+				while (SPF.BeginLoop(out float dt))
+				{
+					SPF.Renderer.DrawTexture(tex, 0, 0);
+					SPF.EndLoop();
+				}
 			}
-			Console.ReadKey();
-
 			SPF.Close();
 		}
     }

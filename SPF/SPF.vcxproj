@@ -41,7 +41,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Dev\SDK\SDL2-2.0.9\include;D:\Dev\SDK\SDL2_mixer-2.0.4\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Dev\SDK\SDL2-2.0.9\include;D:\Dev\SDK\SDL2_mixer-2.0.4\include;D:\Dev\SDK\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -57,6 +57,7 @@
     <ClCompile Include="GL4.cpp" />
     <ClCompile Include="Images.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Meshes.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Surfaces.cpp" />
     <ClCompile Include="Textures.cpp" />
@@ -68,6 +69,7 @@
     <ClInclude Include="gl4.h" />
     <ClInclude Include="Images.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="Meshes.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Surfaces.h" />

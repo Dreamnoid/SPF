@@ -16,6 +16,38 @@ namespace SPFSharp
 
 		public static class Renderer
 		{
+			public static void Begin()
+			{
+				Begin(null);
+			}
+
+			public static void Begin(Surface surface)
+			{
+				Native.Begin((surface != null) ? surface.ID : -1);
+			}
+
+			public static void BeginLookAtPerspective(
+				float cameraX, float cameraY, float cameraZ,
+				float cameraTargetX, float cameraTargetY, float cameraTargetZ,
+				float fov, float nearDist, float farDist)
+			{
+				BeginLookAtPerspective(null, 
+					cameraX, cameraY, cameraZ,
+					cameraTargetX, cameraTargetY, cameraTargetZ,
+					fov, nearDist, farDist);
+			}
+
+			public static void BeginLookAtPerspective(Surface surface,
+				float cameraX, float cameraY, float cameraZ,
+				float cameraTargetX, float cameraTargetY, float cameraTargetZ,
+				float fov, float nearDist, float farDist, float fogIntensity = 1.0f)
+			{
+				Native.BeginLookAtPerspective((surface != null) ? surface.ID : -1,
+					cameraX, cameraY, cameraZ,
+					cameraTargetX, cameraTargetY, cameraTargetZ,
+					fov, nearDist, farDist, fogIntensity);
+			}
+
 			public static void SetBlending(BlendMode blendMode)
 			{
 				Native.SetBlending((int)blendMode);
@@ -59,15 +91,50 @@ namespace SPFSharp
 			}
 
 			public static void DrawTexturedQuad(Texture tex,
-				float Ax, float Ay, float Bx, float By, float Cx, float Cy, float Dx, float Dy,
+				float Ax, float Ay, 
+				float Bx, float By, 
+				float Cx, float Cy, 
+				float Dx, float Dy,
 				int srcx, int srcy, int srcw, int srch,
 				bool flipX, bool flipY,
 				float r, float g, float b, float a,
 				float overlayR, float overlayG, float overlayB, float overlayA)
 			{
-				Native.DrawTexturedQuad(tex.ID, Ax, Ay, Bx, By, Cx, Cy, Dx, Dy, srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+				Native.DrawTexturedQuad(tex.ID, Ax, Ay, 0, Bx, By, 0, Cx, Cy, 0, Dx, Dy, 0, srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 			}
 
+			public static void DrawTexturedQuad(Texture tex,
+				float Ax, float Ay, float Az,
+				float Bx, float By, float Bz,
+				float Cx, float Cy,  float Cz,
+				float Dx, float Dy, float Dz,
+				int srcx, int srcy, int srcw, int srch,
+				bool flipX, bool flipY,
+				float r, float g, float b, float a,
+				float overlayR, float overlayG, float overlayB, float overlayA)
+			{
+				Native.DrawTexturedQuad(tex.ID, Ax, Ay, Az, Bx, By, Bz, Cx, Cy, Cz, Dx, Dy, Dz, srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+			}
+
+			public static void DrawMesh(Texture texture, Mesh mesh)
+			{
+				Native.DrawMesh(texture.ID, mesh.ID);
+			}
+
+			public static void DrawBillboard(Texture tex,
+				float x, float y, float z, float radius,
+				int srcx, int srcy, int srcw, int srch,
+				bool flipX, bool flipY,
+				float r, float g, float b, float a,
+				float overlayR, float overlayG, float overlayB, float overlayA)
+			{
+				Native.DrawBillboard(tex.ID,
+					x, y, z, radius,
+					srcx, srcy, srcw, srch,
+					flipX, flipY,
+					r, g, b, a,
+					overlayR, overlayG, overlayB, overlayA);
+			}
 		}
 	}
 }

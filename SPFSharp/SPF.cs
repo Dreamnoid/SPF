@@ -11,11 +11,11 @@ namespace SPFSharp
 	{
 		public class Texture : IDisposable
 		{
-			public UInt32 ID { get; private set; }
+			public Int32 ID { get; private set; }
 			public int Width { get; private set; }
 			public int Height { get; private set; }
 
-			internal Texture(UInt32 id, int w, int h)
+			internal Texture(Int32 id, int w, int h)
 			{
 				ID = id;
 				Width = w;
@@ -24,12 +24,10 @@ namespace SPFSharp
 
 			public Texture(byte[] buffer)
 			{
-				var cbuffer = Marshal.AllocHGlobal(buffer.Length);
-				Marshal.Copy(buffer, 0, cbuffer, buffer.Length);
-
-				ID = Native.LoadTexture(cbuffer, buffer.Length);
-
-				Marshal.FreeHGlobal(cbuffer);
+				using (var cbuffer = new CBuffer(buffer))
+				{
+					ID = Native.LoadTexture(cbuffer.Pointer, cbuffer.Length);
+				}
 
 				Width = Native.GetTextureWidth(ID);
 				Height = Native.GetTextureHeight(ID);
@@ -69,33 +67,25 @@ namespace SPFSharp
 
 		public class Surface : IDisposable
 		{
-			public UInt32 ID { get; private set; }
+			public Int32 ID { get; private set; }
 			public Texture Texture { get; private set; }
 			public int Width { get; private set; }
 			public int Height { get; private set; }
+			public bool HasDepth { get; private set; }
 
-			public Surface(int w, int h)
+			public Surface(int w, int h, bool depth = false)
 			{
-				ID = Native.CreateSurface(w, h);
+				ID = Native.CreateSurface(w, h, depth);
 				Texture = new Texture(Native.GetSurfaceTexture(ID), w, h);
 				Width = w;
 				Height = h;
+				HasDepth = depth;
 			}
-			
+
 			public void Dispose()
 			{
 				Native.DeleteTexture(Native.GetSurfaceTexture(ID));
 				Native.DeleteSurface(ID);
-			}
-
-			public void Begin()
-			{
-				Native.BeginSurface(ID);
-			}
-
-			public void End()
-			{
-				Native.EndSurface();
 			}
 		}
 
@@ -116,17 +106,16 @@ namespace SPFSharp
 
 		public class Image : IDisposable
 		{
-			public UInt32 ID { get; private set; }
+			public Int32 ID { get; private set; }
 			public int Width { get; private set; }
 			public int Height { get; private set; }
 
 			public Image(byte[] buffer)
 			{
-				var cbuffer = Marshal.AllocHGlobal(buffer.Length);
-				Marshal.Copy(buffer, 0, cbuffer, buffer.Length);
-				ID = Native.LoadImage(cbuffer, buffer.Length);
-				Marshal.FreeHGlobal(cbuffer);
-
+				using (var cbuffer = new CBuffer(buffer))
+				{
+					ID = Native.LoadImage(cbuffer.Pointer, cbuffer.Length);
+				}
 				Width = Native.GetImageWidth(ID);
 				Height = Native.GetImageHeight(ID);
 			}
@@ -153,5 +142,30 @@ namespace SPFSharp
 			}
 		}
 
+		[StructLayout(LayoutKind.Sequential)]
+		public struct Vertex
+		{
+			public float X, Y, Z;
+			public float U, V, BU, BV;
+			public float R, G, B, A;
+			public float OverlayR, OverlayG, OverlayB, OverlayA;
+		}
+
+		public class Mesh : IDisposable
+		{
+			public Int32 ID { get; private set; }
+			public int VerticesCount { get; private set; }
+
+			public Mesh(Vertex[] vertices)
+			{
+				ID = Native.LoadMesh(vertices, vertices.Length);
+				VerticesCount = vertices.Length;
+			}
+
+			public void Dispose()
+			{
+				Native.DeleteMesh(ID);
+			}
+		}
 	}
 }

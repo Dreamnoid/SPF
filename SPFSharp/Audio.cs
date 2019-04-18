@@ -11,7 +11,7 @@ namespace SPFSharp
 	{
 		public class Sound : IDisposable
 		{
-			public UInt32 ID { get; private set; }
+			public Int32 ID { get; private set; }
 
 			public Sound(byte[] buffer)
 			{

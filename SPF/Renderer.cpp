@@ -5,6 +5,10 @@
 #include <cstdio>
 #include "Surfaces.h"
 #include "Textures.h"
+#include "Meshes.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 Renderer mRenderer;
 
@@ -85,6 +89,10 @@ void DeleteShader(unsigned int id)
 
 void Renderer::Init(int w, int h)
 {
+	GLuint VAO;
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+
 	GLuint ids[1];
 	glGenBuffers(1, ids);
 	mBatchVBOID = ids[0];
@@ -106,39 +114,66 @@ void Renderer::Init(int w, int h)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
 
 	mProgram = CompileShader("#version 330 core\n"
-		"layout (location = 0) in vec2 in_Position;\n"
-		"layout (location = 1) in vec2 in_UV;\n"
+		"layout (location = 0) in vec3 in_Position;\n"
+		"layout (location = 1) in vec4 in_UV;\n"
 		"layout (location = 2) in vec4 in_Color;\n"
-		"layout (location = 3) in vec4 in_OverlayColor;\n"
+		"layout (location = 3) in vec4 in_Overlay;\n"
 		"uniform mat4 MVP;\n"
+		"uniform vec3 CameraSide;\n"
+		"out float share_Distance;\n"
 		"out vec2 share_UV;\n"
 		"out vec4 share_Color;\n"
-		"out vec4 share_OverlayColor;\n"
+		"out vec4 share_Overlay;\n"
 		"void main()\n"
 		"{\n"
-		"	gl_Position = MVP * vec4(in_Position,0.0,1.0);\n"
-		"   share_UV = in_UV;\n"
+		"	vec3 actualPosition = in_Position + (in_UV.z * CameraSide) + (in_UV.w * vec3(0,1,0));\n"
+		"	gl_Position = MVP * vec4(actualPosition,1.0);\n"
+		"	share_Distance = min(gl_Position.z / 25.0,1);\n"
+		"   share_UV = in_UV.xy;\n"
 		"	share_Color = in_Color;\n"
-		"	share_OverlayColor = in_OverlayColor;\n"
+		"	share_Overlay = in_Overlay;\n"
 		"}\n"
 		,
 		"#version 330 core\n"
 		"uniform sampler2D Texture;\n"
+		"uniform float FogIntensity;\n"
+		"in float share_Distance;\n"
 		"in vec2 share_UV;\n"
 		"in vec4 share_Color;\n"
-		"in vec4 share_OverlayColor;\n"
+		"in vec4 share_Overlay;\n"
 		"out vec4 out_Color;\n"
 		"void main()\n"
 		"{\n"
 		"	vec4 texColor = texture2D(Texture, share_UV) * share_Color;\n"
 		"	if (texColor.a <= 0) discard;\n"
-		"	out_Color = mix(texColor, vec4(share_OverlayColor.rgb, texColor.a), share_OverlayColor.a);\n"
+		"	out_Color = mix(texColor, vec4(share_Overlay.xyz, texColor.a), share_Overlay.a);\n"
+		"	out_Color = mix(out_Color, vec4(0,0,0,texColor.a), FogIntensity * share_Distance);\n"
 		"}\n");
 
 	glUseProgram(mProgram);
 	glUniform1i(glGetUniformLocation(mProgram, "Texture"), 0);
 
-	mFinalSurface = mSurfaces.Create(w, h);
+	mFinalSurface = mSurfaces.Create(w, h, true);
+}
+
+void Renderer::Prepare()
+{
+	glViewport(0, 0, (GLsizei)mCurrentWidth, (GLsizei)mCurrentHeight);
+
+	glUseProgram(mProgram);
+	glUniformMatrix4fv(glGetUniformLocation(mProgram, "MVP"), 1, GL_FALSE, mMVP);
+	glUniform3f(glGetUniformLocation(mProgram, "CameraSide"), mCameraSideX, mCameraSideY, mCameraSideZ);
+	glUniform1f(glGetUniformLocation(mProgram, "FogIntensity"), mFogIntensity);
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0 * sizeof(float)));
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(3 * sizeof(float)));
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(7 * sizeof(float)));
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(11 * sizeof(float)));
 }
 
 void Renderer::IssueVertices()
@@ -152,26 +187,14 @@ void Renderer::IssueVertices()
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, mBatchInfo.CurrentTexture);
 
-	glUseProgram(mProgram);
-	float m[16];
-	SetupOrthographic(m, 0, (float)mCurrentWidth, (float)mCurrentHeight, 0, -1.0f, 1.0f);
-	glUniformMatrix4fv(glGetUniformLocation(mProgram, "MVP"), 1, GL_FALSE, m);
-
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	glEnableVertexAttribArray(3);
-
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0 * sizeof(float)));
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(2 * sizeof(float)));
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(4 * sizeof(float)));
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(8 * sizeof(float)));
-
+	Prepare();
 	glDrawArrays(GL_QUADS, 0, mBatchInfo.VertexCount);
 	memset(&mBatchInfo, 0, sizeof(mBatchInfo));
 }
 
-void Renderer::PushVertex(GLuint texture, int x, int y, float u, float v,
+void Renderer::PushVertex(GLuint texture, 
+	float x, float y, float z,
+	float u, float v, float bu, float bv,
 	float r, float g, float b, float a,
 	float overlayR, float overlayG, float overlayB, float overlayA)
 {
@@ -181,10 +204,13 @@ void Renderer::PushVertex(GLuint texture, int x, int y, float u, float v,
 		mBatchInfo.CurrentTexture = texture;
 	}
 	Vertex* vertex = &mVertices[mBatchInfo.VertexCount];
-	vertex->X = (float)x;
-	vertex->Y = (float)y;
+	vertex->X = x;
+	vertex->Y = y;
+	vertex->Z = z;
 	vertex->U = u;
 	vertex->V = v;
+	vertex->BU = bu;
+	vertex->BV = bv;
 	vertex->R = r;
 	vertex->G = g;
 	vertex->B = b;
@@ -199,15 +225,18 @@ void Renderer::PushVertex(GLuint texture, int x, int y, float u, float v,
 
 void Renderer::FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a)
 {
-	PushVertex(mEmptyTexture, x, y, 0, 0, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
-	PushVertex(mEmptyTexture, x + w, y, 1, 0, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
-	PushVertex(mEmptyTexture, x + w, y + h, 1, 1, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
-	PushVertex(mEmptyTexture, x, y + h, 0, 1, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
+	PushVertex(mEmptyTexture, x, y, 0.f, 0.f, 0.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
+	PushVertex(mEmptyTexture, x + w, y, 0.f, 1.f, 0.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
+	PushVertex(mEmptyTexture, x + w, y + h, 0.f, 1.f, 1.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
+	PushVertex(mEmptyTexture, x, y + h, 0.f, 0.f, 1.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
 }
 
 void Renderer::DrawTexturedQuad(
-	int tex,
-	float Ax, float Ay, float Bx, float By, float Cx, float Cy, float Dx, float Dy,
+	ResourceIndex tex,
+	float Ax, float Ay, float Az,
+	float Bx, float By, float Bz,
+	float Cx, float Cy, float Cz,
+	float Dx, float Dy, float Dz,
 	int srcx, int srcy, int srcw, int srch,
 	bool flipX, bool flipY,
 	float r, float g, float b, float a,
@@ -238,10 +267,24 @@ void Renderer::DrawTexturedQuad(
 		v1 = v2;
 		v2 = t;
 	}
-	PushVertex(id, Ax, Ay, u1, v1, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-	PushVertex(id, Bx, By, u2, v1, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-	PushVertex(id, Cx, Cy, u2, v2, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-	PushVertex(id, Dx, Dy, u1, v2, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+	PushVertex(id, Ax, Ay, Az, u1, v1, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+	PushVertex(id, Bx, By, Bz, u2, v1, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+	PushVertex(id, Cx, Cy, Cz, u2, v2, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+	PushVertex(id, Dx, Dy, Dz, u1, v2, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+}
+
+void Renderer::DrawMesh(ResourceIndex tex, ResourceIndex mesh)
+{
+	IssueVertices();
+
+	glBindBuffer(GL_ARRAY_BUFFER, mMeshes.Get(mesh).GLID);
+
+	glActiveTexture2(GL_TEXTURE0);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, mTextures.Get(tex).GLID);
+
+	Prepare();
+	glDrawArrays(GL_TRIANGLES, 0, mMeshes.Get(mesh).VerticesCount);
 }
 
 void Renderer::SetBlending(BlendMode blendMode)
@@ -259,41 +302,120 @@ void Renderer::SetBlending(BlendMode blendMode)
 
 void Renderer::Begin(ResourceIndex surface)
 {
+	IssueVertices();
+
 	surface = (surface < 0) ? mFinalSurface : surface;
 	ResourceIndex texture = mSurfaces.GetTexture(surface);
 	glBindFramebuffer(GL_FRAMEBUFFER, mSurfaces.Get(surface).GLID);
+
 	mCurrentWidth = mTextures.Get(texture).Width;
 	mCurrentHeight = mTextures.Get(texture).Height;
-	glViewport(0, 0, (GLsizei)mCurrentWidth, (GLsizei)mCurrentHeight);
-	glClear(GL_COLOR_BUFFER_BIT);
+	SetupOrthographic(mMVP, 0, (float)mCurrentWidth, (float)mCurrentHeight, 0, -1.0f, 1.0f);
+	mCameraSideX = 0.f;
+	mCameraSideY = 0.f;
+	mCameraSideZ = 0.f;
+
+	glDisable(GL_DEPTH_TEST);
+	mFogIntensity = 0.f;
+}
+
+void Renderer::BeginLookAtPerspective(ResourceIndex surface,
+	float cameraX, float cameraY, float cameraZ, 
+	float cameraTargetX, float cameraTargetY, float cameraTargetZ,
+	float fov, float nearDist, float farDist, float fogIntensity)
+{
+	IssueVertices();
+
+	surface = (surface < 0) ? mFinalSurface : surface;
+	ResourceIndex texture = mSurfaces.GetTexture(surface);
+	glBindFramebuffer(GL_FRAMEBUFFER, mSurfaces.Get(surface).GLID);
+
+	mCurrentWidth = mTextures.Get(texture).Width;
+	mCurrentHeight = mTextures.Get(texture).Height;
+
+	auto cameraPos = glm::vec3(cameraX, cameraY, cameraZ);
+	auto cameraTarget = glm::vec3(cameraTargetX, cameraTargetY, cameraTargetZ);
+	auto cameraForward = glm::normalize(cameraTarget - cameraPos);
+	auto cameraSide = glm::cross(cameraForward, glm::vec3(0.f, 1.f, 0.f));
+	mCameraSideX = cameraSide.x;
+	mCameraSideY = cameraSide.y;
+	mCameraSideZ = cameraSide.z;
+
+	auto mvp = glm::perspectiveFov(fov, (float)mCurrentWidth, (float)mCurrentHeight, nearDist, farDist) * glm::lookAt(cameraPos, cameraTarget, glm::vec3(0.f, 1.f, 0.f));
+
+	float* ptrMVP = glm::value_ptr(mvp);
+	for (int i = 0; i < 16; ++i)
+	{
+		mMVP[i] = ptrMVP[i];
+	}
+
+	glEnable(GL_DEPTH_TEST);
+	mFogIntensity = fogIntensity;
 }
 
 void Renderer::DrawFinalSurface(int w, int h)
 {
 	IssueVertices();
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	mCurrentWidth = w;
 	mCurrentHeight = h;
-	glViewport(0, 0, (GLsizei)mCurrentWidth, (GLsizei)mCurrentHeight);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	SetupOrthographic(mMVP, 0, (float)mCurrentWidth, (float)mCurrentHeight, 0, -1.0f, 1.0f);
 
 	ResourceIndex texture = mSurfaces.GetTexture(mFinalSurface);
 	DrawTexturedQuad(texture,
-		0, 0,
-		w, 0, 
-		w, h, 
-		0, h, 
-		0, 0, mTextures.GetWidth(texture), mTextures.GetHeight(texture),
+		0.f, 0.f, 0.f,
+		w, 0.f, 0.f,
+		w, h, 0.f,
+		0.f, h, 0.f,
+		0.f, 0.f, mTextures.GetWidth(texture), mTextures.GetHeight(texture),
 		false, false,
-		1, 1, 1, 1,
-		0, 0, 0, 0);
+		1.f, 1.f, 1.f, 1.f,
+		0.f, 0.f, 0.f, 0.f);
 	IssueVertices();
 }
 
-void Renderer::End()
+void Renderer::DrawBillboard(ResourceIndex tex,
+	float x, float y, float z, float radius,
+	int srcx, int srcy, int srcw, int srch,
+	bool flipX, bool flipY,
+	float r, float g, float b, float a,
+	float overlayR, float overlayG, float overlayB, float overlayA)
 {
-	IssueVertices();
-	Begin(mFinalSurface);
+	unsigned int id = mTextures.Get(tex).GLID;
+	int texW = mTextures.Get(tex).Width;
+	int texH = mTextures.Get(tex).Height;
+	float u1 = srcx / (float)texW;
+	float u2 = (srcx + srcw) / (float)texW;
+	float v1 = srcy / (float)texH;
+	float v2 = (srcy + srch) / (float)texH;
+	if (flipX)
+	{
+		float t = u1;
+		u1 = u2;
+		u2 = t;
+	}
+	if (mTextures.Get(tex).Flipped)
+	{
+		float t = v1;
+		v1 = v2;
+		v2 = t;
+	}
+	if (flipY)
+	{
+		float t = v1;
+		v1 = v2;
+		v2 = t;
+	}
+
+	float halfRadius = radius * 0.5f;
+
+	PushVertex(id, x, y, z, u1, v1, -halfRadius, radius, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+	PushVertex(id, x, y, z, u2, v1, +halfRadius, radius, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+	PushVertex(id, x, y, z, u2, v2, +halfRadius, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+	PushVertex(id, x, y, z, u1, v2, -halfRadius, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 }
 
 extern "C"
@@ -304,22 +426,28 @@ extern "C"
 	}
 
 	DLLExport void DrawTexturedQuad(
-		int tex,
-		float Ax, float Ay, float Bx, float By, float Cx, float Cy, float Dx, float Dy,
+		ResourceIndex tex,
+		float Ax, float Ay, float Az,
+		float Bx, float By, float Bz,
+		float Cx, float Cy, float Cz,
+		float Dx, float Dy, float Dz,
 		int srcx, int srcy, int srcw, int srch,
 		bool flipX, bool flipY,
 		float r, float g, float b, float a,
 		float overlayR, float overlayG, float overlayB, float overlayA)
 	{
 		mRenderer.DrawTexturedQuad(tex,
-			Ax, Ay, Bx, By, Cx, Cy, Dx, Dy,
+			Ax, Ay, Az,
+			Bx, By, Bz,
+			Cx, Cy, Cz,
+			Dx, Dy, Dz,
 			srcx, srcy, srcw, srch,
 			flipX, flipY,
 			r, g, b, a,
 			overlayR, overlayG, overlayB, overlayA);
 	}
 
-	DLLExport void DrawTexture(int tex,
+	DLLExport void DrawTexture(ResourceIndex tex,
 		int x, int y, int w, int h,
 		int srcx, int srcy, int srcw, int srch,
 		bool flipX, bool flipY,
@@ -327,14 +455,19 @@ extern "C"
 		float overlayR, float overlayG, float overlayB, float overlayA)
 	{
 		mRenderer.DrawTexturedQuad(tex,
-			x, y,
-			x + w, y,
-			x + w, y + h,
-			x, y + h,
+			x, y, 0.f,
+			x + w, y, 0.f,
+			x + w, y + h, 0.f,
+			x, y + h, 0.f,
 			srcx, srcy, srcw, srch,
 			flipX, flipY,
 			r, g, b, a,
 			overlayR, overlayG, overlayB, overlayA);
+	}
+
+	DLLExport void DrawMesh(ResourceIndex tex, ResourceIndex mesh)
+	{
+		mRenderer.DrawMesh(tex, mesh);
 	}
 
 	DLLExport void SetBlending(int blendMode)
@@ -342,13 +475,34 @@ extern "C"
 		mRenderer.SetBlending((BlendMode)blendMode);
 	}
 
-	DLLExport void BeginSurface(ResourceIndex surface)
+	DLLExport void Begin(ResourceIndex surface)
 	{
 		mRenderer.Begin(surface);
 	}
 
-	DLLExport void EndSurface()
+	DLLExport void BeginLookAtPerspective(ResourceIndex surface,
+		float cameraX, float cameraY, float cameraZ,
+		float cameraTargetX, float cameraTargetY, float cameraTargetZ,
+		float fov, float nearDist, float farDist, float fogIntensity)
 	{
-		mRenderer.End();
+		mRenderer.BeginLookAtPerspective(surface, 
+			cameraX, cameraY, cameraZ, 
+			cameraTargetX, cameraTargetY, cameraTargetZ,
+			fov, nearDist, farDist, fogIntensity);
+	}
+
+	DLLExport void DrawBillboard(ResourceIndex tex,
+		float x, float y, float z, float radius,
+		int srcx, int srcy, int srcw, int srch,
+		bool flipX, bool flipY,
+		float r, float g, float b, float a,
+		float overlayR, float overlayG, float overlayB, float overlayA)
+	{
+		mRenderer.DrawBillboard(tex,
+			x, y, z, radius, 
+			srcx, srcy, srcw, srch,
+			flipX, flipY, 
+			r, g, b, a,
+			overlayR, overlayG, overlayB, overlayA);
 	}
 }

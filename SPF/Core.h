@@ -10,16 +10,8 @@ void FatalError(const char* msg);
 
 struct Vertex
 {
-	float X;
-	float Y;
-	float U;
-	float V;
-	float R;
-	float G;
-	float B;
-	float A;
-	float OverlayR;
-	float OverlayG;
-	float OverlayB;
-	float OverlayA;
+	float X, Y, Z;
+	float U, V, BU, BV;
+	float R, G, B, A;
+	float OverlayR, OverlayG, OverlayB, OverlayA;
 };

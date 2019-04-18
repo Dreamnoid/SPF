@@ -3,6 +3,7 @@
 #include "Audio.h"
 #include "Renderer.h"
 #include "Input.h"
+#include "Surfaces.h"
 
 Window mWindow;
 
@@ -12,18 +13,25 @@ void Window::Open(const char* title, int w, int h)
 	mWindowHeight = h;
 
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
-	mWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL);
 
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	mOpenGLContext = SDL_GL_CreateContext(mWindow);
 	SDL_GL_LoadLibrary(NULL);
+	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+	mWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL);
+	mOpenGLContext = SDL_GL_CreateContext(mWindow);
 
 	InitOpenGL4();
+
 	mRenderer.Init(w, h);
 	mAudio.Init();
 	mInput.Init();
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClearDepth(1.0f);
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_LIGHTING);
@@ -53,7 +61,8 @@ bool Window::BeginLoop(float* dt)
 		mInput.HandleEvent(evt);
 	}
 
-	mRenderer.Begin(-1);
+	mSurfaces.Clear(mRenderer.GetFinalSurface());
+	mRenderer.Begin(mRenderer.GetFinalSurface());
 	return true;
 }
 
