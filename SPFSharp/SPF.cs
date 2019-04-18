@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SPFSharp
 {
-	public static class SPF
+	public static partial class SPF
 	{
 		public class Texture : IDisposable
 		{
@@ -67,75 +67,6 @@ namespace SPFSharp
 			Native.Close();
 		}
 
-
-		public static void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a)
-		{
-			Native.FillRectangle(x, y, w, h, r, g, b, a);
-		}
-
-		public static void DrawTexture(Texture tex, int x, int y)
-		{
-			Native.DrawTexture(tex.ID, x, y, tex.Width, tex.Height, 0, 0, tex.Width, tex.Height, false, false, 1, 1, 1, 1, 0, 0, 0, 0);
-		}
-
-		public static void DrawTexture(Texture tex,
-			int x, int y, int w, int h,
-			int clipx, int clipy, int clipw, int cliph,
-			bool flipx, bool flipy,
-			float r, float g, float b, float a)
-		{
-			Native.DrawTexture(tex.ID, x, y, w, h, clipx, clipy, clipw, cliph, flipx, flipy, r, g, b, a, 0, 0, 0, 0);
-		}
-
-		public static void DrawTexture(Texture tex,
-			int x, int y, int w, int h,
-			int clipx, int clipy, int clipw, int cliph,
-			bool flipx, bool flipy,
-			float r, float g, float b, float a,
-			float overlayR, float overlayG, float overlayB, float overlayA)
-		{
-			Native.DrawTexture(tex.ID, x, y, w, h, clipx, clipy, clipw, cliph, flipx, flipy, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-		}
-
-		public static void DrawTexturedQuad(Texture tex,
-			float Ax, float Ay, float Bx, float By, float Cx, float Cy, float Dx, float Dy,
-			int srcx, int srcy, int srcw, int srch,
-			bool flipX, bool flipY,
-			float r, float g, float b, float a,
-			float overlayR, float overlayG, float overlayB, float overlayA)
-		{
-			Native.DrawTexturedQuad(tex.ID, Ax, Ay, Bx, By, Cx, Cy, Dx, Dy, srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-		}
-
-		public static bool IsKeyDown(Key key)
-		{
-			return Native.IsKeyDown((int)key);
-		}
-
-		public static bool IsKeyPressed(Key key)
-		{
-			return Native.IsKeyPressed((int)key);
-		}
-
-		public static bool IsKeyReleased(Key key)
-		{
-			return Native.IsKeyReleased((int)key);
-		}
-
-		public enum Key : int
-		{
-			Up = 0,
-			Down = 1,
-			Right = 2,
-			Left = 3,
-			Space = 4,
-			Escape = 5,
-			Delete = 6,
-			Z = 7,
-			X = 8,
-			C = 9
-		}
-
 		public class Surface : IDisposable
 		{
 			public UInt32 ID { get; private set; }
@@ -168,17 +99,6 @@ namespace SPFSharp
 			}
 		}
 
-		public enum BlendMode : int
-		{
-			Alpha = 0,
-			Additive = 1
-		}
-
-		public static void SetBlending(BlendMode blendMode)
-		{
-			Native.SetBlending((int)blendMode);
-		}
-
 		public static void SetFullscreen(bool fullscreen)
 		{
 			Native.SetFullscreen(fullscreen);
@@ -192,128 +112,6 @@ namespace SPFSharp
 		public static int GetWindowHeight()
 		{
 			return Native.GetWindowHeight();
-		}
-
-		public class Sound : IDisposable
-		{
-			public UInt32 ID { get; private set; }
-
-			public Sound(byte[] buffer)
-			{
-				var cbuffer = Marshal.AllocHGlobal(buffer.Length);
-				Marshal.Copy(buffer, 0, cbuffer, buffer.Length);
-
-				ID = Native.LoadSound(cbuffer, buffer.Length);
-
-				Marshal.FreeHGlobal(cbuffer);
-			}
-
-			public void Dispose()
-			{
-				Native.DeleteSound(ID);
-			}
-
-			public int Play(bool looping = false)
-			{
-				return Native.PlaySound(ID, looping);
-			}
-		}
-
-		public static void StopChannel(int channel)
-		{
-			Native.StopChannel(channel);
-		}
-
-		public enum Button : int
-		{
-			A = 0,
-			B = 1,
-			X = 2,
-			Y = 3,
-			Start = 4,
-			Select = 5,
-			DPadUp = 6,
-			DPadDown = 7,
-			DPadRight = 8,
-			DPadLeft = 9,
-			LeftShoulder = 10,
-			RightShoulder = 11
-		}
-
-		public static bool IsButtonDown(Button button)
-		{
-			return Native.IsButtonDown((int)button);
-		}
-
-		public static bool IsButtonPressed(Button button)
-		{
-			return Native.IsButtonPressed((int)button);
-		}
-
-		public static bool IsButtonReleased(Button button)
-		{
-			return Native.IsButtonReleased((int)button);
-		}
-
-		public enum MouseButton : int
-		{
-			Left = 0,
-			Right = 1
-		}
-
-		public static int GetMousePositionX()
-		{
-			return Native.GetMousePositionX();
-		}
-
-		public static int GetMousePositionY()
-		{
-			return Native.GetMousePositionY();
-		}
-
-		public static bool IsMouseButtonDown(MouseButton button)
-		{
-			return Native.IsMouseButtonDown((int)button);
-		}
-
-		public static bool IsMouseButtonPressed(MouseButton button)
-		{
-			return Native.IsMouseButtonPressed((int)button);
-		}
-
-		public static bool IsMouseButtonReleased(MouseButton button)
-		{
-			return Native.IsMouseButtonReleased((int)button);
-		}
-
-		public static void AddArchive(string filename)
-		{
-			VirtualFileSystem.AddArchive(filename);
-		}
-
-		public static byte[] ReadFile(string filename)
-		{
-			return VirtualFileSystem.Read(filename);
-		}
-
-		public static string[] ListArchivedFiles()
-		{
-			return VirtualFileSystem.ListArchivedFiles();
-		}
-
-		public static float GetVolume()
-		{
-			return Native.GetVolume();
-		}
-
-		public static void SetVolume(float volume)
-		{
-			Native.SetVolume(volume);
-		}
-
-		public static bool IsControllerConnected()
-		{
-			return Native.IsControllerConnected();
 		}
 
 		public class Image : IDisposable

@@ -52,16 +52,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="SPF.c" />
+    <ClCompile Include="Audio.cpp" />
+    <ClCompile Include="Core.cpp" />
+    <ClCompile Include="GL4.cpp" />
+    <ClCompile Include="Images.cpp" />
+    <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Surfaces.cpp" />
+    <ClCompile Include="Textures.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Audio.h" />
-    <ClInclude Include="Data.h" />
+    <ClInclude Include="Core.h" />
     <ClInclude Include="gl4.h" />
+    <ClInclude Include="Images.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="Surfaces.h" />
     <ClInclude Include="Textures.h" />
+    <ClInclude Include="Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
