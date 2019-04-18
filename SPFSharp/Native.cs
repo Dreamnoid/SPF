@@ -76,6 +76,9 @@ namespace SPFSharp
 		public static extern void DeleteSurface(Int32 surface);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void ClearSurface(Int32 surface);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern Int32 GetSurfaceTexture(Int32 surface);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]

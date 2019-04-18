@@ -82,6 +82,11 @@ namespace SPFSharp
 				HasDepth = depth;
 			}
 
+			public void Clear()
+			{
+				Native.ClearSurface(ID);
+			}
+
 			public void Dispose()
 			{
 				Native.DeleteTexture(Native.GetSurfaceTexture(ID));
