@@ -24,7 +24,6 @@ ResourceIndex Textures::Create(int w, int h, GLvoid* pixels, bool flipped)
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-	ResourceIndex texID = 0;
 	for (ResourceIndex texID = 0; texID < TexturesCount; ++texID)
 	{
 		if (!mTextures[texID].InUse)
@@ -32,7 +31,7 @@ ResourceIndex Textures::Create(int w, int h, GLvoid* pixels, bool flipped)
 			mTextures[texID].GLID = id;
 			mTextures[texID].Width = w;
 			mTextures[texID].Height = h;
-			mTextures[texID].InUse = 1;
+			mTextures[texID].InUse = true;
 			mTextures[texID].Flipped = flipped;
 			return texID;
 		}

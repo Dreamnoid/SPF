@@ -35,7 +35,7 @@ ResourceIndex Audio::LoadSound(unsigned char* buffer, int length)
 			return i;
 		}
 	}
-	exit(1);
+	FatalError("All sound slots are used");
 }
 
 int Audio::PlaySound(ResourceIndex sound, bool looping)

@@ -16,14 +16,13 @@ ResourceIndex Surfaces::Create(int w, int h)
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTextures.Get(texture).GLID, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	ResourceIndex surface = 0;
 	for (ResourceIndex surfaceID = 0; surfaceID < SurfacesCount; ++surfaceID)
 	{
 		if (!mSurfaces[surfaceID].InUse)
 		{
 			mSurfaces[surfaceID].GLID = fboID;
 			mSurfaces[surfaceID].Texture = texture;
-			mSurfaces[surfaceID].InUse = 1;
+			mSurfaces[surfaceID].InUse = true;
 			return surfaceID;
 		}
 	}

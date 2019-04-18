@@ -12,14 +12,13 @@ ResourceIndex Images::LoadImage(unsigned char* buffer, int length)
 	int w, h, bpp;
 	stbi_uc* pixels = stbi_load_from_memory(buffer, length, &w, &h, &bpp, 4);
 
-	ResourceIndex imgID = 0;
-	for (ResourceIndex texID = 0; imgID < ImagesCount; ++imgID)
+	for (ResourceIndex imgID = 0; imgID < ImagesCount; ++imgID)
 	{
 		if (!mImages[imgID].InUse)
 		{
 			mImages[imgID].Width = w;
 			mImages[imgID].Height = h;
-			mImages[imgID].InUse = 1;
+			mImages[imgID].InUse = true;
 			mImages[imgID].Pixels = pixels;
 			return imgID;
 		}

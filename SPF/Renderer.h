@@ -7,22 +7,6 @@ enum class BlendMode : int
 	Additive
 };
 
-struct Vertex
-{
-	float X;
-	float Y;
-	float U;
-	float V;
-	float R;
-	float G;
-	float B;
-	float A;
-	float OverlayR;
-	float OverlayG;
-	float OverlayB;
-	float OverlayA;
-};
-
 constexpr uint32_t MaxSprites = 2000;
 constexpr uint32_t VerticesPerSprite = 4;
 constexpr uint32_t VerticesCount = MaxSprites * VerticesPerSprite;
