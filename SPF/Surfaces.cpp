@@ -48,14 +48,14 @@ void Surfaces::Delete(ResourceIndex surface)
 {
 	mSurfaces[surface].InUse = false;
 	GLuint ids[1];
-	ids[0] = mSurfaces[surface].GLID;
-	glDeleteFramebuffers(1, ids);
-	mTextures.Delete(mSurfaces[surface].Texture);
 	if (mSurfaces[surface].HasDepth)
 	{
 		ids[0] = mSurfaces[surface].DepthGLID;
 		glDeleteRenderBuffers(1, ids);
 	}
+	ids[0] = mSurfaces[surface].GLID;
+	glDeleteFramebuffers(1, ids);
+	mTextures.Delete(mSurfaces[surface].Texture);
 }
 
 ResourceIndex Surfaces::GetTexture(ResourceIndex surface)

@@ -73,6 +73,9 @@ public:
 	bool IsMouseButtonDown(MouseButton button);
 	bool IsMouseButtonPressed(MouseButton button);
 	bool IsMouseButtonReleased(MouseButton button);
+
+	float GetLeftThumbstickX();
+	float GetLeftThumbstickY();
 };
 
 extern Input mInput;

@@ -30,7 +30,7 @@ void Window::Open(const char* title, int w, int h)
 	mAudio.Init();
 	mInput.Init();
 
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClearDepth(1.0f);
 
 	glDisable(GL_CULL_FACE);

@@ -106,6 +106,15 @@ namespace SPFSharp
 				return Native.IsControllerConnected();
 			}
 
+			public static float GetLeftThumbstickX()
+			{
+				return Native.GetLeftThumbstickX();
+			}
+
+			public static float GetLeftThumbstickY()
+			{
+				return Native.GetLeftThumbstickY();
+			}
 		}
 	}
 }

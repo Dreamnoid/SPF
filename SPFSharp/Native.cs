@@ -178,5 +178,11 @@ namespace SPFSharp
 			bool flipX, bool flipY,
 			float r, float g, float b, float a,
 			float overlayR, float overlayG, float overlayB, float overlayA);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern float GetLeftThumbstickX();
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern float GetLeftThumbstickY();
 	}
 }

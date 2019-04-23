@@ -186,6 +186,36 @@ bool Input::IsMouseButtonReleased(MouseButton button)
 	return (!(mCurrentMouseState & mask) && (mPreviousMouseState & mask));
 }
 
+constexpr float ThumbstickDeadzoneRatio = 0.1f;
+
+float NormalizeThumbstick(Sint16 rawValue)
+{
+	float normalizedValue = rawValue / 32767;
+	if (fabs(normalizedValue) <= ThumbstickDeadzoneRatio)
+	{
+		normalizedValue = 0.f;
+	}
+	return normalizedValue;
+}
+
+float Input::GetLeftThumbstickX()
+{
+	if (mController)
+	{
+		return NormalizeThumbstick(SDL_GameControllerGetAxis(mController, SDL_CONTROLLER_AXIS_LEFTX));
+	}
+	else return 0.f;
+}
+
+float Input::GetLeftThumbstickY()
+{
+	if (mController)
+	{
+		return NormalizeThumbstick(SDL_GameControllerGetAxis(mController, SDL_CONTROLLER_AXIS_LEFTY));
+	}
+	else return 0.f;
+}
+
 extern "C"
 {
 
@@ -247,5 +277,15 @@ extern "C"
 	DLLExport int IsMouseButtonReleased(MouseButton button)
 	{
 		return mInput.IsMouseButtonReleased(button) ? 1 : 0;
+	}
+
+	DLLExport float GetLeftThumbstickX()
+	{
+		return mInput.GetLeftThumbstickX();
+	}
+
+	DLLExport float GetLeftThumbstickY()
+	{
+		return mInput.GetLeftThumbstickY();
 	}
 }
