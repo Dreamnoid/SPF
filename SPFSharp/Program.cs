@@ -17,12 +17,18 @@ namespace SPFSharp
 		public static void Main()
 		{
 			SPF.Open("Test", WindowWidth, WindowHeight);
-			using (var tex = new SPF.Texture(SPF.IO.ReadFile("test.png")))
+
+			using (var music = new SPF.Music(SPF.IO.ReadFile("boss.ogg")))
 			{
-				while (SPF.BeginLoop(out float dt))
+				SPF.Audio.PlayMusic(music);
+
+				using (var tex = new SPF.Texture(SPF.IO.ReadFile("test.png")))
 				{
-					SPF.Renderer.DrawTexture(tex, 0, 0);
-					SPF.EndLoop();
+					while (SPF.BeginLoop(out float dt))
+					{
+						SPF.Renderer.DrawTexture(tex, 0, 0);
+						SPF.EndLoop();
+					}
 				}
 			}
 			SPF.Close();

@@ -97,6 +97,21 @@ namespace SPFSharp
 		public static extern void DeleteSound(Int32 sound);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern Int32 LoadMusic(IntPtr buffer, int length);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void PlayMusic(Int32 music);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void StopMusic();
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void DeleteMusic(Int32 music);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool IsMusicPlaying();
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SetFullscreen(bool fullscreen);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
@@ -109,10 +124,13 @@ namespace SPFSharp
 		public static extern bool IsButtonReleased(int button);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern float GetVolume();
+		public static extern float GetSoundVolume();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void SetVolume(float volume);
+		public static extern float GetMusicVolume();
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SetVolume(float soundVolume, float musicVolume);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern bool IsControllerConnected();

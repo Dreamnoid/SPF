@@ -5,15 +5,23 @@ Audio mAudio;
 
 void Audio::Init()
 {
+	if (Mix_Init(MIX_INIT_OGG) == 0)
+	{
+		FatalError(Mix_GetError());
+	}
+
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1)
 	{
-		printf("Mix_OpenAudio: %s\n", Mix_GetError());
-		exit(2);
+		FatalError(Mix_GetError());
 	}
 
 	for (ResourceIndex i = 0; i < SoundsCount; ++i)
 	{
 		mSounds[i] = nullptr;
+	}
+	for (ResourceIndex i = 0; i < MusicsCount; ++i)
+	{
+		mMusics[i] = nullptr;
 	}
 
 	Mix_AllocateChannels(16);
@@ -22,11 +30,12 @@ void Audio::Init()
 void Audio::Dispose()
 {
 	Mix_CloseAudio();
+	Mix_Quit();
 }
 
 ResourceIndex Audio::LoadSound(unsigned char* buffer, int length)
 {
-	Mix_Chunk* sample = Mix_LoadWAV_RW(SDL_RWFromMem(buffer, length), 1);
+	Mix_Chunk* sample = Mix_LoadWAV_RW(SDL_RWFromMem(buffer, length), SDL_TRUE);
 	for (ResourceIndex i = 0; i < SoundsCount; ++i)
 	{
 		if (!mSounds[i])
@@ -55,15 +64,70 @@ void Audio::DeleteSound(ResourceIndex sound)
 	mSounds[sound] = nullptr;
 }
 
-float Audio::GetVolume()
+float Audio::GetSoundVolume()
 {
-	return mVolume;
+	return mSoundVolume;
 }
 
-void Audio::SetVolume(float volume)
+float Audio::GetMusicVolume()
 {
-	mVolume = volume;
-	Mix_Volume(-1, (int)(volume*MIX_MAX_VOLUME));
+	return mMusicVolume;
+}
+
+void Audio::SetVolume(float soundVolume, float musicVolume)
+{
+	mSoundVolume = soundVolume;
+	mMusicVolume = musicVolume;
+	Mix_Volume(-1, (int)(soundVolume*MIX_MAX_VOLUME));
+	Mix_VolumeMusic((int)(musicVolume*MIX_MAX_VOLUME));
+}
+
+ResourceIndex Audio::LoadMusic(unsigned char* buffer, int length)
+{
+	Mix_Music* music = Mix_LoadMUS_RW(SDL_RWFromMem(buffer, length), SDL_TRUE);
+	if (!music)
+	{
+		FatalError(Mix_GetError());
+	}
+	for (ResourceIndex i = 0; i < MusicsCount; ++i)
+	{
+		if (!mMusics[i])
+		{
+			mMusics[i] = music;
+			return i;
+		}
+	}
+	FatalError("All music slots are used");	
+}
+
+void Audio::DeleteMusic(ResourceIndex music)
+{
+	if (mMusics[music])
+	{
+		Mix_FreeMusic(mMusics[music]);
+		mMusics[music] = nullptr;
+	}
+}
+
+void Audio::PlayMusic(ResourceIndex music)
+{
+	if (mMusics[music])
+	{
+		if (Mix_PlayMusic(mMusics[music], -1) == -1)
+		{
+			FatalError(Mix_GetError());
+		}
+	}
+}
+
+void Audio::StopMusic()
+{
+	Mix_HaltMusic();
+}
+
+bool Audio::IsMusicPlaying()
+{
+	return (Mix_PlayingMusic() != 0);
 }
 
 extern "C"
@@ -80,21 +144,51 @@ extern "C"
 
 	DLLExport void StopChannel(int channel)
 	{
-		return mAudio.StopChannel(channel);
+		mAudio.StopChannel(channel);
 	}
 
 	DLLExport void DeleteSound(ResourceIndex sound)
 	{
-		return mAudio.DeleteSound(sound);
+		mAudio.DeleteSound(sound);
 	}
 
-	DLLExport float GetVolume()
+	DLLExport float GetSoundVolume()
 	{
-		return mAudio.GetVolume();
+		return mAudio.GetSoundVolume();
 	}
 
-	DLLExport void SetVolume(float volume)
+	DLLExport float GetMusicVolume()
 	{
-		return mAudio.SetVolume(volume);
+		return mAudio.GetMusicVolume();
+	}
+
+	DLLExport void SetVolume(float soundVolume, float musicVolume)
+	{
+		return mAudio.SetVolume(soundVolume, musicVolume);
+	}
+
+	DLLExport ResourceIndex LoadMusic(unsigned char* buffer, int length)
+	{
+		return mAudio.LoadMusic(buffer, length);
+	}
+
+	DLLExport void DeleteMusic(ResourceIndex music)
+	{
+		mAudio.DeleteMusic(music);
+	}
+
+	DLLExport void PlayMusic(ResourceIndex music)
+	{
+		mAudio.PlayMusic(music);
+	}
+
+	DLLExport void StopMusic()
+	{
+		mAudio.StopMusic();
+	}
+
+	DLLExport int IsMusicPlaying()
+	{
+		return mAudio.IsMusicPlaying() ? 1 : 0;
 	}
 }

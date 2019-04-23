@@ -32,6 +32,24 @@ namespace SPFSharp
 			}
 		}
 
+		public class Music : IDisposable
+		{
+			private readonly CBuffer _cbuffer; // The buffer needs to stay open so streaming will work
+			public Int32 ID { get; private set; }
+
+			public Music(byte[] buffer)
+			{
+				_cbuffer = new CBuffer(buffer);
+				ID = Native.LoadMusic(_cbuffer.Pointer, _cbuffer.Length);
+			}
+
+			public void Dispose()
+			{
+				Native.DeleteMusic(ID);
+				_cbuffer.Dispose();
+			}
+		}
+
 		public static class Audio
 		{
 			public static void StopChannel(int channel)
@@ -39,14 +57,39 @@ namespace SPFSharp
 				Native.StopChannel(channel);
 			}
 
-			public static float GetVolume()
+			public static void PlayMusic(Music music)
 			{
-				return Native.GetVolume();
+				Native.PlayMusic(music.ID);
+			}
+
+			public static void StopMusic()
+			{
+				Native.StopMusic();
+			}
+
+			public static bool IsMusicPlaying()
+			{
+				return Native.IsMusicPlaying();
+			}
+
+			public static float GetSoundVolume()
+			{
+				return Native.GetSoundVolume();
+			}
+
+			public static float GetMusicVolume()
+			{
+				return Native.GetMusicVolume();
 			}
 
 			public static void SetVolume(float volume)
 			{
-				Native.SetVolume(volume);
+				SetVolume(volume, volume);
+			}
+
+			public static void SetVolume(float soundVolume, float musicVolume)
+			{
+				Native.SetVolume(soundVolume, musicVolume);
 			}
 		}
 	}
