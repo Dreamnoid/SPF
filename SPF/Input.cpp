@@ -4,7 +4,7 @@
 
 Input mInput;
 
-SDL_Scancode TranslateKey(Key key)
+int TranslateKey(Key key)
 {
 	switch (key)
 	{
@@ -18,6 +18,9 @@ SDL_Scancode TranslateKey(Key key)
 	case Key::Z: return SDL_SCANCODE_Z;
 	case Key::X: return SDL_SCANCODE_X;
 	case Key::C: return SDL_SCANCODE_C;
+	case Key::Control: return (SDL_NUM_SCANCODES + 0);
+	case Key::Shift: return (SDL_NUM_SCANCODES + 1);
+	case Key::Alt: return (SDL_NUM_SCANCODES + 2);
 	default: return SDL_SCANCODE_RETURN;
 	}
 }
@@ -82,6 +85,11 @@ void Input::Update()
 
 	mPreviousMouseState = mCurrentMouseState;
 	mCurrentMouseState = SDL_GetMouseState(&mMouseX, &mMouseY);
+
+	SDL_Keymod modifiers = SDL_GetModState();
+	mKeysDown[TranslateKey(Key::Control)] = ((modifiers & KMOD_CTRL) != 0);
+	mKeysDown[TranslateKey(Key::Shift)] = ((modifiers & KMOD_SHIFT) != 0);
+	mKeysDown[TranslateKey(Key::Alt)] = ((modifiers & KMOD_ALT) != 0);
 }
 
 void Input::HandleEvent(const SDL_Event& evt)
@@ -127,13 +135,13 @@ bool Input::IsKeyDown(Key key)
 
 bool Input::IsKeyPressed(Key key)
 {
-	SDL_Scancode code = TranslateKey(key);
+	int code = TranslateKey(key);
 	return !mKeysDownPreviousFrame[code] && mKeysDown[code];
 }
 
 bool Input::IsKeyReleased(Key key)
 {
-	SDL_Scancode code = TranslateKey(key);
+	int code = TranslateKey(key);
 	return mKeysDownPreviousFrame[code] && !mKeysDown[code];
 }
 
@@ -191,10 +199,10 @@ constexpr float ThumbstickDeadzoneRatio = 0.1f;
 float NormalizeThumbstick(Sint16 rawValue)
 {
 	float normalizedValue = rawValue / 32767;
-	if (fabs(normalizedValue) <= ThumbstickDeadzoneRatio)
+	/*if (fabs(normalizedValue) <= ThumbstickDeadzoneRatio)
 	{
 		normalizedValue = 0.f;
-	}
+	}*/
 	return normalizedValue;
 }
 

@@ -14,6 +14,9 @@ enum class Key : int
 	Z = 7,
 	X = 8,
 	C = 9,
+	Control = 10,
+	Shift = 11,
+	Alt = 12
 };
 
 enum class Button : int
@@ -38,12 +41,14 @@ enum class MouseButton : int
 	Right = 1
 };
 
+constexpr int ModifiersCount = 3;
+
 class Input
 {
 private:
 	SDL_GameController* mController;
-	int mKeysDownPreviousFrame[SDL_NUM_SCANCODES];
-	int mKeysDown[SDL_NUM_SCANCODES];
+	int mKeysDownPreviousFrame[SDL_NUM_SCANCODES + ModifiersCount];
+	int mKeysDown[SDL_NUM_SCANCODES + ModifiersCount];
 
 	int mButtonsDownPreviousFrame[SDL_CONTROLLER_BUTTON_MAX];
 	int mButtonsDown[SDL_CONTROLLER_BUTTON_MAX];

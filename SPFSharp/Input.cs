@@ -19,7 +19,10 @@ namespace SPFSharp
 			Delete = 6,
 			Z = 7,
 			X = 8,
-			C = 9
+			C = 9,
+			Control = 10,
+			Shift = 11,
+			Alt = 12
 		}
 
 		public enum Button : int
