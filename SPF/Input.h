@@ -16,7 +16,17 @@ enum class Key : int
 	C = 9,
 	Control = 10,
 	Shift = 11,
-	Alt = 12
+	Alt = 12,
+	Num0 = 13,
+	Num1 = 14,
+	Num2 = 15,
+	Num3 = 16,
+	Num4 = 17,
+	Num5 = 18,
+	Num6 = 19,
+	Num7 = 20,
+	Num8 = 21,
+	Num9 = 22,
 };
 
 enum class Button : int

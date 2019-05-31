@@ -18,6 +18,16 @@ int TranslateKey(Key key)
 	case Key::Z: return SDL_SCANCODE_Z;
 	case Key::X: return SDL_SCANCODE_X;
 	case Key::C: return SDL_SCANCODE_C;
+	case Key::Num0: return SDL_SCANCODE_KP_0;
+	case Key::Num1: return SDL_SCANCODE_KP_1;
+	case Key::Num2: return SDL_SCANCODE_KP_2;
+	case Key::Num3: return SDL_SCANCODE_KP_3;
+	case Key::Num4: return SDL_SCANCODE_KP_4;
+	case Key::Num5: return SDL_SCANCODE_KP_5;
+	case Key::Num6: return SDL_SCANCODE_KP_6;
+	case Key::Num7: return SDL_SCANCODE_KP_7;
+	case Key::Num8: return SDL_SCANCODE_KP_8;
+	case Key::Num9: return SDL_SCANCODE_KP_9;
 	case Key::Control: return (SDL_NUM_SCANCODES + 0);
 	case Key::Shift: return (SDL_NUM_SCANCODES + 1);
 	case Key::Alt: return (SDL_NUM_SCANCODES + 2);

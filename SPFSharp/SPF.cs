@@ -109,6 +109,11 @@ namespace SPFSharp
 			return Native.GetWindowHeight();
 		}
 
+		public static void SetWindowSize(int w, int h)
+		{
+			Native.SetWindowSize(w, h);
+		}
+
 		public class Image : IDisposable
 		{
 			public Int32 ID { get; private set; }

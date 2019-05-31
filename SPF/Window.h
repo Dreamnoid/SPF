@@ -18,6 +18,8 @@ public:
 	void Close();
 	void SetFullscreen(bool fullscreen);
 
+	void SetWindowSize(int w, int h);
+
 	inline int GetWidth() const
 	{
 		return mWindowWidth;

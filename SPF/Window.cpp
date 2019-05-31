@@ -89,6 +89,13 @@ void Window::SetFullscreen(bool fullscreen)
 	SDL_SetWindowFullscreen(mWindow, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 }
 
+void Window::SetWindowSize(int w, int h)
+{
+	SDL_SetWindowSize(mWindow, w, h);
+	mWindowWidth = w;
+	mWindowHeight = h;
+}
+
 extern "C"
 {
 	DLLExport void Open(const char* title, int w, int h)
@@ -124,6 +131,11 @@ extern "C"
 	DLLExport int GetWindowHeight()
 	{
 		return mWindow.GetHeight();
+	}
+
+	DLLExport void SetWindowSize(int w, int h)
+	{
+		mWindow.SetWindowSize(w, h);
 	}
 
 }
