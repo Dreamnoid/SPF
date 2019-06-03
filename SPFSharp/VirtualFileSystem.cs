@@ -26,7 +26,14 @@ namespace SPFSharp
 		{
 			if (File.Exists(filename))
 			{
-				return File.ReadAllBytes(filename);
+				using (var memoryStream = new MemoryStream())
+				{
+					using (var fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+					{
+						fileStream.CopyTo(memoryStream);
+					}
+					return memoryStream.ToArray();
+				}
 			}
 
 			foreach (var archive in _archives)
