@@ -15,15 +15,6 @@ void Audio::Init()
 		FatalError(Mix_GetError());
 	}
 
-	for (ResourceIndex i = 0; i < SoundsCount; ++i)
-	{
-		mSounds[i] = nullptr;
-	}
-	for (ResourceIndex i = 0; i < MusicsCount; ++i)
-	{
-		mMusics[i] = nullptr;
-	}
-
 	Mix_AllocateChannels(16);
 }
 
@@ -36,7 +27,7 @@ void Audio::Dispose()
 ResourceIndex Audio::LoadSound(unsigned char* buffer, int length)
 {
 	Mix_Chunk* sample = Mix_LoadWAV_RW(SDL_RWFromMem(buffer, length), SDL_TRUE);
-	for (ResourceIndex i = 0; i < SoundsCount; ++i)
+	for (ResourceIndex i = 0; i < mSounds.size(); ++i)
 	{
 		if (!mSounds[i])
 		{
@@ -44,7 +35,8 @@ ResourceIndex Audio::LoadSound(unsigned char* buffer, int length)
 			return i;
 		}
 	}
-	FatalError("All sound slots are used");
+	mSounds.push_back(sample);
+	return mSounds.size() - 1;
 }
 
 int Audio::PlaySound(ResourceIndex sound, bool looping)
@@ -89,7 +81,7 @@ ResourceIndex Audio::LoadMusic(unsigned char* buffer, int length)
 	{
 		FatalError(Mix_GetError());
 	}
-	for (ResourceIndex i = 0; i < MusicsCount; ++i)
+	for (ResourceIndex i = 0; i < mMusics.size(); ++i)
 	{
 		if (!mMusics[i])
 		{
@@ -97,7 +89,8 @@ ResourceIndex Audio::LoadMusic(unsigned char* buffer, int length)
 			return i;
 		}
 	}
-	FatalError("All music slots are used");	
+	mMusics.push_back(music);
+	return mMusics.size() - 1;
 }
 
 void Audio::DeleteMusic(ResourceIndex music)

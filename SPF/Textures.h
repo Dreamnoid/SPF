@@ -1,4 +1,5 @@
 #include "Core.h"
+#include <vector>
 
 struct Texture
 {
@@ -9,15 +10,14 @@ struct Texture
 	bool Flipped;
 };
 
-constexpr uint32_t TexturesCount = 200;
-
 class Textures
 {
 private:
-	Texture mTextures[TexturesCount];
+	std::vector<Texture> mTextures;
 
 public:
-	ResourceIndex Create(int w, int h, void* pixels, bool flipped);
+	Textures() : mTextures(200) {}
+	ResourceIndex Create(unsigned int w, unsigned int h, void* pixels, bool flipped);
 	ResourceIndex Load(unsigned char* buffer, int length);
 	void Delete(ResourceIndex texture);
 	int GetWidth(ResourceIndex texture);

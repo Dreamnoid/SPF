@@ -12,18 +12,16 @@ ResourceIndex Images::LoadImage(unsigned char* buffer, int length)
 	int w, h, bpp;
 	stbi_uc* pixels = stbi_load_from_memory(buffer, length, &w, &h, &bpp, 4);
 
-	for (ResourceIndex imgID = 0; imgID < ImagesCount; ++imgID)
+	for (ResourceIndex imgID = 0; imgID < mImages.size(); ++imgID)
 	{
 		if (!mImages[imgID].InUse)
 		{
-			mImages[imgID].Width = w;
-			mImages[imgID].Height = h;
-			mImages[imgID].InUse = true;
-			mImages[imgID].Pixels = pixels;
+			mImages[imgID] = { true,pixels,(unsigned int)w,(unsigned int)h };
 			return imgID;
 		}
 	}
-	FatalError("All image slots are used");
+	mImages.push_back({ true, pixels,(unsigned int)w,(unsigned int)h });
+	return mImages.size() - 1;
 }
 
 void Images::DeleteImage(ResourceIndex image)

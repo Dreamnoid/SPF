@@ -1,10 +1,8 @@
 #pragma once
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include <vector>
 #include "Core.h"
-
-constexpr uint32_t SoundsCount = 100;
-constexpr uint32_t MusicsCount = 20;
 
 class Audio
 {
@@ -12,10 +10,12 @@ private:
 	float mSoundVolume = 1.0f;
 	float mMusicVolume = 1.0f;
 
-	Mix_Chunk* mSounds[SoundsCount];
-	Mix_Music* mMusics[MusicsCount];
+	std::vector<Mix_Chunk*> mSounds;
+	std::vector<Mix_Music*> mMusics;
 
 public:
+	Audio() : mSounds(100), mMusics(20) {}
+
 	void Init();
 	void Dispose();
 

@@ -29,19 +29,16 @@ ResourceIndex Surfaces::Create(int w, int h, bool depth)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	for (ResourceIndex surfaceID = 0; surfaceID < SurfacesCount; ++surfaceID)
+	for (ResourceIndex surfaceID = 0; surfaceID < mSurfaces.size(); ++surfaceID)
 	{
 		if (!mSurfaces[surfaceID].InUse)
 		{
-			mSurfaces[surfaceID].GLID = fboID;
-			mSurfaces[surfaceID].Texture = texture;
-			mSurfaces[surfaceID].InUse = true;
-			mSurfaces[surfaceID].HasDepth = depth;
-			mSurfaces[surfaceID].DepthGLID = depthID;
+			mSurfaces[surfaceID] = { true,fboID,depthID,texture,depth };
 			return surfaceID;
 		}
 	}
-	FatalError("All surface slots are used");
+	mSurfaces.push_back({ true,fboID,depthID,texture,depth });
+	return mSurfaces.size() - 1;
 }
 
 void Surfaces::Delete(ResourceIndex surface)

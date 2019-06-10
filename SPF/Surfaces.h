@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include "Core.h"
 
 struct Surface
@@ -10,12 +11,10 @@ struct Surface
 	bool HasDepth;
 };
 
-constexpr uint32_t SurfacesCount = 20;
-
 class Surfaces
 {
 private:
-	Surface mSurfaces[SurfacesCount];
+	std::vector<Surface> mSurfaces;
 
 public:
 	ResourceIndex Create(int w, int h, bool depth);

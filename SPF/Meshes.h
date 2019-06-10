@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include "Core.h"
 
 struct Mesh
@@ -8,14 +9,13 @@ struct Mesh
 	int VerticesCount;
 };
 
-constexpr uint32_t MeshesCount = 10;
-
 class Meshes
 {
 private:
-	Mesh mMeshes[MeshesCount];
+	std::vector<Mesh> mMeshes;
 
 public:
+	Meshes() :mMeshes(10) {};
 	ResourceIndex Load(Vertex* vertices, int count);
 	void Delete(ResourceIndex mesh);
 

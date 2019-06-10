@@ -10,17 +10,16 @@ ResourceIndex Meshes::Load(Vertex* vertices, int count)
 	glBindBuffer(GL_ARRAY_BUFFER, id);
 	glBufferData(GL_ARRAY_BUFFER, count * sizeof(Vertex), vertices, GL_STATIC_DRAW);
 	
-	for (ResourceIndex meshID = 0; meshID < MeshesCount; ++meshID)
+	for (ResourceIndex meshID = 0; meshID < mMeshes.size(); ++meshID)
 	{
 		if (!mMeshes[meshID].InUse)
 		{
-			mMeshes[meshID].GLID = id;
-			mMeshes[meshID].VerticesCount = count;
-			mMeshes[meshID].InUse = true;
+			mMeshes[meshID] = { true,id,count };
 			return meshID;
 		}
 	}
-	FatalError("All mesh slots are used");
+	mMeshes.push_back({ true,id,count });
+	return mMeshes.size() - 1;
 }
 
 void Meshes::Delete(ResourceIndex mesh)

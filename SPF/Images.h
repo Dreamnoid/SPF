@@ -1,5 +1,6 @@
 #pragma once
 #include "Core.h"
+#include <vector>
 #undef LoadImage
 
 struct Image
@@ -10,14 +11,13 @@ struct Image
 	unsigned int Height;
 };
 
-constexpr uint32_t ImagesCount = 20;
-
 class Images
 {
 private:
-	Image mImages[ImagesCount];
+	std::vector<Image> mImages;
 
 public:
+	Images() : mImages(20) {}
 	ResourceIndex LoadImage(unsigned char* buffer, int length);
 	void DeleteImage(ResourceIndex image);
 	int GetImageWidth(ResourceIndex image);

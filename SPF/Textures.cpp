@@ -9,7 +9,7 @@
 
 Textures mTextures;
 
-ResourceIndex Textures::Create(int w, int h, GLvoid* pixels, bool flipped)
+ResourceIndex Textures::Create(unsigned int w, unsigned int h, void* pixels, bool flipped)
 {
 	GLuint ids[1];
 	glGenTextures(1, ids);
@@ -24,19 +24,17 @@ ResourceIndex Textures::Create(int w, int h, GLvoid* pixels, bool flipped)
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-	for (ResourceIndex texID = 0; texID < TexturesCount; ++texID)
+	for (ResourceIndex texID = 0; texID < mTextures.size(); ++texID)
 	{
 		if (!mTextures[texID].InUse)
 		{
-			mTextures[texID].GLID = id;
-			mTextures[texID].Width = w;
-			mTextures[texID].Height = h;
-			mTextures[texID].InUse = true;
-			mTextures[texID].Flipped = flipped;
+			mTextures[texID] = { true,id,w,h,flipped };
 			return texID;
 		}
 	}
-	FatalError("All texture slots are used");
+
+	mTextures.push_back({ true,id,w,h,flipped });
+	return mTextures.size() - 1;
 }
 
 void Textures::SetFiltering(ResourceIndex texture, bool filtering)
