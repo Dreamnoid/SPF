@@ -8,7 +8,7 @@ namespace SPF
 	{
 		bool InUse = false;
 		HardwareID GLID;
-		int VerticesCount;
+		int VerticesCount = 0;
 	};
 
 	class Meshes

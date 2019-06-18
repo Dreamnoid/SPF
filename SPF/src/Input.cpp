@@ -233,7 +233,7 @@ namespace SPF
 
 	float NormalizeThumbstick(Sint16 rawValue)
 	{
-		float normalizedValue = rawValue / 32767;
+		float normalizedValue = rawValue / 32767.f;
 		/*if (fabs(normalizedValue) <= ThumbstickDeadzoneRatio)
 		{
 			normalizedValue = 0.f;

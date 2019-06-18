@@ -227,10 +227,10 @@ namespace SPF
 
 	void Renderer::FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a)
 	{
-		PushVertex(mEmptyTexture, x, y, 0.f, 0.f, 0.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
-		PushVertex(mEmptyTexture, x + w, y, 0.f, 1.f, 0.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
-		PushVertex(mEmptyTexture, x + w, y + h, 0.f, 1.f, 1.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
-		PushVertex(mEmptyTexture, x, y + h, 0.f, 0.f, 1.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
+		PushVertex(mEmptyTexture, (float)x, (float)y, 0.f, 0.f, 0.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
+		PushVertex(mEmptyTexture, (float)(x + w), (float)y, 0.f, 1.f, 0.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
+		PushVertex(mEmptyTexture, (float)(x + w), (float)(y + h), 0.f, 1.f, 1.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
+		PushVertex(mEmptyTexture, (float)x, (float)(y + h), 0.f, 0.f, 1.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
 	}
 
 	void Renderer::DrawTexturedQuad(
@@ -369,10 +369,10 @@ namespace SPF
 		ResourceIndex texture = mSurfaces.GetTexture(mFinalSurface);
 		DrawTexturedQuad(texture,
 			0.f, 0.f, 0.f,
-			w, 0.f, 0.f,
-			w, h, 0.f,
-			0.f, h, 0.f,
-			0.f, 0.f, mTextures.GetWidth(texture), mTextures.GetHeight(texture),
+			(float)w, 0.f, 0.f,
+			(float)w, (float)h, 0.f,
+			0.f, (float)h, 0.f,
+			0, 0, mTextures.GetWidth(texture), mTextures.GetHeight(texture),
 			false, false,
 			1.f, 1.f, 1.f, 1.f,
 			0.f, 0.f, 0.f, 0.f);
@@ -458,10 +458,10 @@ extern "C"
 		float overlayR, float overlayG, float overlayB, float overlayA)
 	{
 		SPF::mRenderer.DrawTexturedQuad(tex,
-			x, y, 0.f,
-			x + w, y, 0.f,
-			x + w, y + h, 0.f,
-			x, y + h, 0.f,
+			(float)x, (float)y, 0.f,
+			(float)(x + w), (float)y, 0.f,
+			(float)(x + w), (float)(y + h), 0.f,
+			(float)x, (float)(y + h), 0.f,
 			srcx, srcy, srcw, srch,
 			flipX, flipY,
 			r, g, b, a,

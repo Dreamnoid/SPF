@@ -18,7 +18,7 @@ namespace SPF
 		glBindFramebuffer(GL_FRAMEBUFFER, fboID);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTextures.Get(texture).GLID, 0);
 
-		GLuint depthID;
+		GLuint depthID = 0;
 		if (depth)
 		{
 			glGenRenderbuffers(1, ids);
