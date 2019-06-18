@@ -44,9 +44,23 @@ namespace SPFSharp
 			}
 		}
 
-		public static void Open(string title, int w, int h)
+		public class Instance : IDisposable
 		{
-			Native.Open(title, w, h);
+			public Instance(string title, int w, int h)
+			{
+				Native.Open(title, w, h);
+			}
+
+			public void Dispose()
+			{
+				VirtualFileSystem.CloseAll();
+				Native.Close();
+			}
+		}
+
+		public static Instance Open(string title, int w, int h)
+		{
+			return new Instance(title, w, h);
 		}
 
 		public static bool BeginLoop(out float dt)
@@ -57,12 +71,6 @@ namespace SPFSharp
 		public static void EndLoop()
 		{
 			Native.EndLoop();
-		}
-
-		public static void Close()
-		{
-			VirtualFileSystem.CloseAll();
-			Native.Close();
 		}
 
 		public class Surface : IDisposable
