@@ -12,34 +12,34 @@ namespace SPFSharp
 		const string DLLName = "SPF.dll";
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void Open(string title, int w, int h);
+		public static extern void SPF_Open(string title, int w, int h);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool BeginLoop(out float dt);
+		public static extern bool SPF_BeginLoop(out float dt);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void EndLoop();
+		public static extern void SPF_EndLoop();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void Close();
+		public static extern void SPF_Close();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern Int32 LoadTexture(IntPtr buffer, int length);
+		public static extern Int32 SPF_LoadTexture(IntPtr buffer, int length);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void DeleteTexture(Int32 texture);
+		public static extern void SPF_DeleteTexture(Int32 texture);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int GetTextureWidth(Int32 texture);
+		public static extern int SPF_GetTextureWidth(Int32 texture);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int GetTextureHeight(Int32 texture);
+		public static extern int SPF_GetTextureHeight(Int32 texture);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a);
+		public static extern void SPF_FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void DrawTexture(Int32 tex,
+		public static extern void SPF_DrawTexture(Int32 tex,
 			int x, int y, int w, int h,
 			int srcx, int srcy, int srcw, int srch,
 			bool flipx, bool flipy,
@@ -47,7 +47,7 @@ namespace SPFSharp
 			float overlayR, float overlayG, float overlayB, float overlayA);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void DrawTexturedQuad(Int32 tex,
+		public static extern void SPF_DrawTexturedQuad(Int32 tex,
 			float Ax, float Ay, float Az,
 			float Bx, float By, float Bz,
 			float Cx, float Cy, float Cz,
@@ -58,148 +58,148 @@ namespace SPFSharp
 			float overlayR, float overlayG, float overlayB, float overlayA);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void SetTextureFiltering(Int32 texture, bool filtering);
+		public static extern void SPF_SetTextureFiltering(Int32 texture, bool filtering);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool IsKeyDown(int key);
+		public static extern bool SPF_IsKeyDown(int key);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool IsKeyPressed(int key);
+		public static extern bool SPF_IsKeyPressed(int key);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool IsKeyReleased(int key);
+		public static extern bool SPF_IsKeyReleased(int key);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern Int32 CreateSurface(int w, int h, bool depth);
+		public static extern Int32 SPF_CreateSurface(int w, int h, bool depth);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void DeleteSurface(Int32 surface);
+		public static extern void SPF_DeleteSurface(Int32 surface);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void ClearSurface(Int32 surface);
+		public static extern void SPF_ClearSurface(Int32 surface);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern Int32 GetSurfaceTexture(Int32 surface);
+		public static extern Int32 SPF_GetSurfaceTexture(Int32 surface);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void SetBlending(int blendMode);
+		public static extern void SPF_SetBlending(int blendMode);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern Int32 LoadSound(IntPtr buffer, int length);
+		public static extern Int32 SPF_LoadSound(IntPtr buffer, int length);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int PlaySound(Int32 sound, bool looping);
+		public static extern int SPF_PlaySound(Int32 sound, bool looping);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void StopChannel(int channel);
+		public static extern void SPF_StopChannel(int channel);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void DeleteSound(Int32 sound);
+		public static extern void SPF_DeleteSound(Int32 sound);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern Int32 LoadMusic(IntPtr buffer, int length);
+		public static extern Int32 SPF_LoadMusic(IntPtr buffer, int length);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void PlayMusic(Int32 music);
+		public static extern void SPF_PlayMusic(Int32 music);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void StopMusic();
+		public static extern void SPF_StopMusic();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void DeleteMusic(Int32 music);
+		public static extern void SPF_DeleteMusic(Int32 music);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool IsMusicPlaying();
+		public static extern bool SPF_IsMusicPlaying();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void SetFullscreen(bool fullscreen);
+		public static extern void SPF_SetFullscreen(bool fullscreen);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void SetWindowSize(int w, int h);
+		public static extern void SPF_SetWindowSize(int w, int h);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool IsButtonDown(int button);
+		public static extern bool SPF_IsButtonDown(int button);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool IsButtonPressed(int button);
+		public static extern bool SPF_IsButtonPressed(int button);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool IsButtonReleased(int button);
+		public static extern bool SPF_IsButtonReleased(int button);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern float GetSoundVolume();
+		public static extern float SPF_GetSoundVolume();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern float GetMusicVolume();
+		public static extern float SPF_GetMusicVolume();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void SetVolume(float soundVolume, float musicVolume);
+		public static extern void SPF_SetVolume(float soundVolume, float musicVolume);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool IsControllerConnected();
+		public static extern bool SPF_IsControllerConnected();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern Int32 LoadImage(IntPtr buffer, int length);
+		public static extern Int32 SPF_LoadImage(IntPtr buffer, int length);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void DeleteImage(Int32 image);
+		public static extern void SPF_DeleteImage(Int32 image);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int GetImageWidth(Int32 image);
+		public static extern int SPF_GetImageWidth(Int32 image);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int GetImageHeight(Int32 image);
+		public static extern int SPF_GetImageHeight(Int32 image);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern UInt32 GetImagePixel(Int32 image, int x, int y);
+		public static extern UInt32 SPF_GetImagePixel(Int32 image, int x, int y);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int GetWindowWidth();
+		public static extern int SPF_GetWindowWidth();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int GetWindowHeight();
+		public static extern int SPF_GetWindowHeight();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int GetMousePositionX();
+		public static extern int SPF_GetMousePositionX();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int GetMousePositionY();
+		public static extern int SPF_GetMousePositionY();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int GetMouseDeltaX();
+		public static extern int SPF_GetMouseDeltaX();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int GetMouseDeltaY();
+		public static extern int SPF_GetMouseDeltaY();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool IsMouseButtonDown(int button);
+		public static extern bool SPF_IsMouseButtonDown(int button);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool IsMouseButtonPressed(int button);
+		public static extern bool SPF_IsMouseButtonPressed(int button);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool IsMouseButtonReleased(int button);
+		public static extern bool SPF_IsMouseButtonReleased(int button);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern Int32 LoadMesh([In] SPF.Vertex[] vertices, int count);
+		public static extern Int32 SPF_LoadMesh([In] SPF.Vertex[] vertices, int count);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void DeleteMesh(Int32 mesh);
+		public static extern void SPF_DeleteMesh(Int32 mesh);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void Begin(Int32 surface);
+		public static extern void SPF_Begin(Int32 surface);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void BeginLookAtPerspective(Int32 surface,
+		public static extern void SPF_BeginLookAtPerspective(Int32 surface,
 			float cameraX, float cameraY, float cameraZ,
 			float cameraTargetX, float cameraTargetY, float cameraTargetZ,
 			float fov, float nearDist, float farDist, float fogIntensity);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void DrawMesh(Int32 texture, Int32 mesh);
+		public static extern void SPF_DrawMesh(Int32 texture, Int32 mesh);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void DrawBillboard(Int32 tex,
+		public static extern void SPF_DrawBillboard(Int32 tex,
 			float x, float y, float z, float radius,
 			int srcx, int srcy, int srcw, int srch,
 			bool flipX, bool flipY,
@@ -207,12 +207,12 @@ namespace SPFSharp
 			float overlayR, float overlayG, float overlayB, float overlayA);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern float GetLeftThumbstickX();
+		public static extern float SPF_GetLeftThumbstickX();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern float GetLeftThumbstickY();
+		public static extern float SPF_GetLeftThumbstickY();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void SetRelativeMouseState(bool state);
+		public static extern void SPF_SetRelativeMouseState(bool state);
 	}
 }

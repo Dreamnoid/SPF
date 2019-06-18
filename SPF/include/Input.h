@@ -1,5 +1,5 @@
 #pragma once
-#include "Core.h"
+#include <Core.h>
 
 namespace SPF
 {
@@ -52,55 +52,31 @@ namespace SPF
 		Right = 1
 	};
 
-	constexpr int ModifiersCount = 3;
-	constexpr int SDL_NumScanCodes = 512; // TODO: dynamic allocation of these arrays to keep the SDL constants?
-	constexpr int SDL_ControllerButtonMax = 15;
-
-	class Input
+	namespace Input
 	{
-	private:
-		OpaquePointer mController;
-		int mKeysDownPreviousFrame[SDL_NumScanCodes + ModifiersCount];
-		int mKeysDown[SDL_NumScanCodes + ModifiersCount];
-
-		int mButtonsDownPreviousFrame[SDL_ControllerButtonMax];
-		int mButtonsDown[SDL_ControllerButtonMax];
-
-		int mMouseX;
-		int mMouseY;
-		int mMouseDeltaX;
-		int mMouseDeltaY;
-		unsigned int mCurrentMouseState;
-		unsigned int mPreviousMouseState;
-		bool mRelativeMode;
-
-		void SearchGamepad();
-
-	public:
 		void Init();
 		void Update();
 		void HandleEvent(const OpaquePointer evtPtr);
 		void Dispose();
 
-		bool IsKeyDown(Key key);
-		bool IsKeyPressed(Key key);
-		bool IsKeyReleased(Key key);
-		bool IsControllerConnected();
-		bool IsButtonDown(Button button);
-		bool IsButtonPressed(Button button);
-		bool IsButtonReleased(Button button);
-		int GetMousePositionX() const;
-		int GetMousePositionY() const;
-		int GetMouseDeltaX() const;
-		int GetMouseDeltaY() const;
-		bool IsMouseButtonDown(MouseButton button);
-		bool IsMouseButtonPressed(MouseButton button);
-		bool IsMouseButtonReleased(MouseButton button);
-		void SetRelativeMouseState(bool state);
+		DLLExport bool IsKeyDown(Key key);
+		DLLExport bool IsKeyPressed(Key key);
+		DLLExport bool IsKeyReleased(Key key);
 
-		float GetLeftThumbstickX();
-		float GetLeftThumbstickY();
-	};
+		DLLExport bool IsControllerConnected();
+		DLLExport bool IsButtonDown(Button button);
+		DLLExport bool IsButtonPressed(Button button);
+		DLLExport bool IsButtonReleased(Button button);
+		DLLExport float GetLeftThumbstickX();
+		DLLExport float GetLeftThumbstickY();
 
-	extern Input mInput;
+		DLLExport int GetMousePositionX();
+		DLLExport int GetMousePositionY();
+		DLLExport int GetMouseDeltaX();
+		DLLExport int GetMouseDeltaY();
+		DLLExport bool IsMouseButtonDown(MouseButton button);
+		DLLExport bool IsMouseButtonPressed(MouseButton button);
+		DLLExport bool IsMouseButtonReleased(MouseButton button);
+		DLLExport void SetRelativeMouseState(bool state);
+	}
 }

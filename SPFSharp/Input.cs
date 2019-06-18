@@ -61,87 +61,87 @@ namespace SPFSharp
 		{
 			public static bool IsKeyDown(Key key)
 			{
-				return Native.IsKeyDown((int)key);
+				return Native.SPF_IsKeyDown((int)key);
 			}
 
 			public static bool IsKeyPressed(Key key)
 			{
-				return Native.IsKeyPressed((int)key);
+				return Native.SPF_IsKeyPressed((int)key);
 			}
 
 			public static bool IsKeyReleased(Key key)
 			{
-				return Native.IsKeyReleased((int)key);
+				return Native.SPF_IsKeyReleased((int)key);
 			}
 
 			public static bool IsButtonDown(Button button)
 			{
-				return Native.IsButtonDown((int)button);
+				return Native.SPF_IsButtonDown((int)button);
 			}
 
 			public static bool IsButtonPressed(Button button)
 			{
-				return Native.IsButtonPressed((int)button);
+				return Native.SPF_IsButtonPressed((int)button);
 			}
 
 			public static bool IsButtonReleased(Button button)
 			{
-				return Native.IsButtonReleased((int)button);
+				return Native.SPF_IsButtonReleased((int)button);
 			}
 
 			public static int GetMousePositionX()
 			{
-				return Native.GetMousePositionX();
+				return Native.SPF_GetMousePositionX();
 			}
 
 			public static int GetMousePositionY()
 			{
-				return Native.GetMousePositionY();
+				return Native.SPF_GetMousePositionY();
 			}
 
 			public static int GetMouseDeltaX()
 			{
-				return Native.GetMouseDeltaX();
+				return Native.SPF_GetMouseDeltaX();
 			}
 
 			public static int GetMouseDeltaY()
 			{
-				return Native.GetMouseDeltaY();
+				return Native.SPF_GetMouseDeltaY();
 			}
 
 			public static bool IsMouseButtonDown(MouseButton button)
 			{
-				return Native.IsMouseButtonDown((int)button);
+				return Native.SPF_IsMouseButtonDown((int)button);
 			}
 
 			public static bool IsMouseButtonPressed(MouseButton button)
 			{
-				return Native.IsMouseButtonPressed((int)button);
+				return Native.SPF_IsMouseButtonPressed((int)button);
 			}
 
 			public static bool IsMouseButtonReleased(MouseButton button)
 			{
-				return Native.IsMouseButtonReleased((int)button);
+				return Native.SPF_IsMouseButtonReleased((int)button);
 			}
 
 			public static bool IsControllerConnected()
 			{
-				return Native.IsControllerConnected();
+				return Native.SPF_IsControllerConnected();
 			}
 
 			public static float GetLeftThumbstickX()
 			{
-				return Native.GetLeftThumbstickX();
+				return Native.SPF_GetLeftThumbstickX();
 			}
 
 			public static float GetLeftThumbstickY()
 			{
-				return Native.GetLeftThumbstickY();
+				return Native.SPF_GetLeftThumbstickY();
 			}
 
 			public static void SetRelativeMouseState(bool state)
 			{
-				Native.SetRelativeMouseState(state);
+				Native.SPF_SetRelativeMouseState(state);
 			}
 		}
 	}

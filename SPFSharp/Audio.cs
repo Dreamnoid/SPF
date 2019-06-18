@@ -17,18 +17,18 @@ namespace SPFSharp
 			{
 				using (var cbuffer = new CBuffer(buffer))
 				{
-					ID = Native.LoadSound(cbuffer.Pointer, cbuffer.Length);
+					ID = Native.SPF_LoadSound(cbuffer.Pointer, cbuffer.Length);
 				}
 			}
 
 			public void Dispose()
 			{
-				Native.DeleteSound(ID);
+				Native.SPF_DeleteSound(ID);
 			}
 
 			public int Play(bool looping = false)
 			{
-				return Native.PlaySound(ID, looping);
+				return Native.SPF_PlaySound(ID, looping);
 			}
 		}
 
@@ -40,12 +40,12 @@ namespace SPFSharp
 			public Music(byte[] buffer)
 			{
 				_cbuffer = new CBuffer(buffer);
-				ID = Native.LoadMusic(_cbuffer.Pointer, _cbuffer.Length);
+				ID = Native.SPF_LoadMusic(_cbuffer.Pointer, _cbuffer.Length);
 			}
 
 			public void Dispose()
 			{
-				Native.DeleteMusic(ID);
+				Native.SPF_DeleteMusic(ID);
 				_cbuffer.Dispose();
 			}
 		}
@@ -54,32 +54,32 @@ namespace SPFSharp
 		{
 			public static void StopChannel(int channel)
 			{
-				Native.StopChannel(channel);
+				Native.SPF_StopChannel(channel);
 			}
 
 			public static void PlayMusic(Music music)
 			{
-				Native.PlayMusic(music.ID);
+				Native.SPF_PlayMusic(music.ID);
 			}
 
 			public static void StopMusic()
 			{
-				Native.StopMusic();
+				Native.SPF_StopMusic();
 			}
 
 			public static bool IsMusicPlaying()
 			{
-				return Native.IsMusicPlaying();
+				return Native.SPF_IsMusicPlaying();
 			}
 
 			public static float GetSoundVolume()
 			{
-				return Native.GetSoundVolume();
+				return Native.SPF_GetSoundVolume();
 			}
 
 			public static float GetMusicVolume()
 			{
-				return Native.GetMusicVolume();
+				return Native.SPF_GetMusicVolume();
 			}
 
 			public static void SetVolume(float volume)
@@ -89,7 +89,7 @@ namespace SPFSharp
 
 			public static void SetVolume(float soundVolume, float musicVolume)
 			{
-				Native.SetVolume(soundVolume, musicVolume);
+				Native.SPF_SetVolume(soundVolume, musicVolume);
 			}
 		}
 	}

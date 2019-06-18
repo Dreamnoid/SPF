@@ -1,31 +1,14 @@
 #pragma once
 #include "Core.h"
-#include <vector>
 
 namespace SPF
 {
-	struct Image
+	namespace Images
 	{
-		bool InUse;
-		void* Pixels;
-		unsigned int Width;
-		unsigned int Height;
+		DLLExport ResourceIndex Load(unsigned char* buffer, int length);
+		DLLExport void Delete(ResourceIndex image);
+		DLLExport int GetWidth(ResourceIndex image);
+		DLLExport int GetHeight(ResourceIndex image);
+		DLLExport unsigned int GetPixel(ResourceIndex image, int x, int y);
 	};
-
-	class Images
-	{
-	private:
-		std::vector<Image> mImages;
-
-	public:
-		Images() : mImages(20) {}
-		ResourceIndex LoadImage(unsigned char* buffer, int length);
-		void DeleteImage(ResourceIndex image);
-		int GetImageWidth(ResourceIndex image);
-		int GetImageHeight(ResourceIndex image);
-		unsigned int GetImagePixel(ResourceIndex image, int x, int y);
-
-	};
-
-	extern Images mImages;
 }

@@ -23,7 +23,7 @@ namespace SPFSharp
 
 			public static void Begin(Surface surface)
 			{
-				Native.Begin((surface != null) ? surface.ID : -1);
+				Native.SPF_Begin((surface != null) ? surface.ID : -1);
 			}
 
 			public static void BeginLookAtPerspective(
@@ -42,7 +42,7 @@ namespace SPFSharp
 				float cameraTargetX, float cameraTargetY, float cameraTargetZ,
 				float fov, float nearDist, float farDist, float fogIntensity = 1.0f)
 			{
-				Native.BeginLookAtPerspective((surface != null) ? surface.ID : -1,
+				Native.SPF_BeginLookAtPerspective((surface != null) ? surface.ID : -1,
 					cameraX, cameraY, cameraZ,
 					cameraTargetX, cameraTargetY, cameraTargetZ,
 					fov, nearDist, farDist, fogIntensity);
@@ -50,25 +50,25 @@ namespace SPFSharp
 
 			public static void SetBlending(BlendMode blendMode)
 			{
-				Native.SetBlending((int)blendMode);
+				Native.SPF_SetBlending((int)blendMode);
 			}
 
 			public static void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a)
 			{
-				Native.FillRectangle(x, y, w, h, r, g, b, a);
+				Native.SPF_FillRectangle(x, y, w, h, r, g, b, a);
 			}
 
 			public static void DrawRectangle(int x, int y, int w, int h, float r, float g, float b, float a)
 			{
-				Native.FillRectangle(x, y, w, 1, r, g, b, a);
-				Native.FillRectangle(x, y + h - 1, w, 1, r, g, b, a);
-				Native.FillRectangle(x, y + 1, 1, h - 2, r, g, b, a);
-				Native.FillRectangle(x + w - 1, y + 1, 1, h - 2, r, g, b, a);
+				Native.SPF_FillRectangle(x, y, w, 1, r, g, b, a);
+				Native.SPF_FillRectangle(x, y + h - 1, w, 1, r, g, b, a);
+				Native.SPF_FillRectangle(x, y + 1, 1, h - 2, r, g, b, a);
+				Native.SPF_FillRectangle(x + w - 1, y + 1, 1, h - 2, r, g, b, a);
 			}
 
 			public static void DrawTexture(Texture tex, int x, int y)
 			{
-				Native.DrawTexture(tex.ID, x, y, tex.Width, tex.Height, 0, 0, tex.Width, tex.Height, false, false, 1, 1, 1, 1, 0, 0, 0, 0);
+				Native.SPF_DrawTexture(tex.ID, x, y, tex.Width, tex.Height, 0, 0, tex.Width, tex.Height, false, false, 1, 1, 1, 1, 0, 0, 0, 0);
 			}
 
 			public static void DrawTexture(Texture tex,
@@ -77,7 +77,7 @@ namespace SPFSharp
 				bool flipx, bool flipy,
 				float r, float g, float b, float a)
 			{
-				Native.DrawTexture(tex.ID, x, y, w, h, clipx, clipy, clipw, cliph, flipx, flipy, r, g, b, a, 0, 0, 0, 0);
+				Native.SPF_DrawTexture(tex.ID, x, y, w, h, clipx, clipy, clipw, cliph, flipx, flipy, r, g, b, a, 0, 0, 0, 0);
 			}
 
 			public static void DrawTexture(Texture tex,
@@ -87,7 +87,7 @@ namespace SPFSharp
 				float r, float g, float b, float a,
 				float overlayR, float overlayG, float overlayB, float overlayA)
 			{
-				Native.DrawTexture(tex.ID, x, y, w, h, clipx, clipy, clipw, cliph, flipx, flipy, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+				Native.SPF_DrawTexture(tex.ID, x, y, w, h, clipx, clipy, clipw, cliph, flipx, flipy, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 			}
 
 			public static void DrawTexturedQuad(Texture tex,
@@ -100,7 +100,7 @@ namespace SPFSharp
 				float r, float g, float b, float a,
 				float overlayR, float overlayG, float overlayB, float overlayA)
 			{
-				Native.DrawTexturedQuad(tex.ID, Ax, Ay, 0, Bx, By, 0, Cx, Cy, 0, Dx, Dy, 0, srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+				Native.SPF_DrawTexturedQuad(tex.ID, Ax, Ay, 0, Bx, By, 0, Cx, Cy, 0, Dx, Dy, 0, srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 			}
 
 			public static void DrawTexturedQuad(Texture tex,
@@ -113,12 +113,12 @@ namespace SPFSharp
 				float r, float g, float b, float a,
 				float overlayR, float overlayG, float overlayB, float overlayA)
 			{
-				Native.DrawTexturedQuad(tex.ID, Ax, Ay, Az, Bx, By, Bz, Cx, Cy, Cz, Dx, Dy, Dz, srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+				Native.SPF_DrawTexturedQuad(tex.ID, Ax, Ay, Az, Bx, By, Bz, Cx, Cy, Cz, Dx, Dy, Dz, srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 			}
 
 			public static void DrawMesh(Texture texture, Mesh mesh)
 			{
-				Native.DrawMesh(texture.ID, mesh.ID);
+				Native.SPF_DrawMesh(texture.ID, mesh.ID);
 			}
 
 			public static void DrawBillboard(Texture tex,
@@ -128,7 +128,7 @@ namespace SPFSharp
 				float r, float g, float b, float a,
 				float overlayR, float overlayG, float overlayB, float overlayA)
 			{
-				Native.DrawBillboard(tex.ID,
+				Native.SPF_DrawBillboard(tex.ID,
 					x, y, z, radius,
 					srcx, srcy, srcw, srch,
 					flipX, flipY,

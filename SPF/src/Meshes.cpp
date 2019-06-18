@@ -1,45 +1,48 @@
 #include <Meshes.h>
+#include <vector>
 #include "gl4.h"
+#include "Resources.h"
 
 namespace SPF
 {
-	Meshes mMeshes;
-
-	ResourceIndex Meshes::Load(Vertex* vertices, int count)
+	namespace Meshes
 	{
-		GLuint id;
-		glGenBuffers(1, &id);
-		glBindBuffer(GL_ARRAY_BUFFER, id);
-		glBufferData(GL_ARRAY_BUFFER, count * sizeof(Vertex), vertices, GL_STATIC_DRAW);
-
-		for (ResourceIndex meshID = 0; meshID < mMeshes.size(); ++meshID)
+		ResourceIndex Meshes::Load(Vertex* vertices, int count)
 		{
-			if (!mMeshes[meshID].InUse)
-			{
-				mMeshes[meshID] = { true,id,count };
-				return meshID;
-			}
-		}
-		mMeshes.push_back({ true,id,count });
-		return mMeshes.size() - 1;
-	}
+			GLuint id;
+			glGenBuffers(1, &id);
+			glBindBuffer(GL_ARRAY_BUFFER, id);
+			glBufferData(GL_ARRAY_BUFFER, count * sizeof(Vertex), vertices, GL_STATIC_DRAW);
 
-	void Meshes::Delete(ResourceIndex mesh)
-	{
-		mMeshes[mesh].InUse = false;
-		glDeleteBuffers(1, &mMeshes[mesh].GLID);
+			for (ResourceIndex meshID = 0; meshID < Resources.Meshes.size(); ++meshID)
+			{
+				if (!Resources.Meshes[meshID].InUse)
+				{
+					Resources.Meshes[meshID] = { true,id,count };
+					return meshID;
+				}
+			}
+			Resources.Meshes.push_back({ true,id,count });
+			return Resources.Meshes.size() - 1;
+		}
+
+		void Meshes::Delete(ResourceIndex mesh)
+		{
+			Resources.Meshes[mesh].InUse = false;
+			glDeleteBuffers(1, &Resources.Meshes[mesh].GLID);
+		}
 	}
 }
 
 extern "C"
 {
-	DLLExport SPF::ResourceIndex LoadMesh(SPF::Vertex* vertices, int count)
+	DLLExport int SPF_LoadMesh(SPF::Vertex* vertices, int count)
 	{
-		return SPF::mMeshes.Load(vertices, count);
+		return SPF::Meshes::Load(vertices, count);
 	}
 
-	DLLExport void DeleteMesh(SPF::ResourceIndex mesh)
+	DLLExport void SPF_DeleteMesh(int mesh)
 	{
-		SPF::mMeshes.Delete(mesh);
+		SPF::Meshes::Delete(mesh);
 	}
 }

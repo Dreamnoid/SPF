@@ -59,6 +59,7 @@
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Meshes.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
+    <ClCompile Include="src\Resources.cpp" />
     <ClCompile Include="src\Surfaces.cpp" />
     <ClCompile Include="src\Textures.cpp" />
     <ClCompile Include="src\Window.cpp" />
@@ -74,6 +75,7 @@
     <ClInclude Include="include\Surfaces.h" />
     <ClInclude Include="include\Textures.h" />
     <ClInclude Include="include\Window.h" />
+    <ClInclude Include="src\Resources.h" />
     <ClInclude Include="src\GL4.h" />
     <ClInclude Include="src\stb_image.h" />
   </ItemGroup>

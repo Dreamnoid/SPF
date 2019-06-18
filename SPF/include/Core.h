@@ -10,7 +10,7 @@ namespace SPF
 	using ResourceIndex = int32_t;
 	using HardwareID = uint32_t;
 
-	void FatalError(const char* msg);
+	DLLExport void FatalError(const char* msg);
 
 	struct Vertex
 	{

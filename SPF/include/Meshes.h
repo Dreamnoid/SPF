@@ -1,32 +1,12 @@
 #pragma once
 #include <vector>
-#include "Core.h"
+#include <Core.h>
 
 namespace SPF
 {
-	struct Mesh
+	namespace Meshes
 	{
-		bool InUse = false;
-		HardwareID GLID;
-		int VerticesCount = 0;
+		DLLExport ResourceIndex Load(Vertex* vertices, int count);
+		DLLExport void Delete(ResourceIndex mesh);
 	};
-
-	class Meshes
-	{
-	private:
-		std::vector<Mesh> mMeshes;
-
-	public:
-		Meshes() :mMeshes(10) {};
-		ResourceIndex Load(Vertex* vertices, int count);
-		void Delete(ResourceIndex mesh);
-
-		inline const Mesh& Get(ResourceIndex mesh) const
-		{
-			return mMeshes[mesh];
-		}
-
-	};
-
-	extern Meshes mMeshes;
 }

@@ -9,49 +9,17 @@ namespace SPF
 		Additive
 	};
 
-	constexpr uint32_t MaxSprites = 2000;
-	constexpr uint32_t VerticesPerSprite = 4;
-	constexpr uint32_t VerticesCount = MaxSprites * VerticesPerSprite;
-
-	class Renderer
+	namespace Renderer
 	{
-	private:
-		Vertex mVertices[VerticesCount];
-		HardwareID mBatchVBOID;
-		HardwareID mEmptyTexture;
-		HardwareID mProgram;
-		ResourceIndex mFinalSurface;
-		struct
-		{
-			int VertexCount;
-			HardwareID CurrentTexture;
-		} mBatchInfo;
-
-		void Prepare();
-		void IssueVertices();
-
-		void PushVertex(HardwareID texture,
-			float x, float y, float z,
-			float u, float v, float bu, float bv,
-			float r, float g, float b, float a,
-			float overlayR, float overlayG, float overlayB, float overlayA);
-
-		int mCurrentWidth;
-		int mCurrentHeight;
-		float mMVP[16];
-		float mCameraSideX = 0.f, mCameraSideY = 0.f, mCameraSideZ = 0.f;
-		float mFogIntensity = 0.f;
-
-	public:
-		void Begin(ResourceIndex surface);
-		void BeginLookAtPerspective(ResourceIndex surface,
+		DLLExport void Begin(ResourceIndex surface);
+		DLLExport void BeginLookAtPerspective(ResourceIndex surface,
 			float cameraX, float cameraY, float cameraZ,
 			float cameraTargetX, float cameraTargetY, float cameraTargetZ,
 			float fov, float nearDist, float farDist, float fogIntensity);
-		void DrawFinalSurface(int w, int h);
-		void Init(int w, int h);
-		void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a);
-		void DrawTexturedQuad(
+		DLLExport void DrawFinalSurface(int w, int h);
+		DLLExport void Init(int w, int h);
+		DLLExport void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a);
+		DLLExport void DrawTexturedQuad(
 			ResourceIndex tex,
 			float Ax, float Ay, float Az,
 			float Bx, float By, float Bz,
@@ -61,20 +29,21 @@ namespace SPF
 			bool flipX, bool flipY,
 			float r, float g, float b, float a,
 			float overlayR, float overlayG, float overlayB, float overlayA);
-		void DrawMesh(ResourceIndex tex, ResourceIndex mesh);
-		void SetBlending(BlendMode blendMode);
-		void DrawBillboard(ResourceIndex tex,
+		DLLExport void DrawTexture(
+			ResourceIndex tex,
+			int x, int y, int w, int h,
+			int srcx, int srcy, int srcw, int srch,
+			bool flipX, bool flipY,
+			float r, float g, float b, float a,
+			float overlayR, float overlayG, float overlayB, float overlayA);
+		DLLExport void DrawMesh(ResourceIndex tex, ResourceIndex mesh);
+		DLLExport void SetBlending(BlendMode blendMode);
+		DLLExport void DrawBillboard(ResourceIndex tex,
 			float x, float y, float z, float radius,
 			int srcx, int srcy, int srcw, int srch,
 			bool flipX, bool flipY,
 			float r, float g, float b, float a,
 			float overlayR, float overlayG, float overlayB, float overlayA);
-
-		inline ResourceIndex GetFinalSurface() const
-		{
-			return mFinalSurface;
-		}
-	};
-
-	extern Renderer mRenderer;
+		ResourceIndex GetFinalSurface();
+	}
 }

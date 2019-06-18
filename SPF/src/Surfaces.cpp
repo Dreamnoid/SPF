@@ -1,102 +1,103 @@
 #include <Surfaces.h>
 #include "gl4.h"
 #include <cstdio>
+#include <vector>
 #include <Textures.h>
+#include "Resources.h"
 
 namespace SPF
 {
-	Surfaces mSurfaces;
-
-	ResourceIndex Surfaces::Create(int w, int h, bool depth)
+	namespace Surfaces
 	{
-		ResourceIndex texture = mTextures.Create(w, h, nullptr, true);
-
-		GLuint ids[1];
-		glGenFramebuffers(1, ids);
-		GLuint fboID = ids[0];
-
-		glBindFramebuffer(GL_FRAMEBUFFER, fboID);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTextures.Get(texture).GLID, 0);
-
-		GLuint depthID = 0;
-		if (depth)
+		ResourceIndex Create(int w, int h, bool depth)
 		{
-			glGenRenderbuffers(1, ids);
-			depthID = ids[0];
-			glBindRenderbuffer(GL_RENDERBUFFER, depthID);
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, w, h);
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthID);
-			glBindRenderbuffer(GL_RENDERBUFFER, 0);
+			ResourceIndex texture = Textures::Create(w, h, nullptr, true);
+
+			GLuint ids[1];
+			glGenFramebuffers(1, ids);
+			GLuint fboID = ids[0];
+
+			glBindFramebuffer(GL_FRAMEBUFFER, fboID);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, Resources.Textures[texture].GLID, 0);
+
+			GLuint depthID = 0;
+			if (depth)
+			{
+				glGenRenderbuffers(1, ids);
+				depthID = ids[0];
+				glBindRenderbuffer(GL_RENDERBUFFER, depthID);
+				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, w, h);
+				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthID);
+				glBindRenderbuffer(GL_RENDERBUFFER, 0);
+			}
+
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+			for (ResourceIndex surfaceID = 0; surfaceID < Resources.Surfaces.size(); ++surfaceID)
+			{
+				if (!Resources.Surfaces[surfaceID].InUse)
+				{
+					Resources.Surfaces[surfaceID] = { true,fboID,depthID,texture,depth };
+					return surfaceID;
+				}
+			}
+			Resources.Surfaces.push_back({ true,fboID,depthID,texture,depth });
+			return Resources.Surfaces.size() - 1;
 		}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		for (ResourceIndex surfaceID = 0; surfaceID < mSurfaces.size(); ++surfaceID)
+		void Delete(ResourceIndex surface)
 		{
-			if (!mSurfaces[surfaceID].InUse)
+			Resources.Surfaces[surface].InUse = false;
+			GLuint ids[1];
+			if (Resources.Surfaces[surface].HasDepth)
 			{
-				mSurfaces[surfaceID] = { true,fboID,depthID,texture,depth };
-				return surfaceID;
+				ids[0] = Resources.Surfaces[surface].DepthGLID;
+				glDeleteRenderBuffers(1, ids);
+			}
+			ids[0] = Resources.Surfaces[surface].GLID;
+			glDeleteFramebuffers(1, ids);
+			Textures::Delete(Resources.Surfaces[surface].Texture);
+		}
+
+		void Clear(ResourceIndex surface)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, Resources.Surfaces[surface].GLID);
+			if (Resources.Surfaces[surface].HasDepth)
+			{
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			}
+			else
+			{
+				glClear(GL_COLOR_BUFFER_BIT);
 			}
 		}
-		mSurfaces.push_back({ true,fboID,depthID,texture,depth });
-		return mSurfaces.size() - 1;
-	}
 
-	void Surfaces::Delete(ResourceIndex surface)
-	{
-		mSurfaces[surface].InUse = false;
-		GLuint ids[1];
-		if (mSurfaces[surface].HasDepth)
+		ResourceIndex GetTexture(ResourceIndex surface)
 		{
-			ids[0] = mSurfaces[surface].DepthGLID;
-			glDeleteRenderBuffers(1, ids);
-		}
-		ids[0] = mSurfaces[surface].GLID;
-		glDeleteFramebuffers(1, ids);
-		mTextures.Delete(mSurfaces[surface].Texture);
-	}
-
-	ResourceIndex Surfaces::GetTexture(ResourceIndex surface)
-	{
-		return mSurfaces[surface].Texture;
-	}
-
-	void Surfaces::Clear(ResourceIndex surface)
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, mSurfaces[surface].GLID);
-		if (mSurfaces[surface].HasDepth)
-		{
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		}
-		else
-		{
-			glClear(GL_COLOR_BUFFER_BIT);
+			return Resources.Surfaces[surface].Texture;
 		}
 	}
 }
 
 extern "C"
 {
-
-	DLLExport SPF::ResourceIndex CreateSurface(int w, int h, int depth)
+	DLLExport int SPF_CreateSurface(int w, int h, int depth)
 	{
-		return SPF::mSurfaces.Create(w, h, depth);
+		return SPF::Surfaces::Create(w, h, depth);
 	}
 
-	DLLExport void ClearSurface(SPF::ResourceIndex surface)
+	DLLExport void SPF_ClearSurface(int surface)
 	{
-		SPF::mSurfaces.Clear(surface);
+		SPF::Surfaces::Clear(surface);
 	}
 
-	DLLExport void DeleteSurface(SPF::ResourceIndex surface)
+	DLLExport void SPF_DeleteSurface(int surface)
 	{
-		SPF::mSurfaces.Delete(surface);
+		SPF::Surfaces::Delete(surface);
 	}
 
-	DLLExport SPF::ResourceIndex GetSurfaceTexture(SPF::ResourceIndex surface)
+	DLLExport int SPF_GetSurfaceTexture(int surface)
 	{
-		return SPF::mSurfaces.GetTexture(surface);
+		return SPF::Surfaces::GetTexture(surface);
 	}
-
 }

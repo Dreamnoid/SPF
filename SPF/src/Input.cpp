@@ -4,353 +4,372 @@
 
 namespace SPF
 {
-	Input mInput;
+	constexpr int ModifiersCount = 3;
 
-	int TranslateKey(Key key)
+	struct
 	{
-		switch (key)
-		{
-		case Key::Up: return SDL_SCANCODE_UP;
-		case Key::Down: return SDL_SCANCODE_DOWN;
-		case Key::Left: return SDL_SCANCODE_LEFT;
-		case Key::Right: return SDL_SCANCODE_RIGHT;
-		case Key::Space: return SDL_SCANCODE_SPACE;
-		case Key::Escape: return SDL_SCANCODE_ESCAPE;
-		case Key::Delete: return SDL_SCANCODE_DELETE;
-		case Key::Z: return SDL_SCANCODE_Z;
-		case Key::X: return SDL_SCANCODE_X;
-		case Key::C: return SDL_SCANCODE_C;
-		case Key::Num0: return SDL_SCANCODE_KP_0;
-		case Key::Num1: return SDL_SCANCODE_KP_1;
-		case Key::Num2: return SDL_SCANCODE_KP_2;
-		case Key::Num3: return SDL_SCANCODE_KP_3;
-		case Key::Num4: return SDL_SCANCODE_KP_4;
-		case Key::Num5: return SDL_SCANCODE_KP_5;
-		case Key::Num6: return SDL_SCANCODE_KP_6;
-		case Key::Num7: return SDL_SCANCODE_KP_7;
-		case Key::Num8: return SDL_SCANCODE_KP_8;
-		case Key::Num9: return SDL_SCANCODE_KP_9;
-		case Key::Control: return (SDL_NUM_SCANCODES + 0);
-		case Key::Shift: return (SDL_NUM_SCANCODES + 1);
-		case Key::Alt: return (SDL_NUM_SCANCODES + 2);
-		default: return SDL_SCANCODE_RETURN;
-		}
-	}
+		SDL_GameController* Controller;
+		int KeysDownPreviousFrame[SDL_NUM_SCANCODES + ModifiersCount];
+		int KeysDown[SDL_NUM_SCANCODES + ModifiersCount];
 
+		int ButtonsDownPreviousFrame[SDL_CONTROLLER_BUTTON_MAX];
+		int ButtonsDown[SDL_CONTROLLER_BUTTON_MAX];
 
-	SDL_GameControllerButton TranslateButton(Button button)
+		int MouseX;
+		int MouseY;
+		int MouseDeltaX;
+		int MouseDeltaY;
+		unsigned int CurrentMouseState;
+		unsigned int PreviousMouseState;
+		bool RelativeMode = false;
+	} InputData;
+
+	namespace Input
 	{
-		switch (button)
-		{
-		case Button::A: return SDL_CONTROLLER_BUTTON_A;
-		case Button::B: return SDL_CONTROLLER_BUTTON_B;
-		case Button::X: return SDL_CONTROLLER_BUTTON_X;
-		case Button::Y: return SDL_CONTROLLER_BUTTON_Y;
-		case Button::Start: return SDL_CONTROLLER_BUTTON_START;
-		case Button::Select: return SDL_CONTROLLER_BUTTON_BACK;
-		case Button::DPadUp: return SDL_CONTROLLER_BUTTON_DPAD_UP;
-		case Button::DPadDown: return SDL_CONTROLLER_BUTTON_DPAD_DOWN;
-		case Button::DPadRight: return SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
-		case Button::DPadLeft: return SDL_CONTROLLER_BUTTON_DPAD_LEFT;
-		case Button::LeftShoulder: return SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
-		case Button::RightShoulder: return SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
-		default: return SDL_CONTROLLER_BUTTON_A;
-		}
-	}
 
-	unsigned int TranslateMouseButton(MouseButton button)
-	{
-		switch (button)
+		int TranslateKey(Key key)
 		{
-		case MouseButton::Left: return SDL_BUTTON_LEFT;
-		case MouseButton::Right: return SDL_BUTTON_RIGHT;
-		default: return SDL_BUTTON_LEFT;
-		}
-	}
-
-	void Input::SearchGamepad()
-	{
-		mController = nullptr;
-		for (int i = 0; i < SDL_NumJoysticks(); ++i)
-		{
-			if (SDL_IsGameController(i))
+			switch (key)
 			{
-				mController = SDL_GameControllerOpen(i);
-				if (mController)
+			case Key::Up: return SDL_SCANCODE_UP;
+			case Key::Down: return SDL_SCANCODE_DOWN;
+			case Key::Left: return SDL_SCANCODE_LEFT;
+			case Key::Right: return SDL_SCANCODE_RIGHT;
+			case Key::Space: return SDL_SCANCODE_SPACE;
+			case Key::Escape: return SDL_SCANCODE_ESCAPE;
+			case Key::Delete: return SDL_SCANCODE_DELETE;
+			case Key::Z: return SDL_SCANCODE_Z;
+			case Key::X: return SDL_SCANCODE_X;
+			case Key::C: return SDL_SCANCODE_C;
+			case Key::Num0: return SDL_SCANCODE_KP_0;
+			case Key::Num1: return SDL_SCANCODE_KP_1;
+			case Key::Num2: return SDL_SCANCODE_KP_2;
+			case Key::Num3: return SDL_SCANCODE_KP_3;
+			case Key::Num4: return SDL_SCANCODE_KP_4;
+			case Key::Num5: return SDL_SCANCODE_KP_5;
+			case Key::Num6: return SDL_SCANCODE_KP_6;
+			case Key::Num7: return SDL_SCANCODE_KP_7;
+			case Key::Num8: return SDL_SCANCODE_KP_8;
+			case Key::Num9: return SDL_SCANCODE_KP_9;
+			case Key::Control: return (SDL_NUM_SCANCODES + 0);
+			case Key::Shift: return (SDL_NUM_SCANCODES + 1);
+			case Key::Alt: return (SDL_NUM_SCANCODES + 2);
+			default: return SDL_SCANCODE_RETURN;
+			}
+		}
+
+		SDL_GameControllerButton TranslateButton(Button button)
+		{
+			switch (button)
+			{
+			case Button::A: return SDL_CONTROLLER_BUTTON_A;
+			case Button::B: return SDL_CONTROLLER_BUTTON_B;
+			case Button::X: return SDL_CONTROLLER_BUTTON_X;
+			case Button::Y: return SDL_CONTROLLER_BUTTON_Y;
+			case Button::Start: return SDL_CONTROLLER_BUTTON_START;
+			case Button::Select: return SDL_CONTROLLER_BUTTON_BACK;
+			case Button::DPadUp: return SDL_CONTROLLER_BUTTON_DPAD_UP;
+			case Button::DPadDown: return SDL_CONTROLLER_BUTTON_DPAD_DOWN;
+			case Button::DPadRight: return SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
+			case Button::DPadLeft: return SDL_CONTROLLER_BUTTON_DPAD_LEFT;
+			case Button::LeftShoulder: return SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
+			case Button::RightShoulder: return SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
+			default: return SDL_CONTROLLER_BUTTON_A;
+			}
+		}
+
+		unsigned int TranslateMouseButton(MouseButton button)
+		{
+			switch (button)
+			{
+			case MouseButton::Left: return SDL_BUTTON_LEFT;
+			case MouseButton::Right: return SDL_BUTTON_RIGHT;
+			default: return SDL_BUTTON_LEFT;
+			}
+		}
+
+		void SearchGamepad()
+		{
+			InputData.Controller = nullptr;
+			for (int i = 0; i < SDL_NumJoysticks(); ++i)
+			{
+				if (SDL_IsGameController(i))
 				{
-					break;
+					InputData.Controller = SDL_GameControllerOpen(i);
+					if (InputData.Controller)
+					{
+						break;
+					}
 				}
 			}
 		}
-	}
 
-	void Input::Init()
-	{
-		SDL_GameControllerEventState(SDL_ENABLE);
-		SearchGamepad();
-		mRelativeMode = false;
-	}
-
-	void Input::Update()
-	{
-		memcpy(mKeysDownPreviousFrame, mKeysDown, sizeof(mKeysDownPreviousFrame));
-		memcpy(mButtonsDownPreviousFrame, mButtonsDown, sizeof(mButtonsDownPreviousFrame));
-
-		int previousMouseX = mMouseX;
-		int previousMouseY = mMouseY;
-		mPreviousMouseState = mCurrentMouseState;
-		mCurrentMouseState = SDL_GetMouseState(&mMouseX, &mMouseY);
-		if (mRelativeMode)
+		void Init()
 		{
-			SDL_GetRelativeMouseState(&mMouseDeltaX, &mMouseDeltaY);
-		}
-		else
-		{
-			mMouseDeltaX = mMouseX - previousMouseX;
-			mMouseDeltaY = mMouseY - previousMouseY;
-		}
-
-		SDL_Keymod modifiers = SDL_GetModState();
-		mKeysDown[TranslateKey(Key::Control)] = ((modifiers & KMOD_CTRL) != 0);
-		mKeysDown[TranslateKey(Key::Shift)] = ((modifiers & KMOD_SHIFT) != 0);
-		mKeysDown[TranslateKey(Key::Alt)] = ((modifiers & KMOD_ALT) != 0);
-	}
-
-	void Input::HandleEvent(const OpaquePointer evtPtr)
-	{
-		const SDL_Event& evt = *(SDL_Event*)evtPtr;
-		if (evt.type == SDL_KEYDOWN)
-		{
-			mKeysDown[evt.key.keysym.scancode] = 1;
-		}
-		if (evt.type == SDL_KEYUP)
-		{
-			mKeysDown[evt.key.keysym.scancode] = 0;
-		}
-		if (evt.type == SDL_CONTROLLERBUTTONDOWN)
-		{
-			mButtonsDown[evt.cbutton.button] = 1;
-		}
-		if (evt.type == SDL_CONTROLLERBUTTONUP)
-		{
-			mButtonsDown[evt.cbutton.button] = 0;
-		}
-		if (evt.type == SDL_CONTROLLERDEVICEADDED || evt.type == SDL_CONTROLLERDEVICEREMOVED)
-		{
+			SDL_GameControllerEventState(SDL_ENABLE);
 			SearchGamepad();
-			if (evt.type == SDL_CONTROLLERDEVICEREMOVED)
+		}
+
+		void Update()
+		{
+			memcpy(InputData.KeysDownPreviousFrame, InputData.KeysDown, sizeof(InputData.KeysDownPreviousFrame));
+			memcpy(InputData.ButtonsDownPreviousFrame, InputData.ButtonsDown, sizeof(InputData.ButtonsDownPreviousFrame));
+
+			int previousMouseX = InputData.MouseX;
+			int previousMouseY = InputData.MouseY;
+			InputData.PreviousMouseState = InputData.CurrentMouseState;
+			InputData.CurrentMouseState = SDL_GetMouseState(&InputData.MouseX, &InputData.MouseY);
+			if (InputData.RelativeMode)
 			{
-				memset(&mButtonsDown, 0, sizeof(mButtonsDown)); // All buttons released
+				SDL_GetRelativeMouseState(&InputData.MouseDeltaX, &InputData.MouseDeltaY);
+			}
+			else
+			{
+				InputData.MouseDeltaX = InputData.MouseX - previousMouseX;
+				InputData.MouseDeltaY = InputData.MouseY - previousMouseY;
+			}
+
+			SDL_Keymod modifiers = SDL_GetModState();
+			InputData.KeysDown[TranslateKey(Key::Control)] = ((modifiers & KMOD_CTRL) != 0);
+			InputData.KeysDown[TranslateKey(Key::Shift)] = ((modifiers & KMOD_SHIFT) != 0);
+			InputData.KeysDown[TranslateKey(Key::Alt)] = ((modifiers & KMOD_ALT) != 0);
+		}
+
+		void HandleEvent(const OpaquePointer evtPtr)
+		{
+			const SDL_Event& evt = *(SDL_Event*)evtPtr;
+			if (evt.type == SDL_KEYDOWN)
+			{
+				InputData.KeysDown[evt.key.keysym.scancode] = 1;
+			}
+			if (evt.type == SDL_KEYUP)
+			{
+				InputData.KeysDown[evt.key.keysym.scancode] = 0;
+			}
+			if (evt.type == SDL_CONTROLLERBUTTONDOWN)
+			{
+				InputData.ButtonsDown[evt.cbutton.button] = 1;
+			}
+			if (evt.type == SDL_CONTROLLERBUTTONUP)
+			{
+				InputData.ButtonsDown[evt.cbutton.button] = 0;
+			}
+			if (evt.type == SDL_CONTROLLERDEVICEADDED || evt.type == SDL_CONTROLLERDEVICEREMOVED)
+			{
+				SearchGamepad();
+				if (evt.type == SDL_CONTROLLERDEVICEREMOVED)
+				{
+					memset(&InputData.ButtonsDown, 0, sizeof(InputData.ButtonsDown)); // All buttons released
+				}
 			}
 		}
-	}
 
-	void Input::Dispose()
-	{
-		if (mController)
+		void Dispose()
 		{
-			SDL_GameControllerClose((SDL_GameController*)mController);
+			if (InputData.Controller)
+			{
+				SDL_GameControllerClose(InputData.Controller);
+			}
 		}
-	}
 
-	bool Input::IsKeyDown(Key key)
-	{
-		return mKeysDown[TranslateKey(key)];
-	}
-
-	bool Input::IsKeyPressed(Key key)
-	{
-		int code = TranslateKey(key);
-		return !mKeysDownPreviousFrame[code] && mKeysDown[code];
-	}
-
-	bool Input::IsKeyReleased(Key key)
-	{
-		int code = TranslateKey(key);
-		return mKeysDownPreviousFrame[code] && !mKeysDown[code];
-	}
-
-	bool Input::IsControllerConnected()
-	{
-		return mController;
-	}
-
-	bool Input::IsButtonDown(Button button)
-	{
-		return mButtonsDown[TranslateButton(button)];
-	}
-
-	bool Input::IsButtonPressed(Button button)
-	{
-		SDL_GameControllerButton code = TranslateButton(button);
-		return !mButtonsDownPreviousFrame[code] && mButtonsDown[code];
-	}
-
-	bool Input::IsButtonReleased(Button button)
-	{
-		SDL_GameControllerButton code = TranslateButton(button);
-		return mButtonsDownPreviousFrame[code] && !mButtonsDown[code];
-	}
-
-	int Input::GetMousePositionX() const
-	{
-		return mMouseX;
-	}
-
-	int Input::GetMousePositionY() const
-	{
-		return mMouseY;
-	}
-
-	int Input::GetMouseDeltaX() const
-	{
-		return mMouseDeltaX;
-	}
-
-	int Input::GetMouseDeltaY() const
-	{
-		return mMouseDeltaY;
-	}
-
-	bool Input::IsMouseButtonDown(MouseButton button)
-	{
-		return (mCurrentMouseState & SDL_BUTTON(TranslateMouseButton(button)));
-	}
-
-	bool Input::IsMouseButtonPressed(MouseButton button)
-	{
-		auto mask = SDL_BUTTON(TranslateMouseButton(button));
-		return ((mCurrentMouseState & mask) && !(mPreviousMouseState & mask));
-	}
-
-	bool Input::IsMouseButtonReleased(MouseButton button)
-	{
-		auto mask = SDL_BUTTON(TranslateMouseButton(button));
-		return (!(mCurrentMouseState & mask) && (mPreviousMouseState & mask));
-	}
-
-	constexpr float ThumbstickDeadzoneRatio = 0.1f;
-
-	float NormalizeThumbstick(Sint16 rawValue)
-	{
-		float normalizedValue = rawValue / 32767.f;
-		/*if (fabs(normalizedValue) <= ThumbstickDeadzoneRatio)
+		bool IsKeyDown(Key key)
 		{
-			normalizedValue = 0.f;
-		}*/
-		return normalizedValue;
-	}
-
-	float Input::GetLeftThumbstickX()
-	{
-		if (mController)
-		{
-			return NormalizeThumbstick(SDL_GameControllerGetAxis((SDL_GameController*)mController, SDL_CONTROLLER_AXIS_LEFTX));
+			return InputData.KeysDown[TranslateKey(key)];
 		}
-		else return 0.f;
-	}
 
-	float Input::GetLeftThumbstickY()
-	{
-		if (mController)
+		bool IsKeyPressed(Key key)
 		{
-			return NormalizeThumbstick(SDL_GameControllerGetAxis((SDL_GameController*)mController, SDL_CONTROLLER_AXIS_LEFTY));
+			int code = TranslateKey(key);
+			return !InputData.KeysDownPreviousFrame[code] && InputData.KeysDown[code];
 		}
-		else return 0.f;
-	}
 
-	void Input::SetRelativeMouseState(bool state)
-	{
-		mRelativeMode = state;
-		SDL_SetRelativeMouseMode(state ? SDL_TRUE : SDL_FALSE);
+		bool IsKeyReleased(Key key)
+		{
+			int code = TranslateKey(key);
+			return InputData.KeysDownPreviousFrame[code] && !InputData.KeysDown[code];
+		}
+
+		bool IsControllerConnected()
+		{
+			return InputData.Controller;
+		}
+
+		bool IsButtonDown(Button button)
+		{
+			return InputData.ButtonsDown[TranslateButton(button)];
+		}
+
+		bool IsButtonPressed(Button button)
+		{
+			SDL_GameControllerButton code = TranslateButton(button);
+			return !InputData.ButtonsDownPreviousFrame[code] && InputData.ButtonsDown[code];
+		}
+
+		bool IsButtonReleased(Button button)
+		{
+			SDL_GameControllerButton code = TranslateButton(button);
+			return InputData.ButtonsDownPreviousFrame[code] && !InputData.ButtonsDown[code];
+		}
+
+		int GetMousePositionX()
+		{
+			return InputData.MouseX;
+		}
+
+		int GetMousePositionY()
+		{
+			return InputData.MouseY;
+		}
+
+		int GetMouseDeltaX()
+		{
+			return InputData.MouseDeltaX;
+		}
+
+		int GetMouseDeltaY()
+		{
+			return InputData.MouseDeltaY;
+		}
+
+		bool IsMouseButtonDown(MouseButton button)
+		{
+			return (InputData.CurrentMouseState & SDL_BUTTON(TranslateMouseButton(button)));
+		}
+
+		bool IsMouseButtonPressed(MouseButton button)
+		{
+			auto mask = SDL_BUTTON(TranslateMouseButton(button));
+			return ((InputData.CurrentMouseState & mask) && !(InputData.PreviousMouseState & mask));
+		}
+
+		bool IsMouseButtonReleased(MouseButton button)
+		{
+			auto mask = SDL_BUTTON(TranslateMouseButton(button));
+			return (!(InputData.CurrentMouseState & mask) && (InputData.PreviousMouseState & mask));
+		}
+
+		constexpr float ThumbstickDeadzoneRatio = 0.1f;
+
+		float NormalizeThumbstick(Sint16 rawValue)
+		{
+			float normalizedValue = rawValue / 32767.f;
+			/*if (fabs(normalizedValue) <= ThumbstickDeadzoneRatio)
+			{
+				normalizedValue = 0.f;
+			}*/
+			return normalizedValue;
+		}
+
+		float GetLeftThumbstickX()
+		{
+			if (InputData.Controller)
+			{
+				return NormalizeThumbstick(SDL_GameControllerGetAxis(InputData.Controller, SDL_CONTROLLER_AXIS_LEFTX));
+			}
+			else return 0.f;
+		}
+
+		float GetLeftThumbstickY()
+		{
+			if (InputData.Controller)
+			{
+				return NormalizeThumbstick(SDL_GameControllerGetAxis(InputData.Controller, SDL_CONTROLLER_AXIS_LEFTY));
+			}
+			else return 0.f;
+		}
+
+		void SetRelativeMouseState(bool state)
+		{
+			InputData.RelativeMode = state;
+			SDL_SetRelativeMouseMode(state ? SDL_TRUE : SDL_FALSE);
+		}
 	}
 }
 
 extern "C"
 {
-
-	DLLExport int IsKeyDown(SPF::Key key)
+	DLLExport int SPF_IsKeyDown(int key)
 	{
-		return SPF::mInput.IsKeyDown(key) ? 1 : 0;
+		return SPF::Input::IsKeyDown((SPF::Key)key) ? 1 : 0;
 	}
 
-	DLLExport int IsKeyPressed(SPF::Key key)
+	DLLExport int SPF_IsKeyPressed(int key)
 	{
-		return SPF::mInput.IsKeyPressed(key) ? 1 : 0;
+		return SPF::Input::IsKeyPressed((SPF::Key)key) ? 1 : 0;
 	}
 
-	DLLExport int IsKeyReleased(SPF::Key key)
+	DLLExport int SPF_IsKeyReleased(int key)
 	{
-		return SPF::mInput.IsKeyReleased(key) ? 1 : 0;
+		return SPF::Input::IsKeyReleased((SPF::Key)key) ? 1 : 0;
 	}
 
-	DLLExport int IsControllerConnected()
+	DLLExport int SPF_IsControllerConnected()
 	{
-		return SPF::mInput.IsControllerConnected() ? 1 : 0;
+		return SPF::Input::IsControllerConnected() ? 1 : 0;
 	}
 
-	DLLExport int IsButtonDown(SPF::Button button)
+	DLLExport int SPF_IsButtonDown(int button)
 	{
-		return SPF::mInput.IsButtonDown(button) ? 1 : 0;
+		return SPF::Input::IsButtonDown((SPF::Button)button) ? 1 : 0;
 	}
 
-	DLLExport int IsButtonPressed(SPF::Button button)
+	DLLExport int SPF_IsButtonPressed(int button)
 	{
-		return SPF::mInput.IsButtonPressed(button) ? 1 : 0;
+		return SPF::Input::IsButtonPressed((SPF::Button)button) ? 1 : 0;
 	}
 
-	DLLExport int IsButtonReleased(SPF::Button button)
+	DLLExport int SPF_IsButtonReleased(int button)
 	{
-		return SPF::mInput.IsButtonReleased(button) ? 1 : 0;
+		return SPF::Input::IsButtonReleased((SPF::Button)button) ? 1 : 0;
 	}
 
-	DLLExport int GetMousePositionX()
+	DLLExport int SPF_GetMousePositionX()
 	{
-		return SPF::mInput.GetMousePositionX();
+		return SPF::Input::GetMousePositionX();
 	}
 
-	DLLExport int GetMousePositionY()
+	DLLExport int SPF_GetMousePositionY()
 	{
-		return SPF::mInput.GetMousePositionY();
+		return SPF::Input::GetMousePositionY();
 	}
 
-	DLLExport int GetMouseDeltaX()
+	DLLExport int SPF_GetMouseDeltaX()
 	{
-		return SPF::mInput.GetMouseDeltaX();
+		return SPF::Input::GetMouseDeltaX();
 	}
 
-	DLLExport int GetMouseDeltaY()
+	DLLExport int SPF_GetMouseDeltaY()
 	{
-		return SPF::mInput.GetMouseDeltaY();
+		return SPF::Input::GetMouseDeltaY();
 	}
 
-	DLLExport int IsMouseButtonDown(SPF::MouseButton button)
+	DLLExport int SPF_IsMouseButtonDown(int button)
 	{
-		return SPF::mInput.IsMouseButtonDown(button) ? 1 : 0;
+		return SPF::Input::IsMouseButtonDown((SPF::MouseButton)button) ? 1 : 0;
 	}
 
-	DLLExport int IsMouseButtonPressed(SPF::MouseButton button)
+	DLLExport int SPF_IsMouseButtonPressed(int button)
 	{
-		return SPF::mInput.IsMouseButtonPressed(button) ? 1 : 0;
+		return SPF::Input::IsMouseButtonPressed((SPF::MouseButton)button) ? 1 : 0;
 	}
 
-	DLLExport int IsMouseButtonReleased(SPF::MouseButton button)
+	DLLExport int SPF_IsMouseButtonReleased(int button)
 	{
-		return SPF::mInput.IsMouseButtonReleased(button) ? 1 : 0;
+		return SPF::Input::IsMouseButtonReleased((SPF::MouseButton)button) ? 1 : 0;
 	}
 
-	DLLExport float GetLeftThumbstickX()
+	DLLExport float SPF_GetLeftThumbstickX()
 	{
-		return SPF::mInput.GetLeftThumbstickX();
+		return SPF::Input::GetLeftThumbstickX();
 	}
 
-	DLLExport float GetLeftThumbstickY()
+	DLLExport float SPF_GetLeftThumbstickY()
 	{
-		return SPF::mInput.GetLeftThumbstickY();
+		return SPF::Input::GetLeftThumbstickY();
 	}
 
-	DLLExport void SetRelativeMouseState(bool state)
+	DLLExport void SPF_SetRelativeMouseState(bool state)
 	{
-		SPF::mInput.SetRelativeMouseState(state);
+		SPF::Input::SetRelativeMouseState(state);
 	}
 }

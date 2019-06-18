@@ -46,3 +46,4 @@ SPF/.vs
 bin/
 libs/
 SPFSharp/obj/
+backup/
