@@ -86,6 +86,7 @@ void Input::Init()
 {
 	SDL_GameControllerEventState(SDL_ENABLE);
 	SearchGamepad();
+	mRelativeMode = false;
 }
 
 void Input::Update()
@@ -93,8 +94,19 @@ void Input::Update()
 	memcpy(mKeysDownPreviousFrame, mKeysDown, sizeof(mKeysDownPreviousFrame));
 	memcpy(mButtonsDownPreviousFrame, mButtonsDown, sizeof(mButtonsDownPreviousFrame));
 
+	int previousMouseX = mMouseX;
+	int previousMouseY = mMouseY;
 	mPreviousMouseState = mCurrentMouseState;
 	mCurrentMouseState = SDL_GetMouseState(&mMouseX, &mMouseY);
+	if (mRelativeMode)
+	{
+		SDL_GetRelativeMouseState(&mMouseDeltaX, &mMouseDeltaY);
+	}
+	else
+	{
+		mMouseDeltaX = mMouseX - previousMouseX;
+		mMouseDeltaY = mMouseY - previousMouseY;
+	}
 
 	SDL_Keymod modifiers = SDL_GetModState();
 	mKeysDown[TranslateKey(Key::Control)] = ((modifiers & KMOD_CTRL) != 0);
@@ -177,14 +189,24 @@ bool Input::IsButtonReleased(Button button)
 	return mButtonsDownPreviousFrame[code] && !mButtonsDown[code];
 }
 
-int Input::GetMousePositionX()
+int Input::GetMousePositionX() const
 {
 	return mMouseX;
 }
 
-int Input::GetMousePositionY()
+int Input::GetMousePositionY() const
 {
 	return mMouseY;
+}
+
+int Input::GetMouseDeltaX() const
+{
+	return mMouseDeltaX;
+}
+
+int Input::GetMouseDeltaY() const
+{
+	return mMouseDeltaY;
 }
 
 bool Input::IsMouseButtonDown(MouseButton button)
@@ -232,6 +254,12 @@ float Input::GetLeftThumbstickY()
 		return NormalizeThumbstick(SDL_GameControllerGetAxis(mController, SDL_CONTROLLER_AXIS_LEFTY));
 	}
 	else return 0.f;
+}
+
+void Input::SetRelativeMouseState(bool state)
+{
+	mRelativeMode = state;
+	SDL_SetRelativeMouseMode(state ? SDL_TRUE : SDL_FALSE);
 }
 
 extern "C"
@@ -282,6 +310,16 @@ extern "C"
 		return mInput.GetMousePositionY();
 	}
 
+	DLLExport int GetMouseDeltaX()
+	{
+		return mInput.GetMouseDeltaX();
+	}
+
+	DLLExport int GetMouseDeltaY()
+	{
+		return mInput.GetMouseDeltaY();
+	}
+
 	DLLExport int IsMouseButtonDown(MouseButton button)
 	{
 		return mInput.IsMouseButtonDown(button) ? 1 : 0;
@@ -305,5 +343,10 @@ extern "C"
 	DLLExport float GetLeftThumbstickY()
 	{
 		return mInput.GetLeftThumbstickY();
+	}
+
+	DLLExport void SetRelativeMouseState(bool state)
+	{
+		mInput.SetRelativeMouseState(state);
 	}
 }

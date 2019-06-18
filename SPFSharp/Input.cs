@@ -99,6 +99,16 @@ namespace SPFSharp
 				return Native.GetMousePositionY();
 			}
 
+			public static int GetMouseDeltaX()
+			{
+				return Native.GetMouseDeltaX();
+			}
+
+			public static int GetMouseDeltaY()
+			{
+				return Native.GetMouseDeltaY();
+			}
+
 			public static bool IsMouseButtonDown(MouseButton button)
 			{
 				return Native.IsMouseButtonDown((int)button);
@@ -127,6 +137,11 @@ namespace SPFSharp
 			public static float GetLeftThumbstickY()
 			{
 				return Native.GetLeftThumbstickY();
+			}
+
+			public static void SetRelativeMouseState(bool state)
+			{
+				Native.SetRelativeMouseState(state);
 			}
 		}
 	}

@@ -166,6 +166,12 @@ namespace SPFSharp
 		public static extern int GetMousePositionY();
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern int GetMouseDeltaX();
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern int GetMouseDeltaY();
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern bool IsMouseButtonDown(int button);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
@@ -205,5 +211,8 @@ namespace SPFSharp
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern float GetLeftThumbstickY();
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SetRelativeMouseState(bool state);
 	}
 }

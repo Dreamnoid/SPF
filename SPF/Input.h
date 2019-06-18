@@ -65,8 +65,11 @@ private:
 
 	int mMouseX;
 	int mMouseY;
+	int mMouseDeltaX;
+	int mMouseDeltaY;
 	unsigned int mCurrentMouseState;
 	unsigned int mPreviousMouseState;
+	bool mRelativeMode;
 
 	void SearchGamepad();
 	
@@ -83,11 +86,14 @@ public:
 	bool IsButtonDown(Button button);
 	bool IsButtonPressed(Button button);
 	bool IsButtonReleased(Button button);
-	int GetMousePositionX();
-	int GetMousePositionY();
+	int GetMousePositionX() const;
+	int GetMousePositionY() const;
+	int GetMouseDeltaX() const;
+	int GetMouseDeltaY() const;
 	bool IsMouseButtonDown(MouseButton button);
 	bool IsMouseButtonPressed(MouseButton button);
 	bool IsMouseButtonReleased(MouseButton button);
+	void SetRelativeMouseState(bool state);
 
 	float GetLeftThumbstickX();
 	float GetLeftThumbstickY();
