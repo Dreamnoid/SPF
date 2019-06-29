@@ -257,6 +257,17 @@ namespace SPF
 			PushVertex(RendererData.EmptyTexture, (float)x, (float)(y + h), 0.f, 0.f, 1.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
 		}
 
+		void FillVerticalGradient(
+			int x, int y, int w, int h,
+			float r1, float g1, float b1, float a1,
+			float r2, float g2, float b2, float a2)
+		{
+			PushVertex(RendererData.EmptyTexture, (float)x, (float)y, 0.f, 0.f, 0.f, 0.f, 0.f, r1, g1, b1, a1, 0.f, 0.f, 0.f, 0.f);
+			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)y, 0.f, 1.f, 0.f, 0.f, 0.f, r1, g1, b1, a1, 0.f, 0.f, 0.f, 0.f);
+			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)(y + h), 0.f, 1.f, 1.f, 0.f, 0.f, r2, g2, b2, a2, 0.f, 0.f, 0.f, 0.f);
+			PushVertex(RendererData.EmptyTexture, (float)x, (float)(y + h), 0.f, 0.f, 1.f, 0.f, 0.f, r2, g2, b2, a2, 0.f, 0.f, 0.f, 0.f);
+		}
+
 		void DrawTexturedQuad(
 			ResourceIndex tex,
 			float Ax, float Ay, float Az,
@@ -475,6 +486,15 @@ extern "C"
 	DLLExport void SPF_FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a)
 	{
 		SPF::Renderer::FillRectangle(x, y, w, h, r, g, b, a);
+	}
+
+
+	DLLExport void SPF_FillVerticalGradient(
+		int x, int y, int w, int h,
+		float r1, float g1, float b1, float a1,
+		float r2, float g2, float b2, float a2)
+	{
+		SPF::Renderer::FillVerticalGradient(x, y, w, h, r1, g1, b1, a1, r2, g2, b2, a2);
 	}
 
 	DLLExport void SPF_DrawTexturedQuad(

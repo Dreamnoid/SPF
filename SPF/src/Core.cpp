@@ -9,3 +9,11 @@ namespace SPF
 		exit(1);
 	}
 }
+
+extern "C"
+{
+	DLLExport void SPF_FatalError(const char* msg)
+	{
+		SPF::FatalError(msg);
+	}
+}

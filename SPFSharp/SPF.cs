@@ -185,5 +185,10 @@ namespace SPFSharp
 				Native.SPF_DeleteMesh(ID);
 			}
 		}
+
+		public static void FatalError(string msg)
+		{
+			Native.SPF_FatalError(msg);
+		}
 	}
 }

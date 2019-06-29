@@ -39,6 +39,12 @@ namespace SPFSharp
 		public static extern void SPF_FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SPF_FillVerticalGradient(
+			int x, int y, int w, int h,
+			float r1, float g1, float b1, float a1,
+			float r2, float g2, float b2, float a2);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_DrawTexture(Int32 tex,
 			int x, int y, int w, int h,
 			int srcx, int srcy, int srcw, int srch,
@@ -214,5 +220,9 @@ namespace SPFSharp
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_SetRelativeMouseState(bool state);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SPF_FatalError(string msg);
+		
 	}
 }
