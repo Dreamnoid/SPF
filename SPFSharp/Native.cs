@@ -45,6 +45,12 @@ namespace SPFSharp
 			float r2, float g2, float b2, float a2);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SPF_FillHorizontalGradient(
+			int x, int y, int w, int h,
+			float r1, float g1, float b1, float a1,
+			float r2, float g2, float b2, float a2);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_DrawTexture(Int32 tex,
 			int x, int y, int w, int h,
 			int srcx, int srcy, int srcw, int srch,

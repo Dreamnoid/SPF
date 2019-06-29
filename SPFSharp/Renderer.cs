@@ -66,6 +66,14 @@ namespace SPFSharp
 				Native.SPF_FillVerticalGradient(x, y, w, h, r1, g1, b1, a1, r2, g2, b2, a2);
 			}
 
+			public static void FillHorizontalGradient(
+				int x, int y, int w, int h,
+				float r1, float g1, float b1, float a1,
+				float r2, float g2, float b2, float a2)
+			{
+				Native.SPF_FillHorizontalGradient(x, y, w, h, r1, g1, b1, a1, r2, g2, b2, a2);
+			}
+
 			public static void DrawRectangle(int x, int y, int w, int h, float r, float g, float b, float a)
 			{
 				Native.SPF_FillRectangle(x, y, w, 1, r, g, b, a);
