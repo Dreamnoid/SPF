@@ -34,7 +34,8 @@ namespace SPF
 
 		int CurrentWidth;
 		int CurrentHeight;
-		float MVP[16];
+		glm::mat4 ViewProj;
+		glm::mat4 Model;
 		float CameraSideX = 0.f, CameraSideY = 0.f, CameraSideZ = 0.f;
 		float FogIntensity = 0.f;
 	} RendererData;
@@ -181,6 +182,7 @@ namespace SPF
 			glUniform1i(glGetUniformLocation(RendererData.Program, "Texture"), 0);
 
 			RendererData.FinalSurface = Surfaces::Create(w, h, true);
+			RendererData.Model = glm::identity<glm::mat4>();
 		}
 
 		void Prepare()
@@ -188,7 +190,8 @@ namespace SPF
 			glViewport(0, 0, (GLsizei)RendererData.CurrentWidth, (GLsizei)RendererData.CurrentHeight);
 
 			glUseProgram(RendererData.Program);
-			glUniformMatrix4fv(glGetUniformLocation(RendererData.Program, "MVP"), 1, GL_FALSE, RendererData.MVP);
+			glm::mat4 mvp = RendererData.ViewProj * RendererData.Model;
+			glUniformMatrix4fv(glGetUniformLocation(RendererData.Program, "MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
 			glUniform3f(glGetUniformLocation(RendererData.Program, "CameraSide"), RendererData.CameraSideX, RendererData.CameraSideY, RendererData.CameraSideZ);
 			glUniform1f(glGetUniformLocation(RendererData.Program, "FogIntensity"), RendererData.FogIntensity);
 
@@ -340,7 +343,7 @@ namespace SPF
 				overlayR, overlayG, overlayB, overlayA);
 		}
 
-		void DrawMesh(ResourceIndex tex, ResourceIndex mesh)
+		void DrawMesh(ResourceIndex tex, ResourceIndex mesh, const float* world)
 		{
 			IssueVertices();
 
@@ -348,10 +351,14 @@ namespace SPF
 
 			glActiveTexture2(GL_TEXTURE0);
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, Resources.Textures[tex].GLID);
+			glBindTexture(GL_TEXTURE_2D, (tex < 0) ? RendererData.EmptyTexture : Resources.Textures[tex].GLID);
+
+			RendererData.Model = glm::make_mat4x4(world);
 
 			Prepare();
 			glDrawArrays(GL_TRIANGLES, 0, Resources.Meshes[mesh].VerticesCount);
+
+			RendererData.Model = glm::identity<glm::mat4>();
 		}
 
 		void SetBlending(BlendMode blendMode)
@@ -377,7 +384,7 @@ namespace SPF
 
 			RendererData.CurrentWidth = Resources.Textures[texture].Width;
 			RendererData.CurrentHeight = Resources.Textures[texture].Height;
-			SetupOrthographic(RendererData.MVP, 0, (float)RendererData.CurrentWidth, (float)RendererData.CurrentHeight, 0, -1.0f, 1.0f);
+			SetupOrthographic(glm::value_ptr(RendererData.ViewProj), 0, (float)RendererData.CurrentWidth, (float)RendererData.CurrentHeight, 0, -1.0f, 1.0f);
 			RendererData.CameraSideX = 0.f;
 			RendererData.CameraSideY = 0.f;
 			RendererData.CameraSideZ = 0.f;
@@ -386,7 +393,7 @@ namespace SPF
 			RendererData.FogIntensity = 0.f;
 		}
 
-		void Renderer::BeginLookAtPerspective(ResourceIndex surface,
+		void BeginLookAtPerspective(ResourceIndex surface,
 			float cameraX, float cameraY, float cameraZ,
 			float cameraTargetX, float cameraTargetY, float cameraTargetZ,
 			float fov, float nearDist, float farDist, float fogIntensity)
@@ -408,19 +415,15 @@ namespace SPF
 			RendererData.CameraSideY = cameraSide.y;
 			RendererData.CameraSideZ = cameraSide.z;
 
-			auto mvp = glm::perspectiveFov(fov, (float)RendererData.CurrentWidth, (float)RendererData.CurrentHeight, nearDist, farDist) * glm::lookAt(cameraPos, cameraTarget, glm::vec3(0.f, 1.f, 0.f));
-
-			float* ptrMVP = glm::value_ptr(mvp);
-			for (int i = 0; i < 16; ++i)
-			{
-				RendererData.MVP[i] = ptrMVP[i];
-			}
+			RendererData.ViewProj = 
+				glm::perspectiveFov(fov, (float)RendererData.CurrentWidth, (float)RendererData.CurrentHeight, nearDist, farDist) *
+				glm::lookAt(cameraPos, cameraTarget, glm::vec3(0.f, 1.f, 0.f));;
 
 			glEnable(GL_DEPTH_TEST);
 			RendererData.FogIntensity = fogIntensity;
 		}
 
-		void Renderer::DrawFinalSurface(int w, int h)
+		void DrawFinalSurface(int w, int h)
 		{
 			IssueVertices();
 
@@ -429,7 +432,7 @@ namespace SPF
 			RendererData.CurrentHeight = h;
 			glDisable(GL_DEPTH_TEST);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			SetupOrthographic(RendererData.MVP, 0, (float)RendererData.CurrentWidth, (float)RendererData.CurrentHeight, 0, -1.0f, 1.0f);
+			SetupOrthographic(glm::value_ptr(RendererData.ViewProj), 0, (float)RendererData.CurrentWidth, (float)RendererData.CurrentHeight, 0, -1.0f, 1.0f);
 
 			ResourceIndex texture = Surfaces::GetTexture(RendererData.FinalSurface);
 			DrawTexturedQuad(texture,
@@ -444,7 +447,7 @@ namespace SPF
 			IssueVertices();
 		}
 
-		void Renderer::DrawBillboard(ResourceIndex tex,
+		void DrawBillboard(ResourceIndex tex,
 			float x, float y, float z, float radius,
 			int srcx, int srcy, int srcw, int srch,
 			bool flipX, bool flipY,
@@ -552,9 +555,9 @@ extern "C"
 			overlayR, overlayG, overlayB, overlayA);
 	}
 
-	DLLExport void SPF_DrawMesh(int tex, int mesh)
+	DLLExport void SPF_DrawMesh(int tex, int mesh, float* world)
 	{
-		SPF::Renderer::DrawMesh(tex, mesh);
+		SPF::Renderer::DrawMesh(tex, mesh, world);
 	}
 
 	DLLExport void SPF_SetBlending(int blendMode)

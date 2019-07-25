@@ -208,7 +208,7 @@ namespace SPFSharp
 			float fov, float nearDist, float farDist, float fogIntensity);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void SPF_DrawMesh(Int32 texture, Int32 mesh);
+		public static extern void SPF_DrawMesh(Int32 texture, Int32 mesh, [MarshalAs(UnmanagedType.LPArray, SizeConst = 16)] float[] world);
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_DrawBillboard(Int32 tex,

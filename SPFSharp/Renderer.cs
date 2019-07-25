@@ -132,9 +132,27 @@ namespace SPFSharp
 				Native.SPF_DrawTexturedQuad(tex.ID, Ax, Ay, Az, Bx, By, Bz, Cx, Cy, Cz, Dx, Dy, Dz, srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 			}
 
+			private static readonly float[] _identityMatrix = new float[]
+			{
+				1f, 0f, 0f, 0f,
+				0f, 1f, 0f, 0f,
+				0f, 0f, 1f, 0f,
+				0f, 0f, 0f, 1f
+			};
+
 			public static void DrawMesh(Texture texture, Mesh mesh)
 			{
-				Native.SPF_DrawMesh(texture.ID, mesh.ID);
+				Native.SPF_DrawMesh(texture.ID, mesh.ID, _identityMatrix);
+			}
+
+			public static void DrawMesh(Texture texture, Mesh mesh, float[] world)
+			{
+				Native.SPF_DrawMesh(texture.ID, mesh.ID, world);
+			}
+
+			public static void DrawMesh(Mesh mesh, float[] world)
+			{
+				Native.SPF_DrawMesh(-1, mesh.ID, world);
 			}
 
 			public static void DrawBillboard(Texture tex,
