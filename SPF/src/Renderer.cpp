@@ -38,6 +38,7 @@ namespace SPF
 		glm::mat4 Model;
 		float CameraSideX = 0.f, CameraSideY = 0.f, CameraSideZ = 0.f;
 		float FogIntensity = 0.f;
+		bool Wireframe;
 	} RendererData;
 
 	namespace Renderer
@@ -183,11 +184,17 @@ namespace SPF
 
 			RendererData.FinalSurface = Surfaces::Create(w, h, true);
 			RendererData.Model = glm::identity<glm::mat4>();
+			RendererData.Wireframe = false;
+
+			glEnable(GL_POLYGON_OFFSET_LINE);
+			glPolygonOffset(-1.0f, -1.0f);
 		}
 
 		void Prepare()
 		{
 			glViewport(0, 0, (GLsizei)RendererData.CurrentWidth, (GLsizei)RendererData.CurrentHeight);
+
+			glPolygonMode(GL_FRONT_AND_BACK, (RendererData.Wireframe) ? GL_LINE : GL_FILL);
 
 			glUseProgram(RendererData.Program);
 			glm::mat4 mvp = RendererData.ViewProj * RendererData.Model;
@@ -488,7 +495,12 @@ namespace SPF
 			PushVertex(id, x, y, z, u1, v2, -halfRadius, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 		}
 
-		ResourceIndex Renderer::GetFinalSurface()
+		void SetWireframe(bool wireframeEnabled)
+		{
+			RendererData.Wireframe = wireframeEnabled;
+		}
+
+		ResourceIndex GetFinalSurface()
 		{
 			return RendererData.FinalSurface;
 		}
@@ -594,5 +606,10 @@ extern "C"
 			flipX, flipY,
 			r, g, b, a,
 			overlayR, overlayG, overlayB, overlayA);
+	}
+
+	DLLExport void SPF_SetWireframe(bool wireframeEnabled)
+	{
+		SPF::Renderer::SetWireframe(wireframeEnabled);
 	}
 }

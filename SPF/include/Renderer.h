@@ -52,6 +52,7 @@ namespace SPF
 			bool flipX, bool flipY,
 			float r, float g, float b, float a,
 			float overlayR, float overlayG, float overlayB, float overlayA);
+		DLLExport void SetWireframe(bool wireframeEnabled);
 		ResourceIndex GetFinalSurface();
 	}
 }

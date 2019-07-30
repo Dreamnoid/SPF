@@ -229,6 +229,8 @@ namespace SPFSharp
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_FatalError(string msg);
-		
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SPF_SetWireframe(bool wireframeEnabled);
 	}
 }

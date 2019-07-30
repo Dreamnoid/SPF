@@ -169,6 +169,11 @@ namespace SPFSharp
 					r, g, b, a,
 					overlayR, overlayG, overlayB, overlayA);
 			}
+
+			public static void SetWireframe(bool wireframeEnabled)
+			{
+				Native.SPF_SetWireframe(wireframeEnabled);
+			}
 		}
 	}
 }
