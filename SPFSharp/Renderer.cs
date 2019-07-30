@@ -147,7 +147,7 @@ namespace SPFSharp
 
 			public static void DrawMesh(Texture texture, Mesh mesh, float[] world)
 			{
-				Native.SPF_DrawMesh(texture.ID, mesh.ID, world);
+				Native.SPF_DrawMesh((texture != null) ? texture.ID : -1, mesh.ID, world);
 			}
 
 			public static void DrawMesh(Mesh mesh, float[] world)
