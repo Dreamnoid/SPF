@@ -352,6 +352,11 @@ namespace SPF
 
 		void DrawMesh(ResourceIndex tex, ResourceIndex mesh, const float* world)
 		{
+			DrawMesh(tex, mesh, 0, Resources.Meshes[mesh].VerticesCount, world);
+		}
+
+		void DrawMesh(ResourceIndex tex, ResourceIndex mesh, int first, int count, const float* world)
+		{
 			IssueVertices();
 
 			glBindBuffer(GL_ARRAY_BUFFER, Resources.Meshes[mesh].GLID);
@@ -363,7 +368,7 @@ namespace SPF
 			RendererData.Model = glm::make_mat4x4(world);
 
 			Prepare();
-			glDrawArrays(GL_TRIANGLES, 0, Resources.Meshes[mesh].VerticesCount);
+			glDrawArrays(GL_TRIANGLES, first, count);
 
 			RendererData.Model = glm::identity<glm::mat4>();
 		}
@@ -567,9 +572,9 @@ extern "C"
 			overlayR, overlayG, overlayB, overlayA);
 	}
 
-	DLLExport void SPF_DrawMesh(int tex, int mesh, float* world)
+	DLLExport void SPF_DrawMesh(int tex, int mesh, int first, int count, float* world)
 	{
-		SPF::Renderer::DrawMesh(tex, mesh, world);
+		SPF::Renderer::DrawMesh(tex, mesh, first, count, world);
 	}
 
 	DLLExport void SPF_SetBlending(int blendMode)

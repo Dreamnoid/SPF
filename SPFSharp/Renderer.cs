@@ -142,17 +142,22 @@ namespace SPFSharp
 
 			public static void DrawMesh(Texture texture, Mesh mesh)
 			{
-				Native.SPF_DrawMesh(texture.ID, mesh.ID, _identityMatrix);
+				Native.SPF_DrawMesh(texture.ID, mesh.ID, 0, mesh.VerticesCount, _identityMatrix);
 			}
 
 			public static void DrawMesh(Texture texture, Mesh mesh, float[] world)
 			{
-				Native.SPF_DrawMesh((texture != null) ? texture.ID : -1, mesh.ID, world);
+				Native.SPF_DrawMesh((texture != null) ? texture.ID : -1, mesh.ID, 0, mesh.VerticesCount, world);
+			}
+
+			public static void DrawMesh(Texture texture, Mesh mesh, int first, int count, float[] world)
+			{
+				Native.SPF_DrawMesh((texture != null) ? texture.ID : -1, mesh.ID, first, count, world);
 			}
 
 			public static void DrawMesh(Mesh mesh, float[] world)
 			{
-				Native.SPF_DrawMesh(-1, mesh.ID, world);
+				Native.SPF_DrawMesh(-1, mesh.ID, 0, mesh.VerticesCount, world);
 			}
 
 			public static void DrawBillboard(Texture tex,
