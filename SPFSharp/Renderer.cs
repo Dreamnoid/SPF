@@ -168,7 +168,25 @@ namespace SPFSharp
 				float overlayR, float overlayG, float overlayB, float overlayA)
 			{
 				Native.SPF_DrawBillboard(tex.ID,
-					x, y, z, radius,
+					x, y, z, 
+					radius, radius,
+					srcx, srcy, srcw, srch,
+					flipX, flipY,
+					r, g, b, a,
+					overlayR, overlayG, overlayB, overlayA);
+			}
+
+			public static void DrawBillboard(Texture tex,
+				float x, float y, float z, 
+				float width, float height,
+				int srcx, int srcy, int srcw, int srch,
+				bool flipX, bool flipY,
+				float r, float g, float b, float a,
+				float overlayR, float overlayG, float overlayB, float overlayA)
+			{
+				Native.SPF_DrawBillboard(tex.ID,
+					x, y, z,
+					width, height,
 					srcx, srcy, srcw, srch,
 					flipX, flipY,
 					r, g, b, a,

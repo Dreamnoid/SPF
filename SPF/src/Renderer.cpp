@@ -460,7 +460,8 @@ namespace SPF
 		}
 
 		void DrawBillboard(ResourceIndex tex,
-			float x, float y, float z, float radius,
+			float x, float y, float z,
+			float width, float height,
 			int srcx, int srcy, int srcw, int srch,
 			bool flipX, bool flipY,
 			float r, float g, float b, float a,
@@ -492,12 +493,12 @@ namespace SPF
 				v2 = t;
 			}
 
-			float halfRadius = radius * 0.5f;
+			float halfWidth = width * 0.5f;
 
-			PushVertex(id, x, y, z, u1, v1, -halfRadius, radius, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, x, y, z, u2, v1, +halfRadius, radius, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, x, y, z, u2, v2, +halfRadius, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, x, y, z, u1, v2, -halfRadius, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+			PushVertex(id, x, y, z, u1, v1, -halfWidth, height, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+			PushVertex(id, x, y, z, u2, v1, +halfWidth, height, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+			PushVertex(id, x, y, z, u2, v2, +halfWidth, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+			PushVertex(id, x, y, z, u1, v2, -halfWidth, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 		}
 
 		void SetWireframe(bool wireframeEnabled)
@@ -599,14 +600,16 @@ extern "C"
 	}
 
 	DLLExport void SPF_DrawBillboard(int tex,
-		float x, float y, float z, float radius,
+		float x, float y, float z, 
+		float width, float height,
 		int srcx, int srcy, int srcw, int srch,
 		bool flipX, bool flipY,
 		float r, float g, float b, float a,
 		float overlayR, float overlayG, float overlayB, float overlayA)
 	{
 		SPF::Renderer::DrawBillboard(tex,
-			x, y, z, radius,
+			x, y, z, 
+			width, height,
 			srcx, srcy, srcw, srch,
 			flipX, flipY,
 			r, g, b, a,

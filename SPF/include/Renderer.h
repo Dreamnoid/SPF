@@ -48,7 +48,8 @@ namespace SPF
 		DLLExport void DrawMesh(ResourceIndex tex, ResourceIndex mesh, int first, int count, const float* world);
 		DLLExport void SetBlending(BlendMode blendMode);
 		DLLExport void DrawBillboard(ResourceIndex tex,
-			float x, float y, float z, float radius,
+			float x, float y, float z, 
+			float width, float height,
 			int srcx, int srcy, int srcw, int srch,
 			bool flipX, bool flipY,
 			float r, float g, float b, float a,
