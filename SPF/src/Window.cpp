@@ -45,7 +45,6 @@ namespace SPF
 			glClearColor(0.0, 0.0, 0.0, 0.0);
 			glClearDepth(1.0f);
 
-			glDisable(GL_CULL_FACE);
 			glDisable(GL_LIGHTING);
 			glEnable(GL_TEXTURE_2D);
 			glDisable(GL_DEPTH_TEST);

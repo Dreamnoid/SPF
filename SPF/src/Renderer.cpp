@@ -39,6 +39,7 @@ namespace SPF
 		float CameraSideX = 0.f, CameraSideY = 0.f, CameraSideZ = 0.f;
 		float FogIntensity = 0.f;
 		bool Wireframe;
+		bool BackfaceCulling;
 	} RendererData;
 
 	namespace Renderer
@@ -185,6 +186,10 @@ namespace SPF
 			RendererData.FinalSurface = Surfaces::Create(w, h, true);
 			RendererData.Model = glm::identity<glm::mat4>();
 			RendererData.Wireframe = false;
+			RendererData.BackfaceCulling = false;
+
+			glFrontFace(GL_CW);
+			glCullFace(GL_BACK);
 
 			glEnable(GL_POLYGON_OFFSET_LINE);
 			glPolygonOffset(-1.0f, -1.0f);
@@ -195,6 +200,14 @@ namespace SPF
 			glViewport(0, 0, (GLsizei)RendererData.CurrentWidth, (GLsizei)RendererData.CurrentHeight);
 
 			glPolygonMode(GL_FRONT_AND_BACK, (RendererData.Wireframe) ? GL_LINE : GL_FILL);
+			if (RendererData.BackfaceCulling)
+			{
+				glEnable(GL_CULL_FACE);
+			}
+			else
+			{
+				glDisable(GL_CULL_FACE);
+			}
 
 			glUseProgram(RendererData.Program);
 			glm::mat4 mvp = RendererData.ViewProj * RendererData.Model;
@@ -506,6 +519,11 @@ namespace SPF
 			RendererData.Wireframe = wireframeEnabled;
 		}
 
+		void SetBackfaceCulling(bool cullingEnabled)
+		{
+			RendererData.BackfaceCulling = cullingEnabled;
+		}
+
 		ResourceIndex GetFinalSurface()
 		{
 			return RendererData.FinalSurface;
@@ -619,5 +637,10 @@ extern "C"
 	DLLExport void SPF_SetWireframe(bool wireframeEnabled)
 	{
 		SPF::Renderer::SetWireframe(wireframeEnabled);
+	}
+
+	DLLExport void SPF_SetBackfaceCulling(bool cullingEnabled)
+	{
+		SPF::Renderer::SetBackfaceCulling(cullingEnabled);
 	}
 }

@@ -197,6 +197,11 @@ namespace SPFSharp
 			{
 				Native.SPF_SetWireframe(wireframeEnabled);
 			}
+
+			public static void SetBackfaceCulling(bool cullingEnabled)
+			{
+				Native.SPF_SetBackfaceCulling(cullingEnabled);
+			}
 		}
 	}
 }

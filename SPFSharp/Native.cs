@@ -233,5 +233,8 @@ namespace SPFSharp
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_SetWireframe(bool wireframeEnabled);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SPF_SetBackfaceCulling(bool cullingEnabled);
 	}
 }
