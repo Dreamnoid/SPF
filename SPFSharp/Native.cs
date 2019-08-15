@@ -236,5 +236,8 @@ namespace SPFSharp
 
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_SetBackfaceCulling(bool cullingEnabled);
+
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SPF_SetFogColor(float r, float g, float b);
 	}
 }

@@ -202,6 +202,11 @@ namespace SPFSharp
 			{
 				Native.SPF_SetBackfaceCulling(cullingEnabled);
 			}
+
+			public static void SetFogColor(float r, float g, float b)
+			{
+				Native.SPF_SetFogColor(r, g, b);
+			}
 		}
 	}
 }

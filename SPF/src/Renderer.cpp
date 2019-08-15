@@ -37,9 +37,11 @@ namespace SPF
 		glm::mat4 ViewProj;
 		glm::mat4 Model;
 		float CameraSideX = 0.f, CameraSideY = 0.f, CameraSideZ = 0.f;
+		float CameraFarPlane;
 		float FogIntensity = 0.f;
 		bool Wireframe;
 		bool BackfaceCulling;
+		float FogColorR = 0.f, FogColorG = 0.f, FogColorB = 0.f;
 	} RendererData;
 
 	namespace Renderer
@@ -150,6 +152,7 @@ namespace SPF
 				"layout (location = 3) in vec4 in_Overlay;\n"
 				"uniform mat4 MVP;\n"
 				"uniform vec3 CameraSide;\n"
+				"uniform float FarPlane;\n"
 				"out float share_Distance;\n"
 				"out vec2 share_UV;\n"
 				"out vec4 share_Color;\n"
@@ -158,7 +161,7 @@ namespace SPF
 				"{\n"
 				"	vec3 actualPosition = in_Position + (in_UV.z * CameraSide) + (in_UV.w * vec3(0,1,0));\n"
 				"	gl_Position = MVP * vec4(actualPosition,1.0);\n"
-				"	share_Distance = min(gl_Position.z / 25.0,1);\n"
+				"	share_Distance = min(gl_Position.z / FarPlane,1);\n"
 				"   share_UV = in_UV.xy;\n"
 				"	share_Color = in_Color;\n"
 				"	share_Overlay = in_Overlay;\n"
@@ -167,6 +170,7 @@ namespace SPF
 				"#version 330 core\n"
 				"uniform sampler2D Texture;\n"
 				"uniform float FogIntensity;\n"
+				"uniform vec3 FogColor;\n"
 				"in float share_Distance;\n"
 				"in vec2 share_UV;\n"
 				"in vec4 share_Color;\n"
@@ -177,7 +181,7 @@ namespace SPF
 				"	vec4 texColor = texture2D(Texture, share_UV) * share_Color;\n"
 				"	if (texColor.a <= 0) discard;\n"
 				"	out_Color = mix(texColor, vec4(share_Overlay.xyz, texColor.a), share_Overlay.a);\n"
-				"	out_Color = mix(out_Color, vec4(0,0,0,texColor.a), FogIntensity * share_Distance);\n"
+				"	out_Color = mix(out_Color, vec4(FogColor,texColor.a), FogIntensity * share_Distance);\n"
 				"}\n");
 
 			glUseProgram(RendererData.Program);
@@ -214,6 +218,8 @@ namespace SPF
 			glUniformMatrix4fv(glGetUniformLocation(RendererData.Program, "MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
 			glUniform3f(glGetUniformLocation(RendererData.Program, "CameraSide"), RendererData.CameraSideX, RendererData.CameraSideY, RendererData.CameraSideZ);
 			glUniform1f(glGetUniformLocation(RendererData.Program, "FogIntensity"), RendererData.FogIntensity);
+			glUniform3f(glGetUniformLocation(RendererData.Program, "FogColor"), RendererData.FogColorR, RendererData.FogColorG, RendererData.FogColorB);
+			glUniform1f(glGetUniformLocation(RendererData.Program, "FarPlane"), RendererData.CameraFarPlane);
 
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
@@ -413,6 +419,7 @@ namespace SPF
 			RendererData.CameraSideX = 0.f;
 			RendererData.CameraSideY = 0.f;
 			RendererData.CameraSideZ = 0.f;
+			RendererData.CameraFarPlane = 1.0f;
 
 			glDisable(GL_DEPTH_TEST);
 			RendererData.FogIntensity = 0.f;
@@ -439,6 +446,7 @@ namespace SPF
 			RendererData.CameraSideX = cameraSide.x;
 			RendererData.CameraSideY = cameraSide.y;
 			RendererData.CameraSideZ = cameraSide.z;
+			RendererData.CameraFarPlane = farDist;
 
 			RendererData.ViewProj = 
 				glm::perspectiveFov(fov, (float)RendererData.CurrentWidth, (float)RendererData.CurrentHeight, nearDist, farDist) *
@@ -522,6 +530,13 @@ namespace SPF
 		void SetBackfaceCulling(bool cullingEnabled)
 		{
 			RendererData.BackfaceCulling = cullingEnabled;
+		}
+
+		void SetFogColor(float r, float g, float b)
+		{
+			RendererData.FogColorR = r;
+			RendererData.FogColorG = g;
+			RendererData.FogColorB = b;
 		}
 
 		ResourceIndex GetFinalSurface()
@@ -642,5 +657,10 @@ extern "C"
 	DLLExport void SPF_SetBackfaceCulling(bool cullingEnabled)
 	{
 		SPF::Renderer::SetBackfaceCulling(cullingEnabled);
+	}
+
+	DLLExport void SPF_SetFogColor(float r, float g, float b)
+	{
+		SPF::Renderer::SetFogColor(r, g, b);
 	}
 }
