@@ -192,7 +192,7 @@ namespace SPF
 			RendererData.Wireframe = false;
 			RendererData.BackfaceCulling = false;
 
-			glFrontFace(GL_CW);
+			glFrontFace(GL_CCW);
 			glCullFace(GL_BACK);
 
 			glEnable(GL_POLYGON_OFFSET_LINE);
@@ -280,10 +280,10 @@ namespace SPF
 
 		void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a)
 		{
-			PushVertex(RendererData.EmptyTexture, (float)x, (float)y, 0.f, 0.f, 0.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
-			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)y, 0.f, 1.f, 0.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
-			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)(y + h), 0.f, 1.f, 1.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
 			PushVertex(RendererData.EmptyTexture, (float)x, (float)(y + h), 0.f, 0.f, 1.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
+			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)(y + h), 0.f, 1.f, 1.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
+			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)y, 0.f, 1.f, 0.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
+			PushVertex(RendererData.EmptyTexture, (float)x, (float)y, 0.f, 0.f, 0.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
 		}
 
 		void FillVerticalGradient(
@@ -291,10 +291,10 @@ namespace SPF
 			float r1, float g1, float b1, float a1,
 			float r2, float g2, float b2, float a2)
 		{
-			PushVertex(RendererData.EmptyTexture, (float)x, (float)y, 0.f, 0.f, 0.f, 0.f, 0.f, r1, g1, b1, a1, 0.f, 0.f, 0.f, 0.f);
-			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)y, 0.f, 1.f, 0.f, 0.f, 0.f, r1, g1, b1, a1, 0.f, 0.f, 0.f, 0.f);
-			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)(y + h), 0.f, 1.f, 1.f, 0.f, 0.f, r2, g2, b2, a2, 0.f, 0.f, 0.f, 0.f);
 			PushVertex(RendererData.EmptyTexture, (float)x, (float)(y + h), 0.f, 0.f, 1.f, 0.f, 0.f, r2, g2, b2, a2, 0.f, 0.f, 0.f, 0.f);
+			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)(y + h), 0.f, 1.f, 1.f, 0.f, 0.f, r2, g2, b2, a2, 0.f, 0.f, 0.f, 0.f);
+			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)y, 0.f, 1.f, 0.f, 0.f, 0.f, r1, g1, b1, a1, 0.f, 0.f, 0.f, 0.f);
+			PushVertex(RendererData.EmptyTexture, (float)x, (float)y, 0.f, 0.f, 0.f, 0.f, 0.f, r1, g1, b1, a1, 0.f, 0.f, 0.f, 0.f);
 		}
 
 		void FillHorizontalGradient(
@@ -302,10 +302,10 @@ namespace SPF
 			float r1, float g1, float b1, float a1,
 			float r2, float g2, float b2, float a2)
 		{
-			PushVertex(RendererData.EmptyTexture, (float)x, (float)y, 0.f, 0.f, 0.f, 0.f, 0.f, r1, g1, b1, a1, 0.f, 0.f, 0.f, 0.f);
-			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)y, 0.f, 1.f, 0.f, 0.f, 0.f, r2, g2, b2, a2, 0.f, 0.f, 0.f, 0.f);
-			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)(y + h), 0.f, 1.f, 1.f, 0.f, 0.f, r2, g2, b2, a2, 0.f, 0.f, 0.f, 0.f);
 			PushVertex(RendererData.EmptyTexture, (float)x, (float)(y + h), 0.f, 0.f, 1.f, 0.f, 0.f, r1, g1, b1, a1, 0.f, 0.f, 0.f, 0.f);
+			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)(y + h), 0.f, 1.f, 1.f, 0.f, 0.f, r2, g2, b2, a2, 0.f, 0.f, 0.f, 0.f);
+			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)y, 0.f, 1.f, 0.f, 0.f, 0.f, r2, g2, b2, a2, 0.f, 0.f, 0.f, 0.f);
+			PushVertex(RendererData.EmptyTexture, (float)x, (float)y, 0.f, 0.f, 0.f, 0.f, 0.f, r1, g1, b1, a1, 0.f, 0.f, 0.f, 0.f);
 		}
 		
 		void DrawTexturedQuad(
@@ -344,10 +344,11 @@ namespace SPF
 				v1 = v2;
 				v2 = t;
 			}
-			PushVertex(id, Ax, Ay, Az, u1, v1, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, Bx, By, Bz, u2, v1, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, Cx, Cy, Cz, u2, v2, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+			
 			PushVertex(id, Dx, Dy, Dz, u1, v2, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+			PushVertex(id, Cx, Cy, Cz, u2, v2, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+			PushVertex(id, Bx, By, Bz, u2, v1, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+			PushVertex(id, Ax, Ay, Az, u1, v1, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 		}
 
 		void DrawTexture(
@@ -516,10 +517,10 @@ namespace SPF
 
 			float halfWidth = width * 0.5f;
 
-			PushVertex(id, x, y, z, u1, v1, -halfWidth, height, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, x, y, z, u2, v1, +halfWidth, height, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, x, y, z, u2, v2, +halfWidth, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 			PushVertex(id, x, y, z, u1, v2, -halfWidth, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+			PushVertex(id, x, y, z, u2, v2, +halfWidth, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+			PushVertex(id, x, y, z, u2, v1, +halfWidth, height, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+			PushVertex(id, x, y, z, u1, v1, -halfWidth, height, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 		}
 
 		void SetWireframe(bool wireframeEnabled)
