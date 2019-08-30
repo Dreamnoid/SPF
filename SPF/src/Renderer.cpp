@@ -36,12 +36,14 @@ namespace SPF
 		int CurrentHeight;
 		glm::mat4 ViewProj;
 		glm::mat4 Model;
+		float CameraUpX = 0.f, CameraUpY = 1.f, CameraUpZ = 0.f;
 		float CameraSideX = 0.f, CameraSideY = 0.f, CameraSideZ = 0.f;
 		float CameraFarPlane;
 		float FogIntensity = 0.f;
 		bool Wireframe;
 		bool BackfaceCulling;
 		float FogColorR = 0.f, FogColorG = 0.f, FogColorB = 0.f;
+		float OverlayR = 0.f, OverlayG = 0.f, OverlayB = 0.f, OverlayA = 0.f;
 	} RendererData;
 
 	namespace Renderer
@@ -151,6 +153,7 @@ namespace SPF
 				"layout (location = 2) in vec4 in_Color;\n"
 				"layout (location = 3) in vec4 in_Overlay;\n"
 				"uniform mat4 MVP;\n"
+				"uniform vec3 CameraUp;\n"
 				"uniform vec3 CameraSide;\n"
 				"uniform float FarPlane;\n"
 				"out float share_Distance;\n"
@@ -159,7 +162,7 @@ namespace SPF
 				"out vec4 share_Overlay;\n"
 				"void main()\n"
 				"{\n"
-				"	vec3 actualPosition = in_Position + (in_UV.z * CameraSide) + (in_UV.w * vec3(0,1,0));\n"
+				"	vec3 actualPosition = in_Position + (in_UV.z * CameraSide) + (in_UV.w * CameraUp);\n"
 				"	gl_Position = MVP * vec4(actualPosition,1.0);\n"
 				"	share_Distance = min(gl_Position.z / FarPlane,1);\n"
 				"   share_UV = in_UV.xy;\n"
@@ -171,6 +174,7 @@ namespace SPF
 				"uniform sampler2D Texture;\n"
 				"uniform float FogIntensity;\n"
 				"uniform vec3 FogColor;\n"
+				"uniform vec4 Overlay;\n"
 				"in float share_Distance;\n"
 				"in vec2 share_UV;\n"
 				"in vec4 share_Color;\n"
@@ -182,6 +186,7 @@ namespace SPF
 				"	if (texColor.a <= 0) discard;\n"
 				"	out_Color = mix(texColor, vec4(share_Overlay.xyz, texColor.a), share_Overlay.a);\n"
 				"	out_Color = mix(out_Color, vec4(FogColor,texColor.a), FogIntensity * share_Distance);\n"
+				"	out_Color = mix(out_Color, vec4(Overlay.xyz, 1.0), Overlay.a);\n"
 				"}\n");
 
 			glUseProgram(RendererData.Program);
@@ -216,10 +221,12 @@ namespace SPF
 			glUseProgram(RendererData.Program);
 			glm::mat4 mvp = RendererData.ViewProj * RendererData.Model;
 			glUniformMatrix4fv(glGetUniformLocation(RendererData.Program, "MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
+			glUniform3f(glGetUniformLocation(RendererData.Program, "CameraUp"), RendererData.CameraUpX, RendererData.CameraUpY, RendererData.CameraUpZ);
 			glUniform3f(glGetUniformLocation(RendererData.Program, "CameraSide"), RendererData.CameraSideX, RendererData.CameraSideY, RendererData.CameraSideZ);
 			glUniform1f(glGetUniformLocation(RendererData.Program, "FogIntensity"), RendererData.FogIntensity);
 			glUniform3f(glGetUniformLocation(RendererData.Program, "FogColor"), RendererData.FogColorR, RendererData.FogColorG, RendererData.FogColorB);
 			glUniform1f(glGetUniformLocation(RendererData.Program, "FarPlane"), RendererData.CameraFarPlane);
+			glUniform4f(glGetUniformLocation(RendererData.Program, "Overlay"), RendererData.OverlayR, RendererData.OverlayG, RendererData.OverlayB, RendererData.OverlayA);
 
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
@@ -370,12 +377,19 @@ namespace SPF
 				overlayR, overlayG, overlayB, overlayA);
 		}
 
-		void DrawMesh(ResourceIndex tex, ResourceIndex mesh, const float* world)
+		void DrawMesh(
+			ResourceIndex tex, ResourceIndex mesh, 
+			const float* world,
+			float overlayR, float overlayG, float overlayB, float overlayA)
 		{
-			DrawMesh(tex, mesh, 0, Resources.Meshes[mesh].VerticesCount, world);
+			DrawMesh(tex, mesh, 0, Resources.Meshes[mesh].VerticesCount, world, overlayR, overlayG, overlayB, overlayA);
 		}
 
-		void DrawMesh(ResourceIndex tex, ResourceIndex mesh, int first, int count, const float* world)
+		void DrawMesh(
+			ResourceIndex tex, ResourceIndex mesh, 
+			int first, int count, 
+			const float* world,
+			float overlayR, float overlayG, float overlayB, float overlayA)
 		{
 			IssueVertices();
 
@@ -386,11 +400,19 @@ namespace SPF
 			glBindTexture(GL_TEXTURE_2D, (tex < 0) ? RendererData.EmptyTexture : Resources.Textures[tex].GLID);
 
 			RendererData.Model = glm::make_mat4x4(world);
+			RendererData.OverlayR = overlayR;
+			RendererData.OverlayG = overlayG;
+			RendererData.OverlayB = overlayB;
+			RendererData.OverlayA = overlayA;
 
 			Prepare();
 			glDrawArrays(GL_TRIANGLES, first, count);
 
 			RendererData.Model = glm::identity<glm::mat4>();
+			RendererData.OverlayR = 0.0f;
+			RendererData.OverlayG = 0.0f;
+			RendererData.OverlayB = 0.0f;
+			RendererData.OverlayA = 0.0f;
 		}
 
 		void SetBlending(BlendMode blendMode)
@@ -417,6 +439,9 @@ namespace SPF
 			RendererData.CurrentWidth = Resources.Textures[texture].Width;
 			RendererData.CurrentHeight = Resources.Textures[texture].Height;
 			SetupOrthographic(glm::value_ptr(RendererData.ViewProj), 0, (float)RendererData.CurrentWidth, (float)RendererData.CurrentHeight, 0, -1.0f, 1.0f);
+			RendererData.CameraUpX = 0.f;
+			RendererData.CameraUpY = 1.f;
+			RendererData.CameraUpZ = 0.f;
 			RendererData.CameraSideX = 0.f;
 			RendererData.CameraSideY = 0.f;
 			RendererData.CameraSideZ = 0.f;
@@ -444,6 +469,9 @@ namespace SPF
 			auto cameraTarget = glm::vec3(cameraTargetX, cameraTargetY, cameraTargetZ);
 			auto cameraForward = glm::normalize(cameraTarget - cameraPos);
 			auto cameraSide = glm::cross(cameraForward, glm::vec3(0.f, 1.f, 0.f));
+			RendererData.CameraUpX = 0.f;
+			RendererData.CameraUpY = 1.f;
+			RendererData.CameraUpZ = 0.f;
 			RendererData.CameraSideX = cameraSide.x;
 			RendererData.CameraSideY = cameraSide.y;
 			RendererData.CameraSideZ = cameraSide.z;
@@ -607,9 +635,13 @@ extern "C"
 			overlayR, overlayG, overlayB, overlayA);
 	}
 
-	DLLExport void SPF_DrawMesh(int tex, int mesh, int first, int count, float* world)
+	DLLExport void SPF_DrawMesh(
+		int tex, int mesh, 
+		int first, int count, 
+		float* world,
+		float overlayR, float overlayG, float overlayB, float overlayA)
 	{
-		SPF::Renderer::DrawMesh(tex, mesh, first, count, world);
+		SPF::Renderer::DrawMesh(tex, mesh, first, count, world, overlayR, overlayG, overlayB, overlayA);
 	}
 
 	DLLExport void SPF_SetBlending(int blendMode)

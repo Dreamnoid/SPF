@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Numerics;
 
 namespace SPFSharp
 {
@@ -27,24 +23,19 @@ namespace SPFSharp
 			}
 
 			public static void BeginLookAtPerspective(
-				float cameraX, float cameraY, float cameraZ,
-				float cameraTargetX, float cameraTargetY, float cameraTargetZ,
+				Vector3 cameraPosition, Vector3 cameraTarget,
 				float fov, float nearDist, float farDist)
 			{
-				BeginLookAtPerspective(null, 
-					cameraX, cameraY, cameraZ,
-					cameraTargetX, cameraTargetY, cameraTargetZ,
-					fov, nearDist, farDist);
+				BeginLookAtPerspective(null, cameraPosition, cameraTarget, fov, nearDist, farDist);
 			}
 
-			public static void BeginLookAtPerspective(Surface surface,
-				float cameraX, float cameraY, float cameraZ,
-				float cameraTargetX, float cameraTargetY, float cameraTargetZ,
+			public static void BeginLookAtPerspective(
+				Surface surface, Vector3 cameraPosition, Vector3 cameraTarget,
 				float fov, float nearDist, float farDist, float fogIntensity = 1.0f)
 			{
 				Native.SPF_BeginLookAtPerspective((surface != null) ? surface.ID : -1,
-					cameraX, cameraY, cameraZ,
-					cameraTargetX, cameraTargetY, cameraTargetZ,
+					cameraPosition.X, cameraPosition.Y, cameraPosition.Z,
+					cameraTarget.X, cameraTarget.Y, cameraTarget.Z,
 					fov, nearDist, farDist, fogIntensity);
 			}
 
@@ -53,86 +44,123 @@ namespace SPFSharp
 				Native.SPF_SetBlending((int)blendMode);
 			}
 
-			public static void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a)
+			public static void FillRectangle(int x, int y, int w, int h, Vector4 color)
 			{
-				Native.SPF_FillRectangle(x, y, w, h, r, g, b, a);
+				Native.SPF_FillRectangle(
+					x, y, w, h,
+					color.X, color.Y, color.Z, color.W);
 			}
 
 			public static void FillVerticalGradient(
 				int x, int y, int w, int h, 
-				float r1, float g1, float b1, float a1,
-				float r2, float g2, float b2, float a2)
+				Vector4 color1, Vector4 color2)
 			{
-				Native.SPF_FillVerticalGradient(x, y, w, h, r1, g1, b1, a1, r2, g2, b2, a2);
+				Native.SPF_FillVerticalGradient(
+					x, y, w, h,
+					color1.X, color1.Y, color1.Z, color1.W,
+					color2.X, color2.Y, color2.Z, color2.W);
 			}
 
 			public static void FillHorizontalGradient(
 				int x, int y, int w, int h,
-				float r1, float g1, float b1, float a1,
-				float r2, float g2, float b2, float a2)
+				Vector4 color1, Vector4 color2)
 			{
-				Native.SPF_FillHorizontalGradient(x, y, w, h, r1, g1, b1, a1, r2, g2, b2, a2);
+				Native.SPF_FillHorizontalGradient(
+					x, y, w, h,
+					color1.X, color1.Y, color1.Z, color1.W,
+					color2.X, color2.Y, color2.Z, color2.W);
 			}
 
-			public static void DrawRectangle(int x, int y, int w, int h, float r, float g, float b, float a)
+			public static void DrawRectangle(int x, int y, int w, int h, Vector4 color)
 			{
-				Native.SPF_FillRectangle(x, y, w, 1, r, g, b, a);
-				Native.SPF_FillRectangle(x, y + h - 1, w, 1, r, g, b, a);
-				Native.SPF_FillRectangle(x, y + 1, 1, h - 2, r, g, b, a);
-				Native.SPF_FillRectangle(x + w - 1, y + 1, 1, h - 2, r, g, b, a);
+				Native.SPF_FillRectangle(x, y, w, 1, color.X, color.Y, color.Z, color.W);
+				Native.SPF_FillRectangle(x, y + h - 1, w, 1, color.X, color.Y, color.Z, color.W);
+				Native.SPF_FillRectangle(x, y + 1, 1, h - 2, color.X, color.Y, color.Z, color.W);
+				Native.SPF_FillRectangle(x + w - 1, y + 1, 1, h - 2, color.X, color.Y, color.Z, color.W);
 			}
 
 			public static void DrawTexture(Texture tex, int x, int y)
 			{
-				Native.SPF_DrawTexture(tex.ID, x, y, tex.Width, tex.Height, 0, 0, tex.Width, tex.Height, false, false, 1, 1, 1, 1, 0, 0, 0, 0);
+				Native.SPF_DrawTexture(tex.ID, 
+					x, y, tex.Width, tex.Height,
+					0, 0, tex.Width, tex.Height, 
+					false, false, 
+					1f, 1f, 1f, 1f,
+					0f, 0f, 0f, 0f);
 			}
 
 			public static void DrawTexture(Texture tex,
 				int x, int y, int w, int h,
 				int clipx, int clipy, int clipw, int cliph,
 				bool flipx, bool flipy,
-				float r, float g, float b, float a)
+				Vector4 color)
 			{
-				Native.SPF_DrawTexture(tex.ID, x, y, w, h, clipx, clipy, clipw, cliph, flipx, flipy, r, g, b, a, 0, 0, 0, 0);
+				Native.SPF_DrawTexture(tex.ID,
+					x, y, w, h,
+					clipx, clipy, clipw, cliph, 
+					flipx, flipy,
+					color.X, color.Y, color.Z, color.W,
+					0f, 0f, 0f, 0f);
 			}
 
 			public static void DrawTexture(Texture tex,
 				int x, int y, int w, int h,
 				int clipx, int clipy, int clipw, int cliph,
 				bool flipx, bool flipy,
-				float r, float g, float b, float a,
-				float overlayR, float overlayG, float overlayB, float overlayA)
+				Vector4 color,
+				Vector4 overlay)
 			{
-				Native.SPF_DrawTexture(tex.ID, x, y, w, h, clipx, clipy, clipw, cliph, flipx, flipy, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+				Native.SPF_DrawTexture(tex.ID,
+					x, y, w, h, 
+					clipx, clipy, clipw, cliph, 
+					flipx, flipy,
+					color.X, color.Y, color.Z, color.W,
+					overlay.X, overlay.Y, overlay.Z, overlay.W);
 			}
 
 			public static void DrawTexturedQuad(Texture tex,
-				float Ax, float Ay, 
-				float Bx, float By, 
-				float Cx, float Cy, 
-				float Dx, float Dy,
+				Vector2 a,
+				Vector2 b,
+				Vector2 c,
+				Vector2 d,
 				int srcx, int srcy, int srcw, int srch,
 				bool flipX, bool flipY,
-				float r, float g, float b, float a,
-				float overlayR, float overlayG, float overlayB, float overlayA)
+				Vector4 color,
+				Vector4 overlay)
 			{
-				Native.SPF_DrawTexturedQuad(tex.ID, Ax, Ay, 0, Bx, By, 0, Cx, Cy, 0, Dx, Dy, 0, srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+				Native.SPF_DrawTexturedQuad(tex.ID,
+					a.X, a.Y, 0f, 
+					b.X, b.Y, 0f, 
+					c.X, c.Y, 0f,
+					d.X, d.Y, 0f,
+					srcx, srcy, srcw, srch, 
+					flipX, flipY,
+					color.X, color.Y, color.Z, color.W,
+					overlay.X, overlay.Y, overlay.Z, overlay.W);
 			}
 
 			public static void DrawTexturedQuad(Texture tex,
-				float Ax, float Ay, float Az,
-				float Bx, float By, float Bz,
-				float Cx, float Cy,  float Cz,
-				float Dx, float Dy, float Dz,
+				Vector3 a,
+				Vector3 b,
+				Vector3 c,
+				Vector3 d,
 				int srcx, int srcy, int srcw, int srch,
 				bool flipX, bool flipY,
-				float r, float g, float b, float a,
-				float overlayR, float overlayG, float overlayB, float overlayA)
+				Vector4 color,
+				Vector4 overlay)
 			{
-				Native.SPF_DrawTexturedQuad(tex.ID, Ax, Ay, Az, Bx, By, Bz, Cx, Cy, Cz, Dx, Dy, Dz, srcx, srcy, srcw, srch, flipX, flipY, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+				Native.SPF_DrawTexturedQuad(tex.ID, 
+					a.X, a.Y, a.Z, 
+					b.X, b.Y, b.Z, 
+					c.X, c.Y, c.Z, 
+					d.X, d.Y, d.Z, 
+					srcx, srcy, srcw, srch,
+					flipX, flipY,
+					color.X, color.Y, color.Z, color.W,
+					overlay.X, overlay.Y, overlay.Z, overlay.W);
 			}
 
-			private static readonly float[] _identityMatrix = new float[]
+			public static readonly float[] IdentityMatrix = new float[]
 			{
 				1f, 0f, 0f, 0f,
 				0f, 1f, 0f, 0f,
@@ -142,55 +170,60 @@ namespace SPFSharp
 
 			public static void DrawMesh(Texture texture, Mesh mesh)
 			{
-				Native.SPF_DrawMesh(texture.ID, mesh.ID, 0, mesh.VerticesCount, _identityMatrix);
+				Native.SPF_DrawMesh(texture.ID, mesh.ID, 0, mesh.VerticesCount, IdentityMatrix, 0f, 0f, 0f, 0f);
 			}
 
 			public static void DrawMesh(Texture texture, Mesh mesh, float[] world)
 			{
-				Native.SPF_DrawMesh((texture != null) ? texture.ID : -1, mesh.ID, 0, mesh.VerticesCount, world);
+				Native.SPF_DrawMesh((texture != null) ? texture.ID : -1, mesh.ID, 0, mesh.VerticesCount, world, 0f, 0f, 0f, 0f);
 			}
 
-			public static void DrawMesh(Texture texture, Mesh mesh, int first, int count, float[] world)
+			public static void DrawMesh(
+				Texture texture, Mesh mesh, 
+				int first, int count, 
+				float[] world, 
+				Vector4 overlay)
 			{
-				Native.SPF_DrawMesh((texture != null) ? texture.ID : -1, mesh.ID, first, count, world);
+				Native.SPF_DrawMesh((texture != null) ? texture.ID : -1, mesh.ID, first, count, world, overlay.X, overlay.Y, overlay.Z, overlay.W);
 			}
 
 			public static void DrawMesh(Mesh mesh, float[] world)
 			{
-				Native.SPF_DrawMesh(-1, mesh.ID, 0, mesh.VerticesCount, world);
+				Native.SPF_DrawMesh(-1, mesh.ID, 0, mesh.VerticesCount, world, 0f, 0f, 0f, 0f);
 			}
 
 			public static void DrawBillboard(Texture tex,
-				float x, float y, float z, float radius,
+				Vector3 position, 
+				float radius,
 				int srcx, int srcy, int srcw, int srch,
 				bool flipX, bool flipY,
-				float r, float g, float b, float a,
-				float overlayR, float overlayG, float overlayB, float overlayA)
+				Vector4 color,
+				Vector4 overlay)
 			{
 				Native.SPF_DrawBillboard(tex.ID,
-					x, y, z, 
+					position.X, position.Y, position.Z,
 					radius, radius,
 					srcx, srcy, srcw, srch,
 					flipX, flipY,
-					r, g, b, a,
-					overlayR, overlayG, overlayB, overlayA);
+					color.X, color.Y, color.Z, color.W,
+					overlay.X, overlay.Y, overlay.Z, overlay.W);
 			}
 
 			public static void DrawBillboard(Texture tex,
-				float x, float y, float z, 
+				Vector3 position, 
 				float width, float height,
 				int srcx, int srcy, int srcw, int srch,
 				bool flipX, bool flipY,
-				float r, float g, float b, float a,
-				float overlayR, float overlayG, float overlayB, float overlayA)
+				Vector4 color,
+				Vector4 overlay)
 			{
 				Native.SPF_DrawBillboard(tex.ID,
-					x, y, z,
+					position.X, position.Y, position.Z,
 					width, height,
 					srcx, srcy, srcw, srch,
 					flipX, flipY,
-					r, g, b, a,
-					overlayR, overlayG, overlayB, overlayA);
+					color.X, color.Y, color.Z, color.W,
+					overlay.X, overlay.Y, overlay.Z, overlay.W);
 			}
 
 			public static void SetWireframe(bool wireframeEnabled)
@@ -203,9 +236,9 @@ namespace SPFSharp
 				Native.SPF_SetBackfaceCulling(cullingEnabled);
 			}
 
-			public static void SetFogColor(float r, float g, float b)
+			public static void SetFogColor(Vector3 color)
 			{
-				Native.SPF_SetFogColor(r, g, b);
+				Native.SPF_SetFogColor(color.X, color.Y, color.Z);
 			}
 		}
 	}

@@ -44,8 +44,15 @@ namespace SPF
 			bool flipX, bool flipY,
 			float r, float g, float b, float a,
 			float overlayR, float overlayG, float overlayB, float overlayA);
-		DLLExport void DrawMesh(ResourceIndex tex, ResourceIndex mesh, const float* world);
-		DLLExport void DrawMesh(ResourceIndex tex, ResourceIndex mesh, int first, int count, const float* world);
+		DLLExport void DrawMesh(
+			ResourceIndex tex, ResourceIndex mesh, 
+			const float* world,
+			float overlayR, float overlayG, float overlayB, float overlayA);
+		DLLExport void DrawMesh(
+			ResourceIndex tex, ResourceIndex mesh, 
+			int first, int count, 
+			const float* world, 
+			float overlayR, float overlayG, float overlayB, float overlayA);
 		DLLExport void SetBlending(BlendMode blendMode);
 		DLLExport void DrawBillboard(ResourceIndex tex,
 			float x, float y, float z, 
