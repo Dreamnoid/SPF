@@ -59,7 +59,15 @@ namespace SPFSharp
 
 		public static class Input
 		{
-			public static bool IsKeyDown(Key key)
+            private static int _mousePositionX, _mousePositionY;
+
+            internal static void Update()
+            {
+                _mousePositionX = Native.SPF_GetMousePositionX();
+                _mousePositionY = Native.SPF_GetMousePositionY();
+            }
+
+            public static bool IsKeyDown(Key key)
 			{
 				return Native.SPF_IsKeyDown((int)key);
 			}
@@ -90,16 +98,16 @@ namespace SPFSharp
 			}
 
 			public static int GetMousePositionX()
-			{
-				return Native.SPF_GetMousePositionX();
-			}
+            {
+                return _mousePositionX;
+            }
 
 			public static int GetMousePositionY()
-			{
-				return Native.SPF_GetMousePositionY();
-			}
+            {
+                return _mousePositionY;
+            }
 
-			public static int GetMouseDeltaX()
+            public static int GetMouseDeltaX()
 			{
 				return Native.SPF_GetMouseDeltaX();
 			}

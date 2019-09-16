@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 namespace SPFSharp
 {
 	public static partial class SPF
-	{
+    {
+        private static int _windowWidth, _windowHeight;
+
 		public class Texture : IDisposable
 		{
 			public Int32 ID { get; private set; }
@@ -49,6 +51,7 @@ namespace SPFSharp
 			public Instance(string title, int w, int h)
 			{
 				Native.SPF_Open(title, w, h);
+                SPF.RefreshWindowSize();
 			}
 
 			public void Dispose()
@@ -59,14 +62,17 @@ namespace SPFSharp
 		}
 
 		public static Instance Open(string title, int w, int h)
-		{
-			return new Instance(title, w, h);
+        {
+            return new Instance(title, w, h);
 		}
 
 		public static bool BeginLoop(out float dt)
-		{
-			return Native.SPF_BeginLoop(out dt);
-		}
+        {
+			var doesContinue = Native.SPF_BeginLoop(out dt);
+            Input.Update();
+            RefreshWindowSize();
+            return doesContinue;
+        }
 
 		public static void EndLoop()
 		{
@@ -105,22 +111,30 @@ namespace SPFSharp
 		public static void SetFullscreen(bool fullscreen)
 		{
 			Native.SPF_SetFullscreen(fullscreen);
+            RefreshWindowSize();
 		}
 
 		public static int GetWindowWidth()
-		{
-			return Native.SPF_GetWindowWidth();
-		}
+        {
+            return _windowWidth;
+        }
 
 		public static int GetWindowHeight()
-		{
-			return Native.SPF_GetWindowHeight();
-		}
+        {
+            return _windowHeight;
+        }
 
-		public static void SetWindowSize(int w, int h)
+        public static void SetWindowSize(int w, int h)
 		{
 			Native.SPF_SetWindowSize(w, h);
+            RefreshWindowSize();
 		}
+
+        private static void RefreshWindowSize()
+        {
+            _windowWidth = Native.SPF_GetWindowWidth();
+            _windowHeight = Native.SPF_GetWindowHeight();
+        }
 
 		public class Image : IDisposable
 		{
