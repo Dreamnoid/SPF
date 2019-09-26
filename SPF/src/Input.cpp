@@ -287,17 +287,21 @@ namespace SPF
 
 			int w, h;
 			SDL_GetWindowSize(InputData.Window, &w, &h);
+			InputData.MouseX = w / 2;
+			InputData.MouseY = h / 2;
 
 			InputData.RelativeMode = state;
 			if (state)
 			{
-				SDL_WarpMouseInWindow(InputData.Window, w / 2, h / 2);
+				SDL_WarpMouseInWindow(InputData.Window, InputData.MouseX, InputData.MouseY);
 				SDL_SetRelativeMouseMode(SDL_TRUE);
+				int mdx, mdy;
+				SDL_GetRelativeMouseState(&mdx, &mdy); // Exhaust the delta, so it won't jump next Update
 			}
 			else
 			{
 				SDL_SetRelativeMouseMode(SDL_FALSE);
-				SDL_WarpMouseInWindow(InputData.Window, w / 2, h / 2);
+				SDL_WarpMouseInWindow(InputData.Window, InputData.MouseX, InputData.MouseY);
 			}
 		}
 	}
