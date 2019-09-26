@@ -8,6 +8,7 @@ namespace SPF
 
 	struct
 	{
+		SDL_Window* Window;
 		SDL_GameController* Controller;
 		int KeysDownPreviousFrame[SDL_NUM_SCANCODES + ModifiersCount];
 		int KeysDown[SDL_NUM_SCANCODES + ModifiersCount];
@@ -104,8 +105,9 @@ namespace SPF
 			}
 		}
 
-		void Init()
+		void Init(const OpaquePointer window)
 		{
+			InputData.Window = (SDL_Window*)window;
 			SDL_GameControllerEventState(SDL_ENABLE);
 			SearchGamepad();
 		}
@@ -280,8 +282,23 @@ namespace SPF
 
 		void SetRelativeMouseState(bool state)
 		{
+			if (InputData.RelativeMode == state)
+				return;
+
+			int w, h;
+			SDL_GetWindowSize(InputData.Window, &w, &h);
+
 			InputData.RelativeMode = state;
-			SDL_SetRelativeMouseMode(state ? SDL_TRUE : SDL_FALSE);
+			if (state)
+			{
+				SDL_WarpMouseInWindow(InputData.Window, w / 2, h / 2);
+				SDL_SetRelativeMouseMode(SDL_TRUE);
+			}
+			else
+			{
+				SDL_SetRelativeMouseMode(SDL_FALSE);
+				SDL_WarpMouseInWindow(InputData.Window, w / 2, h / 2);
+			}
 		}
 	}
 }

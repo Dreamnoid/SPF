@@ -54,7 +54,7 @@ namespace SPF
 
 	namespace Input
 	{
-		void Init();
+		void Init(const OpaquePointer window);
 		void Update();
 		void HandleEvent(const OpaquePointer evtPtr);
 		void Dispose();

@@ -40,7 +40,7 @@ namespace SPF
 
 			Renderer::Init(w, h);
 			Audio::Init();
-			Input::Init();
+			Input::Init(WindowData.Window);
 
 			glClearColor(0.0, 0.0, 0.0, 0.0);
 			glClearDepth(1.0f);
