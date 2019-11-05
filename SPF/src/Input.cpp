@@ -1,6 +1,7 @@
 #include <Input.h>
 #include <SDL.h>
 #include <cstring>
+#include <string>
 
 namespace SPF
 {
@@ -23,6 +24,9 @@ namespace SPF
 		unsigned int CurrentMouseState;
 		unsigned int PreviousMouseState;
 		bool RelativeMode = false;
+
+		std::string TextInput;
+
 	} InputData;
 
 	namespace Input
@@ -164,6 +168,10 @@ namespace SPF
 					memset(&InputData.ButtonsDown, 0, sizeof(InputData.ButtonsDown)); // All buttons released
 				}
 			}
+			if (evt.type == SDL_TEXTINPUT)
+			{
+				InputData.TextInput.append(evt.text.text);
+			}
 		}
 
 		void Dispose()
@@ -304,6 +312,22 @@ namespace SPF
 				SDL_WarpMouseInWindow(InputData.Window, InputData.MouseX, InputData.MouseY);
 			}
 		}
+
+		void StartTextInput()
+		{
+			InputData.TextInput.clear();
+			SDL_StartTextInput();
+		}
+
+		void StopTextInput()
+		{
+			SDL_StopTextInput();
+		}
+
+		const char* GetTextInput()
+		{
+			return InputData.TextInput.c_str();
+		}
 	}
 }
 
@@ -392,5 +416,20 @@ extern "C"
 	DLLExport void SPF_SetRelativeMouseState(bool state)
 	{
 		SPF::Input::SetRelativeMouseState(state);
+	}
+
+	DLLExport void SPF_StartTextInput()
+	{
+		SPF::Input::StartTextInput();
+	}
+
+	DLLExport void SPF_StopTextInput()
+	{
+		SPF::Input::StopTextInput();
+	}
+
+	DLLExport const char* SPF_GetTextInput()
+	{
+		return SPF::Input::GetTextInput();
 	}
 }

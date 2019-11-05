@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -151,6 +152,12 @@ namespace SPFSharp
 			{
 				Native.SPF_SetRelativeMouseState(state);
 			}
+
+			public static void StartTextInput() => Native.SPF_StartTextInput();
+
+			public static void StopTextInput() => Native.SPF_StopTextInput();
+
+			public static string GetTextInput() => Marshal.PtrToStringAuto(Native.SPF_GetTextInput());
 		}
 	}
 }
