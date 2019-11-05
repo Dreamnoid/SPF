@@ -157,7 +157,7 @@ namespace SPFSharp
 
 			public static void StopTextInput() => Native.SPF_StopTextInput();
 
-			public static string GetTextInput() => Marshal.PtrToStringAuto(Native.SPF_GetTextInput());
+			public static string GetTextInput() => Marshal.PtrToStringAnsi(Native.SPF_GetTextInput());
 		}
 	}
 }

@@ -26,6 +26,7 @@ namespace SPF
 		bool RelativeMode = false;
 
 		std::string TextInput;
+		bool TextInputEnabled = false;
 
 	} InputData;
 
@@ -167,6 +168,10 @@ namespace SPF
 				{
 					memset(&InputData.ButtonsDown, 0, sizeof(InputData.ButtonsDown)); // All buttons released
 				}
+			}
+			if (InputData.TextInputEnabled && (evt.type == SDL_KEYDOWN) && (evt.key.keysym.sym == SDLK_BACKSPACE) && InputData.TextInput.size())
+			{
+				InputData.TextInput.pop_back();
 			}
 			if (evt.type == SDL_TEXTINPUT)
 			{
@@ -317,10 +322,12 @@ namespace SPF
 		{
 			InputData.TextInput.clear();
 			SDL_StartTextInput();
+			InputData.TextInputEnabled = true;
 		}
 
 		void StopTextInput()
 		{
+			InputData.TextInputEnabled = false;
 			SDL_StopTextInput();
 		}
 
