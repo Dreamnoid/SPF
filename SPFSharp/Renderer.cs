@@ -128,7 +128,7 @@ namespace SPFSharp
 				Vector4 color,
 				Vector4 overlay)
 			{
-				Native.SPF_DrawTexturedQuad(tex.ID,
+				Native.SPF_DrawTexturedQuad((tex != null) ? tex.ID : 0,
 					a.X, a.Y, 0f, 
 					b.X, b.Y, 0f, 
 					c.X, c.Y, 0f,
@@ -149,7 +149,7 @@ namespace SPFSharp
 				Vector4 color,
 				Vector4 overlay)
 			{
-				Native.SPF_DrawTexturedQuad(tex.ID, 
+				Native.SPF_DrawTexturedQuad((tex != null) ? tex.ID : 0, 
 					a.X, a.Y, a.Z, 
 					b.X, b.Y, b.Z, 
 					c.X, c.Y, c.Z, 
@@ -200,13 +200,13 @@ namespace SPFSharp
 				Vector4 color,
 				Vector4 overlay)
 			{
-				Native.SPF_DrawBillboard(tex.ID,
-					position.X, position.Y, position.Z,
+				DrawBillboard(tex,
+					position,
 					radius, radius,
 					srcx, srcy, srcw, srch,
 					flipX, flipY,
-					color.X, color.Y, color.Z, color.W,
-					overlay.X, overlay.Y, overlay.Z, overlay.W);
+					color,
+					overlay);
 			}
 
 			public static void DrawBillboard(Texture tex,
@@ -217,7 +217,7 @@ namespace SPFSharp
 				Vector4 color,
 				Vector4 overlay)
 			{
-				Native.SPF_DrawBillboard(tex.ID,
+				Native.SPF_DrawBillboard((tex != null) ? tex.ID : 0,
 					position.X, position.Y, position.Z,
 					width, height,
 					srcx, srcy, srcw, srch,

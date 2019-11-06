@@ -135,6 +135,7 @@ namespace SPF
 
 			glGenTextures(1, ids);
 			RendererData.EmptyTexture = ids[0];
+			Resources.Textures.insert(Resources.Textures.begin(), { true,RendererData.EmptyTexture,1,1,false });
 
 			glBindTexture(GL_TEXTURE_2D, RendererData.EmptyTexture);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
