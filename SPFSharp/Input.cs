@@ -34,6 +34,7 @@ namespace SPFSharp
 			Num7 = 20,
 			Num8 = 21,
 			Num9 = 22,
+			Return = 23,
 		}
 
 		public enum Button : int

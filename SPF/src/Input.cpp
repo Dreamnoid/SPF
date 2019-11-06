@@ -57,6 +57,7 @@ namespace SPF
 			case Key::Num7: return SDL_SCANCODE_KP_7;
 			case Key::Num8: return SDL_SCANCODE_KP_8;
 			case Key::Num9: return SDL_SCANCODE_KP_9;
+			case Key::Return: return SDL_SCANCODE_RETURN;
 			case Key::Control: return (SDL_NUM_SCANCODES + 0);
 			case Key::Shift: return (SDL_NUM_SCANCODES + 1);
 			case Key::Alt: return (SDL_NUM_SCANCODES + 2);
