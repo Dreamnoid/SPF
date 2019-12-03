@@ -149,6 +149,16 @@ namespace SPFSharp
 				return Native.SPF_GetLeftThumbstickY();
 			}
 
+			public static float GetRightThumbstickX()
+			{
+				return Native.SPF_GetRightThumbstickX();
+			}
+
+			public static float GetRightThumbstickY()
+			{
+				return Native.SPF_GetRightThumbstickY();
+			}
+
 			public static void SetRelativeMouseState(bool state)
 			{
 				Native.SPF_SetRelativeMouseState(state);

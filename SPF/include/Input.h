@@ -70,6 +70,8 @@ namespace SPF
 		DLLExport bool IsButtonReleased(Button button);
 		DLLExport float GetLeftThumbstickX();
 		DLLExport float GetLeftThumbstickY();
+		DLLExport float GetRightThumbstickX();
+		DLLExport float GetRightThumbstickY();
 
 		DLLExport int GetMousePositionX();
 		DLLExport int GetMousePositionY();

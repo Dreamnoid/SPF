@@ -294,6 +294,24 @@ namespace SPF
 			else return 0.f;
 		}
 
+		float GetRightThumbstickX()
+		{
+			if (InputData.Controller)
+			{
+				return NormalizeThumbstick(SDL_GameControllerGetAxis(InputData.Controller, SDL_CONTROLLER_AXIS_RIGHTX));
+			}
+			else return 0.f;
+		}
+
+		float GetRightThumbstickY()
+		{
+			if (InputData.Controller)
+			{
+				return NormalizeThumbstick(SDL_GameControllerGetAxis(InputData.Controller, SDL_CONTROLLER_AXIS_RIGHTY));
+			}
+			else return 0.f;
+		}
+
 		void SetRelativeMouseState(bool state)
 		{
 			if (InputData.RelativeMode == state)
@@ -419,6 +437,16 @@ extern "C"
 	DLLExport float SPF_GetLeftThumbstickY()
 	{
 		return SPF::Input::GetLeftThumbstickY();
+	}
+
+	DLLExport float SPF_GetRightThumbstickX()
+	{
+		return SPF::Input::GetRightThumbstickX();
+	}
+
+	DLLExport float SPF_GetRightThumbstickY()
+	{
+		return SPF::Input::GetRightThumbstickY();
 	}
 
 	DLLExport void SPF_SetRelativeMouseState(bool state)

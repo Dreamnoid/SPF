@@ -294,6 +294,14 @@ namespace SPFSharp
 
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern float SPF_GetRightThumbstickX();
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern float SPF_GetRightThumbstickY();
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_SetRelativeMouseState(bool state);
 
 		[SuppressUnmanagedCodeSecurity]
