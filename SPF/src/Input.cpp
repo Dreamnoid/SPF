@@ -21,6 +21,7 @@ namespace SPF
 		int MouseY;
 		int MouseDeltaX;
 		int MouseDeltaY;
+		int MouseWheel;
 		unsigned int CurrentMouseState;
 		unsigned int PreviousMouseState;
 		bool RelativeMode = false;
@@ -141,6 +142,8 @@ namespace SPF
 			InputData.KeysDown[TranslateKey(Key::Control)] = ((modifiers & KMOD_CTRL) != 0);
 			InputData.KeysDown[TranslateKey(Key::Shift)] = ((modifiers & KMOD_SHIFT) != 0);
 			InputData.KeysDown[TranslateKey(Key::Alt)] = ((modifiers & KMOD_ALT) != 0);
+
+			InputData.MouseWheel = 0;
 		}
 
 		void HandleEvent(const OpaquePointer evtPtr)
@@ -177,6 +180,10 @@ namespace SPF
 			if (evt.type == SDL_TEXTINPUT)
 			{
 				InputData.TextInput.append(evt.text.text);
+			}
+			if (evt.type == SDL_MOUSEWHEEL)
+			{
+				InputData.MouseWheel = evt.wheel.y;
 			}
 		}
 
@@ -262,6 +269,11 @@ namespace SPF
 		{
 			auto mask = SDL_BUTTON(TranslateMouseButton(button));
 			return (!(InputData.CurrentMouseState & mask) && (InputData.PreviousMouseState & mask));
+		}
+
+		int GetMouseWheel()
+		{
+			return InputData.MouseWheel;
 		}
 
 		constexpr float ThumbstickDeadzoneRatio = 0.1f;
@@ -427,6 +439,11 @@ extern "C"
 	DLLExport int SPF_IsMouseButtonReleased(int button)
 	{
 		return SPF::Input::IsMouseButtonReleased((SPF::MouseButton)button) ? 1 : 0;
+	}
+
+	DLLExport int SPF_GetMouseWheel()
+	{
+		return SPF::Input::GetMouseWheel();
 	}
 
 	DLLExport float SPF_GetLeftThumbstickX()

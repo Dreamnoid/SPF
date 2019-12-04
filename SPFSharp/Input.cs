@@ -134,6 +134,8 @@ namespace SPFSharp
 				return Native.SPF_IsMouseButtonReleased((int)button);
 			}
 
+            public static int GetMouseWheel() => Native.SPF_GetMouseWheel();
+
 			public static bool IsControllerConnected()
 			{
 				return Native.SPF_IsControllerConnected();

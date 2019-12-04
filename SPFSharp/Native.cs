@@ -247,7 +247,11 @@ namespace SPFSharp
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern bool SPF_IsMouseButtonReleased(int button);
 
-		[SuppressUnmanagedCodeSecurity]
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int SPF_GetMouseWheel();
+
+        [SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern Int32 SPF_LoadMesh([In] SPF.Vertex[] vertices, int count);
 

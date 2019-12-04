@@ -81,6 +81,7 @@ namespace SPF
 		DLLExport bool IsMouseButtonPressed(MouseButton button);
 		DLLExport bool IsMouseButtonReleased(MouseButton button);
 		DLLExport void SetRelativeMouseState(bool state);
+		DLLExport int GetMouseWheel();
 
 		DLLExport void StartTextInput();
 		DLLExport void StopTextInput();
