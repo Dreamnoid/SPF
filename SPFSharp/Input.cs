@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -139,6 +140,28 @@ namespace SPFSharp
 			public static bool IsControllerConnected()
 			{
 				return Native.SPF_IsControllerConnected();
+			}
+
+			public static float Deadzone = 0.05f;
+
+			public static Vector2 GetLeftThumbstick()
+			{
+				var direction = new Vector2(GetLeftThumbstickX(), GetLeftThumbstickY());
+				if (direction.LengthSquared() < Deadzone)
+				{
+					direction = Vector2.Zero;
+				}
+				return direction;
+			}
+
+			public static Vector2 GetRightThumbstick()
+			{
+				var direction = new Vector2(GetRightThumbstickX(), GetRightThumbstickY());
+				if (direction.LengthSquared() < Deadzone)
+				{
+					direction = Vector2.Zero;
+				}
+				return direction;
 			}
 
 			public static float GetLeftThumbstickX()
