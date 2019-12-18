@@ -31,6 +31,11 @@ namespace SPFSharp
 				return VirtualFileSystem.Read(filename);
 			}
 
+			public static bool Exists(string filename)
+			{
+				return VirtualFileSystem.Exists(filename);
+			}
+
 			public static string[] ListArchivedFiles()
 			{
 				return VirtualFileSystem.ListArchivedFiles();

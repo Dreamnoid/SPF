@@ -37,6 +37,7 @@ namespace SPF
 			bool flipX, bool flipY,
 			float r, float g, float b, float a,
 			float overlayR, float overlayG, float overlayB, float overlayA);
+		DLLExport void DrawTexturedTriangle(ResourceIndex tex, Vertex a, Vertex b, Vertex c);
 		DLLExport void DrawTexture(
 			ResourceIndex tex,
 			int x, int y, int w, int h,

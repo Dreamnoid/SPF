@@ -256,6 +256,17 @@ namespace SPF
 			memset(&RendererData.BatchInfo, 0, sizeof(RendererData.BatchInfo));
 		}
 
+		void PushVertex(HardwareID texture, const Vertex& v)
+		{
+			if (RendererData.BatchInfo.VertexCount == VerticesCount || texture != RendererData.BatchInfo.CurrentTexture)
+			{
+				IssueVertices();
+				RendererData.BatchInfo.CurrentTexture = texture;
+			}
+			RendererData.Vertices[RendererData.BatchInfo.VertexCount] = v;
+			RendererData.BatchInfo.VertexCount++;
+		}
+
 		void PushVertex(HardwareID texture,
 			float x, float y, float z,
 			float u, float v, float bu, float bv,
@@ -357,6 +368,14 @@ namespace SPF
 			PushVertex(id, Cx, Cy, Cz, u2, v2, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 			PushVertex(id, Bx, By, Bz, u2, v1, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
 			PushVertex(id, Ax, Ay, Az, u1, v1, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+		}
+
+		void DrawTexturedTriangle(ResourceIndex tex, Vertex a, Vertex b, Vertex c)
+		{
+			unsigned int id = Resources.Textures[tex].GLID;
+			PushVertex(id, a);
+			PushVertex(id, b);
+			PushVertex(id, c);
 		}
 
 		void DrawTexture(
@@ -619,6 +638,11 @@ extern "C"
 			flipX, flipY,
 			r, g, b, a,
 			overlayR, overlayG, overlayB, overlayA);
+	}
+
+	DLLExport void SPF_DrawTexturedTriangle(int tex, SPF::Vertex a, SPF::Vertex b, SPF::Vertex c)
+	{
+		SPF::Renderer::DrawTexturedTriangle(tex, a, b, c);
 	}
 
 	DLLExport void SPF_DrawTexture(int tex,

@@ -160,6 +160,11 @@ namespace SPFSharp
 					overlay.X, overlay.Y, overlay.Z, overlay.W);
 			}
 
+			public static void DrawTexturedTriangle(Texture tex, Vertex a, Vertex b, Vertex c)
+			{
+				Native.SPF_DrawTexturedTriangle((tex != null) ? tex.ID : 0, a, b, c);
+			}
+
 			public static readonly float[] IdentityMatrix = new float[]
 			{
 				1f, 0f, 0f, 0f,

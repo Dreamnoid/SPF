@@ -22,6 +22,19 @@ namespace SPFSharp
 			return _archives.SelectMany(a => a.Entries).Select(e => e.FullName).ToArray();
 		}
 
+		public static bool Exists(string filename)
+		{
+			foreach (var archive in _archives)
+			{
+				var entry = archive.GetEntry(filename.Replace('\\', '/'));
+				if (entry != null)
+				{
+					return true;
+				}
+			}
+			return File.Exists(filename);
+		}
+
 		public static byte[] Read(string filename)
 		{
 			if (File.Exists(filename))

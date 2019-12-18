@@ -85,6 +85,10 @@ namespace SPFSharp
 
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SPF_DrawTexturedTriangle(Int32 tex, SPF.Vertex a, SPF.Vertex b, SPF.Vertex c);
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_SetTextureFiltering(Int32 texture, bool filtering);
 
 		[SuppressUnmanagedCodeSecurity]
