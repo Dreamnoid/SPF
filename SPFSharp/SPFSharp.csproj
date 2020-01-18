@@ -35,6 +35,7 @@
   <ItemGroup>
     <Compile Include="Audio.cs" />
     <Compile Include="CBuffer.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="IO.cs" />
     <Compile Include="Native.cs" />

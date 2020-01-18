@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -181,6 +182,32 @@ namespace SPFSharp
 			public float U, V, BU, BV;
 			public float R, G, B, A;
 			public float OverlayR, OverlayG, OverlayB, OverlayA;
+
+			public static Vertex Create(Vector3 position, Vector2 uv) => Create(position, uv, Vector2.Zero, Vector4.One, Vector4.Zero);
+
+			public static Vertex Create(Vector3 position, Vector2 uv, Vector4 color) => Create(position, uv, Vector2.Zero, color, Vector4.Zero);
+
+			public static Vertex Create(Vector3 position, Vector2 uv, Vector2 billboard, Vector4 color, Vector4 overlay)
+			{
+				return new Vertex()
+				{
+					X = position.X,
+					Y = position.Y,
+					Z = position.Z,
+					U = uv.X,
+					V = uv.Y,
+					BU = billboard.X,
+					BV = billboard.Y,
+					R = color.X,
+					G = color.Y,
+					B = color.Z,
+					A = color.W,
+					OverlayR = overlay.X,
+					OverlayG = overlay.Y,
+					OverlayB = overlay.Z,
+					OverlayA = overlay.W
+				};
+			}
 		}
 
 		public class Mesh : IDisposable
