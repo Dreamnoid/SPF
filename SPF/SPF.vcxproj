@@ -41,14 +41,14 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Dev\SDK\SDL2-2.0.9\include;D:\Dev\SDK\SDL2_mixer-2.0.4\include;D:\Dev\SDK\glm;$(ProjectDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Dev\SDK\SDL2-2.0.9\include;D:\Dev\SDK\SDL2_mixer-2.0.4\include;D:\Dev\SDK\glm;D:\Dev\SDK\Bullet\src;$(ProjectDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>SDL2.lib;opengl32.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\Dev\SDK\SDL2-2.0.9\lib\x86;D:\Dev\SDK\SDL2_mixer-2.0.4\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;opengl32.lib;SDL2_mixer.lib;BulletDynamics_vs2010.lib;BulletCollision_vs2010.lib;LinearMath_vs2010.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\Dev\SDK\SDL2-2.0.9\lib\x86;D:\Dev\SDK\SDL2_mixer-2.0.4\lib\x86;D:\Dev\SDK\Bullet\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -58,6 +58,7 @@
     <ClCompile Include="src\Images.cpp" />
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Meshes.cpp" />
+    <ClCompile Include="src\Physics.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Resources.cpp" />
     <ClCompile Include="src\Surfaces.cpp" />
@@ -70,6 +71,7 @@
     <ClInclude Include="include\Images.h" />
     <ClInclude Include="include\Input.h" />
     <ClInclude Include="include\Meshes.h" />
+    <ClInclude Include="include\Physics.h" />
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\SPF.h" />
     <ClInclude Include="include\Surfaces.h" />

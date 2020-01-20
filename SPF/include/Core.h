@@ -19,4 +19,9 @@ namespace SPF
 		float R, G, B, A;
 		float OverlayR, OverlayG, OverlayB, OverlayA;
 	};
+
+	struct Vector3
+	{
+		float X, Y, Z;
+	};
 }
