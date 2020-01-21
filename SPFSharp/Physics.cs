@@ -31,6 +31,8 @@ namespace SPFSharp
 				public void SetPosition(Vector3 velocity) => Native.SPF_SetBodyPosition(_bodyID, velocity.X, velocity.Y, velocity.Z);
 
 				public Vector3 GetPosition() => Native.SPF_GetBodyPosition(_bodyID);
+
+				public bool IsGrounded(float treshold) => Native.SPF_IsBodyGrounded(_bodyID, treshold);
 			}
 
 			public class Capsule : Body

@@ -10,6 +10,7 @@ namespace SPF
 		btCollisionShape* Shape;
 		btRigidBody* Body;
 		btTriangleMesh* Mesh;
+		float ContactUpFactor;
 	};
 
 	struct
@@ -26,6 +27,40 @@ namespace SPF
 
 	namespace Physics
 	{
+		void TickCallback(btDynamicsWorld* world, btScalar timeStep)
+		{
+			int numManifolds = PhysicsData.Dispatcher->getNumManifolds();
+			btVector3 upVector(0.0f, 1.0f, 0.0f);
+
+			for (ResourceIndex bodyID = 0; bodyID < PhysicsData.Bodies.size(); ++bodyID)
+			{
+				PhysicsBody& body = PhysicsData.Bodies[bodyID];
+				if (body.InUse)
+				{
+					body.ContactUpFactor = -1;
+					for (int i = 0; i < numManifolds; ++i)
+					{
+						btPersistentManifold* contactManifold = PhysicsData.Dispatcher->getManifoldByIndexInternal(i);
+						const btCollisionObject* objA = contactManifold->getBody0();
+						const btCollisionObject* objB = contactManifold->getBody1();
+						if (objA == body.Body || objB == body.Body)
+						{
+							int numContacts = contactManifold->getNumContacts();
+							for (int j = 0; j < numContacts; ++j)
+							{
+								const btManifoldPoint& pt = contactManifold->getContactPoint(j);
+								//if (pt.getDistance() < 0.0f)
+								{
+									btVector3 normal = (objB == body.Body) ? -pt.m_normalWorldOnB : pt.m_normalWorldOnB;
+									float groundAngle = normal.dot(upVector);
+									body.ContactUpFactor = groundAngle > body.ContactUpFactor ? groundAngle : body.ContactUpFactor;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 
 		void Start()
 		{
@@ -34,6 +69,7 @@ namespace SPF
 			PhysicsData.Broadphase = new btDbvtBroadphase();
 			PhysicsData.Solver = new btSequentialImpulseConstraintSolver;
 			PhysicsData.World = new btDiscreteDynamicsWorld(PhysicsData.Dispatcher, PhysicsData.Broadphase, PhysicsData.Solver, PhysicsData.Configuration);
+			PhysicsData.World->setInternalTickCallback(TickCallback);
 		}
 
 		void Update(float dt)
@@ -46,7 +82,7 @@ namespace SPF
 			btCollisionShape* shape = PhysicsData.Bodies[bodyID].Shape;
 			btRigidBody* body = PhysicsData.Bodies[bodyID].Body;
 			btTriangleMesh* mesh = PhysicsData.Bodies[bodyID].Mesh;
-			PhysicsData.Bodies[bodyID] = { false, nullptr, nullptr, nullptr };
+			PhysicsData.Bodies[bodyID] = { false, nullptr, nullptr, nullptr, -1.0f };
 			PhysicsData.World->removeRigidBody(body);
 			delete body;
 			delete shape;
@@ -90,17 +126,21 @@ namespace SPF
 			PhysicsData.World->addRigidBody(body);
 
 			if (isDynamic)
+			{
 				body->setAngularFactor(btVector3(0.0f, 1.0f, 0.0f));
+				body->setRestitution(0.0f);
+				body->setActivationState(DISABLE_DEACTIVATION);
+			}
 
 			for (ResourceIndex bodyID = 0; bodyID < PhysicsData.Bodies.size(); ++bodyID)
 			{
 				if (!PhysicsData.Bodies[bodyID].InUse)
 				{
-					PhysicsData.Bodies[bodyID] = { true, shape, body, nullptr };
+					PhysicsData.Bodies[bodyID] = { true, shape, body, nullptr, -1.0f };
 					return bodyID;
 				}
 			}
-			PhysicsData.Bodies.push_back({ true, shape, body, nullptr });
+			PhysicsData.Bodies.push_back({ true, shape, body, nullptr, -1.0f });
 			return PhysicsData.Bodies.size() - 1;
 		}
 
@@ -134,14 +174,12 @@ namespace SPF
 		void SetVelocity(ResourceIndex bodyID, float x, float y, float z)
 		{
 			PhysicsBody& body = PhysicsData.Bodies[bodyID];
-			body.Body->activate();
 			body.Body->setLinearVelocity(btVector3(x, y, z));
 		}
 
 		void SetPosition(ResourceIndex bodyID, float x, float y, float z)
 		{
 			PhysicsBody& body = PhysicsData.Bodies[bodyID];
-			body.Body->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
 
 			btTransform transform;
 			transform.setIdentity();
@@ -170,6 +208,12 @@ namespace SPF
 			PhysicsData.World->rayTest(from, to, callback);
 			*dist = callback.m_closestHitFraction;
 			return callback.hasHit();
+		}
+
+		bool IsGrounded(ResourceIndex bodyID, float treshold)
+		{
+			PhysicsBody& body = PhysicsData.Bodies[bodyID];
+			return (body.ContactUpFactor > treshold);
 		}
 	}
 
@@ -228,5 +272,10 @@ extern "C"
 		float* dist)
 	{
 		return SPF::Physics::Raycast(srcX, srcY, srcZ, destX, destY, destZ, dist);
+	}
+
+	DLLExport int SPF_IsBodyGrounded(int bodyID, float treshold)
+	{
+		return SPF::Physics::IsGrounded(bodyID, treshold);
 	}
 }

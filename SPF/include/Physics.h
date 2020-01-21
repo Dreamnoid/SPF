@@ -18,5 +18,6 @@ namespace SPF
 			float srcX, float srcY, float srcZ,
 			float destX, float destY, float destZ,
 			float* dist);
+		DLLExport bool IsGrounded(ResourceIndex bodyID, float treshold);
 	}
 }

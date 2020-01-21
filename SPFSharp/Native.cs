@@ -370,5 +370,8 @@ namespace SPFSharp
 
 		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern bool SPF_PhysicsRaycast(float srcX, float srcY, float srcZ, float destX, float destY, float destZ, out float dist);
+
+		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool SPF_IsBodyGrounded(int bodyID, float treshold);
 	}
 }
