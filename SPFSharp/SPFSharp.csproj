@@ -43,6 +43,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Renderer.cs" />
+    <Compile Include="ShaderBuilder.cs" />
     <Compile Include="SPF.cs" />
     <Compile Include="VirtualFileSystem.cs" />
   </ItemGroup>
