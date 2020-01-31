@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Linq.Expressions;
+using System.Text;
 
 namespace SPFSharp
 {
@@ -32,12 +33,203 @@ namespace SPFSharp
 
                 public static class PixelShader
                 {
-                    public const string UniformTexture = "Texture";
-                    public const string UniformFogIntensity = "FogIntensity";
-                    public const string UniformFogColor = "FogColor";
-                    public const string UniformOverlay = "Overlay";
-                    public const string OutColor = "out_Color";
+                    public static readonly Float UniformFogIntensity = new Float("FogIntensity");
+                    public static readonly Float UniformFogColor = new Float("FogColor");
+                    public static readonly Float UniformOverlay = new Float("Overlay");
                 }
+            }
+
+            private readonly StringBuilder _pixelShaderBuilder = new StringBuilder();
+
+            public enum Texture
+            {
+                Texture0
+            }
+
+            public interface IVariable
+            {
+                string Name { get; }
+
+                string Type { get; }
+            }
+
+            public struct Vec2 : IVariable
+            {
+                public string Name { get; }
+
+                public string Type => "vec2";
+
+                public Vec2(string name)
+                {
+                    Name = name;
+                }
+            }
+
+            public struct Vec3 : IVariable
+            {
+                public string Name { get; }
+
+                public string Type => "vec3";
+
+                public Vec3(string name)
+                {
+                    Name = name;
+                }
+            }
+
+            public struct Vec4 : IVariable
+            {
+                public string Name { get; }
+
+                public string Type => "vec4";
+
+                public Vec4(string name)
+                {
+                    Name = name;
+                }
+            }
+
+            public struct Float : IVariable, IExpression<Float>
+            {
+                public string Name { get; }
+
+                public string Type => "float";
+
+                public Float(string name)
+                {
+                    Name = name;
+                }
+
+                public string Write() => Name;
+            }
+
+            public interface IExpression<TVariable> where TVariable : IVariable
+            {
+                string Write();
+            }
+
+            public static readonly Vec4 OutputColor = new Vec4("out_Color");
+            public static readonly Float One = new Float("1.0");
+            public static readonly Float Zero = new Float("0.0");
+
+            public ShaderBuilder Declaration<TVariable>(TVariable variable, IExpression<TVariable> expression) where TVariable : IVariable
+            {
+                _pixelShaderBuilder.Append(variable.Type).Append(" ");
+                return Assignation(variable, expression);
+            }
+
+            public ShaderBuilder Assignation<TVariable>(TVariable variable, IExpression<TVariable> expression) where TVariable : IVariable
+            {
+                _pixelShaderBuilder.Append(variable.Name).Append(" = ").Append(expression.Write()).AppendLine(";");
+                return this;
+            }
+
+            public struct Add<TVariable> : IExpression<TVariable> where TVariable : IVariable
+            {
+                private readonly IExpression<TVariable> _a, _b;
+
+                public Add(IExpression<TVariable> a, IExpression<TVariable> b)
+                {
+                    _a = a;
+                    _b = b;
+                }
+
+                public string Write() => $"({_a.Write()} + {_b.Write()})";
+            }
+
+            public struct Multiply<TVariable> : IExpression<TVariable> where TVariable : IVariable
+            {
+                private readonly IExpression<TVariable> _a, _b;
+
+                public Multiply(IExpression<TVariable> a, IExpression<TVariable> b)
+                {
+                    _a = a;
+                    _b = b;
+                }
+
+                public string Write() => $"({_a.Write()} * {_b.Write()})";
+            }
+
+            public struct TextureSample : IExpression<Vec4>
+            {
+                private readonly Texture _texture;
+                private readonly IExpression<Vec2> _uv;
+
+                public TextureSample(Texture texture, IExpression<Vec2> uv)
+                {
+                    _texture = texture;
+                    _uv = uv;
+                }
+
+                public string Write() => $"texture2D({TextureToString(_texture)}, {_uv.Write()})";
+
+                private string TextureToString(Texture texture)
+                {
+                    switch (texture)
+                    {
+                        case Texture.Texture0: return "Texture";
+                        default: return "Texture";
+                    }
+                }
+            }
+
+            public ShaderBuilder AlphaTest(IExpression<Vec4> color)
+            {
+                _pixelShaderBuilder.AppendLine($"if ({color.Write()}.a <= 0) discard;");
+                return this;
+            }
+
+            public struct Vec3ToVec4 : IExpression<Vec4>
+            {
+                private readonly IExpression<Vec3> _xyz;
+                private readonly IExpression<Float> _w;
+
+                public Vec3ToVec4(IExpression<Vec3> xyz, IExpression<Float> w)
+                {
+                    _xyz = xyz;
+                    _w = w;
+                }
+
+                public string Write() => $"vec4({_xyz.Write()}.xyz, {_w.Write()})";
+            }
+
+            public struct Vec4ToVec3 : IExpression<Vec3>
+            {
+                private readonly IExpression<Vec4> _xyzw;
+
+                public Vec4ToVec3(IExpression<Vec4> xyzw)
+                {
+                    _xyzw = xyzw;
+                }
+
+                public string Write() => $"{_xyzw.Write()}.xyz";
+            }
+
+            public struct Alpha : IExpression<Float>
+            {
+                private readonly IExpression<Vec4> _xyzw;
+
+                public Alpha(IExpression<Vec4> xyzw)
+                {
+                    _xyzw = xyzw;
+                }
+
+                public string Write() => $"{_xyzw.Write()}.a";
+            }
+
+            public struct Lerp<TVariable> : IExpression<TVariable> where TVariable : IVariable
+            {
+                private readonly IExpression<TVariable> _a, _b;
+                private readonly IExpression<Float> _t;
+
+                public Lerp(IExpression<TVariable> a, IExpression<TVariable> b, IExpression<Float> t)
+                {
+                    _a = a;
+                    _b = b;
+                    _t = t;
+                }
+
+                public string Write() => $"mix({_a.Write()}, {_b.Write()}, {_t.Write()})";
             }
 
             public void Build(out string vertexShader, out string pixelShader)
@@ -80,11 +272,7 @@ namespace SPFSharp
                 sb.AppendLine($"out vec4 {Variables.PixelShader.OutColor};");
                 sb.AppendLine("void main()");
                 sb.AppendLine("{");
-                sb.AppendLine($"vec4 texColor = texture2D({Variables.PixelShader.UniformTexture}, {Variables.Shared.UV}) * {Variables.Shared.Color};");
-                sb.AppendLine($"if (texColor.a <= 0) discard;");
-                sb.AppendLine($"{Variables.PixelShader.OutColor} = mix(texColor, vec4({Variables.Shared.Overlay}.xyz, texColor.a), {Variables.Shared.Overlay}.a);");
-                sb.AppendLine($"{Variables.PixelShader.OutColor} = mix({Variables.PixelShader.OutColor}, vec4({Variables.PixelShader.UniformFogColor},texColor.a), {Variables.PixelShader.UniformFogIntensity} * {Variables.Shared.Distance});");
-                sb.AppendLine($"{Variables.PixelShader.OutColor} = mix({Variables.PixelShader.OutColor}, vec4({Variables.PixelShader.UniformOverlay}.xyz, 1.0), {Variables.PixelShader.UniformOverlay}.a);");
+                sb.AppendLine(_pixelShaderBuilder.ToString());
                 sb.AppendLine("}");
                 pixelShader = sb.ToString();
             }
