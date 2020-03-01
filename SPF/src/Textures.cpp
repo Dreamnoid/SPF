@@ -28,17 +28,7 @@ namespace SPF
 
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-			for (ResourceIndex texID = 0; texID < Resources.Textures.size(); ++texID)
-			{
-				if (!Resources.Textures[texID].InUse)
-				{
-					Resources.Textures[texID] = { true,id,w,h,flipped };
-					return texID;
-				}
-			}
-
-			Resources.Textures.push_back({ true,id,w,h,flipped });
-			return Resources.Textures.size() - 1;
+			return CreateResource(Resources.Textures, { true,id,w,h,flipped });
 		}
 
 		void SetFiltering(ResourceIndex texture, bool filtering)
@@ -67,10 +57,10 @@ namespace SPF
 
 		void Delete(ResourceIndex texture)
 		{
-			Resources.Textures[texture].InUse = 0;
 			GLuint ids[1];
 			ids[0] = Resources.Textures[texture].GLID;
 			glDeleteTextures(1, ids);
+			DeleteResource(Resources.Textures, texture);
 		}
 
 		int GetWidth(ResourceIndex texture)

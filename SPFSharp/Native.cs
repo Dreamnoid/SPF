@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SPFSharp
 {
@@ -278,8 +274,8 @@ namespace SPFSharp
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_DrawMesh(
-			Int32 texture, Int32 mesh, 
-			int first, int count,
+			Int32 shader, Int32 texture, 
+			Int32 mesh, int first, int count,
 			[MarshalAs(UnmanagedType.LPArray, SizeConst = 16)] float[] world,
 			float overlayR, float overlayG, float overlayB, float overlayA);
 
@@ -373,5 +369,14 @@ namespace SPFSharp
 
 		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern bool SPF_IsBodyGrounded(int bodyID, float treshold);
+
+		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern int SPF_CreateShader(string sourceCode);
+
+		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SPF_DeleteShader(int id);
+
+		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SPF_SetAnimation(float animation);
 	}
 }

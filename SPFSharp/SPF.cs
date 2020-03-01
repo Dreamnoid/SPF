@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SPFSharp
 {
@@ -14,9 +10,9 @@ namespace SPFSharp
 
 		public class Texture : IDisposable
 		{
-			public Int32 ID { get; private set; }
-			public int Width { get; private set; }
-			public int Height { get; private set; }
+			public Int32 ID { get; }
+			public int Width { get; }
+			public int Height { get; }
 
 			internal Texture(Int32 id, int w, int h)
 			{
@@ -44,6 +40,21 @@ namespace SPFSharp
 			public void SetFiltering(bool filtering)
 			{
 				Native.SPF_SetTextureFiltering(ID, filtering);
+			}
+		}
+
+		public class Shader : IDisposable
+		{
+			public Int32 ID { get; }
+
+			public Shader(ShaderBuilder shader)
+			{
+				ID = Native.SPF_CreateShader(shader.ToString());
+			}
+
+			public void Dispose()
+			{
+				Native.SPF_DeleteShader(ID);
 			}
 		}
 

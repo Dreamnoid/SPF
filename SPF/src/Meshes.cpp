@@ -14,22 +14,13 @@ namespace SPF
 			glBindBuffer(GL_ARRAY_BUFFER, id);
 			glBufferData(GL_ARRAY_BUFFER, count * sizeof(Vertex), vertices, GL_STATIC_DRAW);
 
-			for (ResourceIndex meshID = 0; meshID < Resources.Meshes.size(); ++meshID)
-			{
-				if (!Resources.Meshes[meshID].InUse)
-				{
-					Resources.Meshes[meshID] = { true,id,count };
-					return meshID;
-				}
-			}
-			Resources.Meshes.push_back({ true,id,count });
-			return Resources.Meshes.size() - 1;
+			return CreateResource(Resources.Meshes, { true,id,count });
 		}
 
 		void Meshes::Delete(ResourceIndex mesh)
 		{
-			Resources.Meshes[mesh].InUse = false;
 			glDeleteBuffers(1, &Resources.Meshes[mesh].GLID);
+			DeleteResource(Resources.Meshes, mesh);
 		}
 	}
 }

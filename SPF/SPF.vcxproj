@@ -61,6 +61,7 @@
     <ClCompile Include="src\Physics.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Resources.cpp" />
+    <ClCompile Include="src\Shaders.cpp" />
     <ClCompile Include="src\Surfaces.cpp" />
     <ClCompile Include="src\Textures.cpp" />
     <ClCompile Include="src\Window.cpp" />
@@ -73,6 +74,7 @@
     <ClInclude Include="include\Meshes.h" />
     <ClInclude Include="include\Physics.h" />
     <ClInclude Include="include\Renderer.h" />
+    <ClInclude Include="include\Shaders.h" />
     <ClInclude Include="include\SPF.h" />
     <ClInclude Include="include\Surfaces.h" />
     <ClInclude Include="include\Textures.h" />

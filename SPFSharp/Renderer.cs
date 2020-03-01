@@ -175,26 +175,37 @@ namespace SPFSharp
 
 			public static void DrawMesh(Texture texture, Mesh mesh)
 			{
-				Native.SPF_DrawMesh(texture.ID, mesh.ID, 0, mesh.VerticesCount, IdentityMatrix, 0f, 0f, 0f, 0f);
+				Native.SPF_DrawMesh(-1, texture.ID, mesh.ID, 0, mesh.VerticesCount, IdentityMatrix, 0f, 0f, 0f, 0f);
 			}
 
 			public static void DrawMesh(Texture texture, Mesh mesh, float[] world)
 			{
-				Native.SPF_DrawMesh((texture != null) ? texture.ID : -1, mesh.ID, 0, mesh.VerticesCount, world, 0f, 0f, 0f, 0f);
+				Native.SPF_DrawMesh(-1, (texture != null) ? texture.ID : -1, mesh.ID, 0, mesh.VerticesCount, world, 0f, 0f, 0f, 0f);
 			}
 
 			public static void DrawMesh(
-				Texture texture, Mesh mesh, 
-				int first, int count, 
+				Texture texture,
+				Mesh mesh, int first, int count,
+				float[] world,
+				Vector4 overlay) => DrawMesh(null, texture, mesh, first, count, world, overlay);
+
+				public static void DrawMesh(
+				Shader shader, Texture texture, 
+				Mesh mesh, int first, int count, 
 				float[] world, 
 				Vector4 overlay)
 			{
-				Native.SPF_DrawMesh((texture != null) ? texture.ID : -1, mesh.ID, first, count, world, overlay.X, overlay.Y, overlay.Z, overlay.W);
+				Native.SPF_DrawMesh(
+					(shader != null) ? shader.ID : -1, 
+					(texture != null) ? texture.ID : -1,
+					mesh.ID, first, count, 
+					world,
+					overlay.X, overlay.Y, overlay.Z, overlay.W);
 			}
 
 			public static void DrawMesh(Mesh mesh, float[] world)
 			{
-				Native.SPF_DrawMesh(-1, mesh.ID, 0, mesh.VerticesCount, world, 0f, 0f, 0f, 0f);
+				Native.SPF_DrawMesh(-1, -1, mesh.ID, 0, mesh.VerticesCount, world, 0f, 0f, 0f, 0f);
 			}
 
 			public static void DrawBillboard(Texture tex,
@@ -245,6 +256,8 @@ namespace SPFSharp
 			{
 				Native.SPF_SetFogColor(color.X, color.Y, color.Z);
 			}
+
+			public static void SetAnimation(float animation) => Native.SPF_SetAnimation(animation);
 		}
 	}
 }

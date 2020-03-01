@@ -4,6 +4,7 @@
 #include <Audio.h>
 #include <Renderer.h>
 #include <Input.h>
+#include <Shaders.h>
 #include <Surfaces.h>
 
 namespace SPF
@@ -38,6 +39,7 @@ namespace SPF
 
 			InitOpenGL4();
 
+			Shaders::Init();
 			Renderer::Init(w, h);
 			Audio::Init();
 			Input::Init(WindowData.Window);

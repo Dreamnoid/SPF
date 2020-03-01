@@ -6,6 +6,7 @@
 #include <Surfaces.h>
 #include <Textures.h>
 #include <Meshes.h>
+#include <Shaders.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -24,7 +25,8 @@ namespace SPF
 		Vertex Vertices[VerticesCount];
 		HardwareID BatchVBOID;
 		HardwareID EmptyTexture;
-		HardwareID Program;
+		HardwareID VertexShader;
+		ResourceIndex DefaultShader;
 		ResourceIndex FinalSurface;
 		struct
 		{
@@ -44,11 +46,11 @@ namespace SPF
 		bool BackfaceCulling;
 		float FogColorR = 0.f, FogColorG = 0.f, FogColorB = 0.f;
 		float OverlayR = 0.f, OverlayG = 0.f, OverlayB = 0.f, OverlayA = 0.f;
+		float Animation = 0.f;
 	} RendererData;
 
 	namespace Renderer
 	{
-
 		void SetupOrthographic(float* m, float left, float right, float bottom, float top, float zNearPlane, float zFarPlane)
 		{
 			m[0] = (float)(2.0 / ((double)right - (double)left));
@@ -67,58 +69,6 @@ namespace SPF
 			m[13] = (float)(((double)top + (double)bottom) / ((double)bottom - (double)top));
 			m[14] = (float)((double)zNearPlane / ((double)zNearPlane - (double)zFarPlane));
 			m[15] = 1.0f;
-		}
-
-		unsigned int InternalCompileShader(GLenum type, const char* source)
-		{
-			auto shader = glCreateShader(type);
-			GLint length[1];
-			length[0] = strlen(source);
-			glShaderSource(shader, 1, &source, length);
-			glCompileShader(shader);
-			GLint param[1];
-			glGetShaderiv(shader, GL_COMPILE_STATUS, param);
-			if (param[0] == 0)
-			{
-				char log[4096];
-				int lgt;
-				glGetShaderInfoLog(shader, 4096, &lgt, log);
-				printf(log);
-			}
-			return shader;
-		}
-
-		unsigned int LinkProgram(unsigned int vert, unsigned int frag)
-		{
-			auto program = glCreateProgram();
-			glAttachShader(program, vert);
-			glAttachShader(program, frag);
-			glLinkProgram(program);
-			GLint param[1];
-			glGetProgramiv(program, GL_LINK_STATUS, param);
-			if (param[0] == 0)
-			{
-				char log[4096];
-				int lgt;
-				glGetProgramInfoLog(program, 4096, &lgt, log);
-				printf(log);
-			}
-			return program;
-		}
-
-		unsigned int CompileShader(const char* vertexCode, const char* fragmentCode)
-		{
-			auto vert = InternalCompileShader(GL_VERTEX_SHADER, vertexCode);
-			auto frag = InternalCompileShader(GL_FRAGMENT_SHADER, fragmentCode);
-			auto id = LinkProgram(vert, frag);
-			glDeleteShader(frag);
-			glDeleteShader(vert);
-			return id;
-		}
-
-		void DeleteShader(unsigned int id)
-		{
-			glDeleteProgram(id);
 		}
 
 		void Init(int w, int h)
@@ -148,34 +98,13 @@ namespace SPF
 			pixels[0] = 0xFFFFFFFF;
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
 
-			RendererData.Program = CompileShader("#version 330 core\n"
-				"layout (location = 0) in vec3 in_Position;\n"
-				"layout (location = 1) in vec4 in_UV;\n"
-				"layout (location = 2) in vec4 in_Color;\n"
-				"layout (location = 3) in vec4 in_Overlay;\n"
-				"uniform mat4 MVP;\n"
-				"uniform vec3 CameraUp;\n"
-				"uniform vec3 CameraSide;\n"
-				"uniform float FarPlane;\n"
-				"out float share_Distance;\n"
-				"out vec2 share_UV;\n"
-				"out vec4 share_Color;\n"
-				"out vec4 share_Overlay;\n"
-				"void main()\n"
-				"{\n"
-				"	vec3 actualPosition = in_Position + (in_UV.z * CameraSide) + (in_UV.w * CameraUp);\n"
-				"	gl_Position = MVP * vec4(actualPosition,1.0);\n"
-				"	share_Distance = min(gl_Position.z / FarPlane,1);\n"
-				"   share_UV = in_UV.xy;\n"
-				"	share_Color = in_Color;\n"
-				"	share_Overlay = in_Overlay;\n"
-				"}\n"
-				,
+			RendererData.DefaultShader = Shaders::Create(
 				"#version 330 core\n"
 				"uniform sampler2D Texture;\n"
 				"uniform float FogIntensity;\n"
 				"uniform vec3 FogColor;\n"
 				"uniform vec4 Overlay;\n"
+				"uniform float Animation;\n"
 				"in float share_Distance;\n"
 				"in vec2 share_UV;\n"
 				"in vec4 share_Color;\n"
@@ -190,9 +119,6 @@ namespace SPF
 				"	out_Color = mix(out_Color, vec4(Overlay.xyz, 1.0), Overlay.a);\n"
 				"}\n");
 
-			glUseProgram(RendererData.Program);
-			glUniform1i(glGetUniformLocation(RendererData.Program, "Texture"), 0);
-
 			RendererData.FinalSurface = Surfaces::Create(w, h, true);
 			RendererData.Model = glm::identity<glm::mat4>();
 			RendererData.Wireframe = false;
@@ -205,7 +131,7 @@ namespace SPF
 			glPolygonOffset(-1.0f, -1.0f);
 		}
 
-		void Prepare()
+		void Prepare(ResourceIndex shader = -1)
 		{
 			glViewport(0, 0, (GLsizei)RendererData.CurrentWidth, (GLsizei)RendererData.CurrentHeight);
 
@@ -219,15 +145,19 @@ namespace SPF
 				glDisable(GL_CULL_FACE);
 			}
 
-			glUseProgram(RendererData.Program);
+			shader = (shader < 0) ? RendererData.DefaultShader : shader;
+			HardwareID programID = Resources.Shaders[shader].GLID;
+
+			glUseProgram(programID);
 			glm::mat4 mvp = RendererData.ViewProj * RendererData.Model;
-			glUniformMatrix4fv(glGetUniformLocation(RendererData.Program, "MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
-			glUniform3f(glGetUniformLocation(RendererData.Program, "CameraUp"), RendererData.CameraUpX, RendererData.CameraUpY, RendererData.CameraUpZ);
-			glUniform3f(glGetUniformLocation(RendererData.Program, "CameraSide"), RendererData.CameraSideX, RendererData.CameraSideY, RendererData.CameraSideZ);
-			glUniform1f(glGetUniformLocation(RendererData.Program, "FogIntensity"), RendererData.FogIntensity);
-			glUniform3f(glGetUniformLocation(RendererData.Program, "FogColor"), RendererData.FogColorR, RendererData.FogColorG, RendererData.FogColorB);
-			glUniform1f(glGetUniformLocation(RendererData.Program, "FarPlane"), RendererData.CameraFarPlane);
-			glUniform4f(glGetUniformLocation(RendererData.Program, "Overlay"), RendererData.OverlayR, RendererData.OverlayG, RendererData.OverlayB, RendererData.OverlayA);
+			glUniformMatrix4fv(glGetUniformLocation(programID, "MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
+			glUniform3f(glGetUniformLocation(programID, "CameraUp"), RendererData.CameraUpX, RendererData.CameraUpY, RendererData.CameraUpZ);
+			glUniform3f(glGetUniformLocation(programID, "CameraSide"), RendererData.CameraSideX, RendererData.CameraSideY, RendererData.CameraSideZ);
+			glUniform1f(glGetUniformLocation(programID, "FogIntensity"), RendererData.FogIntensity);
+			glUniform3f(glGetUniformLocation(programID, "FogColor"), RendererData.FogColorR, RendererData.FogColorG, RendererData.FogColorB);
+			glUniform1f(glGetUniformLocation(programID, "FarPlane"), RendererData.CameraFarPlane);
+			glUniform4f(glGetUniformLocation(programID, "Overlay"), RendererData.OverlayR, RendererData.OverlayG, RendererData.OverlayB, RendererData.OverlayA);
+			glUniform1f(glGetUniformLocation(programID, "Animation"), RendererData.Animation);
 
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
@@ -402,12 +332,16 @@ namespace SPF
 			const float* world,
 			float overlayR, float overlayG, float overlayB, float overlayA)
 		{
-			DrawMesh(tex, mesh, 0, Resources.Meshes[mesh].VerticesCount, world, overlayR, overlayG, overlayB, overlayA);
+			DrawMesh(
+				RendererData.DefaultShader, tex, 
+				mesh, 0, Resources.Meshes[mesh].VerticesCount,
+				world, 
+				overlayR, overlayG, overlayB, overlayA);
 		}
 
 		void DrawMesh(
-			ResourceIndex tex, ResourceIndex mesh, 
-			int first, int count, 
+			ResourceIndex shader, ResourceIndex tex, 
+			ResourceIndex mesh, int first, int count, 
 			const float* world,
 			float overlayR, float overlayG, float overlayB, float overlayA)
 		{
@@ -425,7 +359,7 @@ namespace SPF
 			RendererData.OverlayB = overlayB;
 			RendererData.OverlayA = overlayA;
 
-			Prepare();
+			Prepare(shader);
 			glDrawArrays(GL_TRIANGLES, first, count);
 
 			RendererData.Model = glm::identity<glm::mat4>();
@@ -588,9 +522,19 @@ namespace SPF
 			RendererData.FogColorB = b;
 		}
 
+		void SetAnimation(float animation)
+		{
+			RendererData.Animation = animation;
+		}
+
 		ResourceIndex GetFinalSurface()
 		{
 			return RendererData.FinalSurface;
+		}
+
+		ResourceIndex GetDefaultShader()
+		{
+			return RendererData.DefaultShader;
 		}
 	}
 }
@@ -661,12 +605,16 @@ extern "C"
 	}
 
 	DLLExport void SPF_DrawMesh(
-		int tex, int mesh, 
-		int first, int count, 
+		int shader, int tex, 
+		int mesh, int first, int count, 
 		float* world,
 		float overlayR, float overlayG, float overlayB, float overlayA)
 	{
-		SPF::Renderer::DrawMesh(tex, mesh, first, count, world, overlayR, overlayG, overlayB, overlayA);
+		SPF::Renderer::DrawMesh(
+			shader, tex, 
+			mesh, first, count, 
+			world, 
+			overlayR, overlayG, overlayB, overlayA);
 	}
 
 	DLLExport void SPF_SetBlending(int blendMode)
@@ -720,5 +668,10 @@ extern "C"
 	DLLExport void SPF_SetFogColor(float r, float g, float b)
 	{
 		SPF::Renderer::SetFogColor(r, g, b);
+	}
+
+	DLLExport void SPF_SetAnimation(float animation)
+	{
+		SPF::Renderer::SetAnimation(animation);
 	}
 }

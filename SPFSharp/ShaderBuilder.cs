@@ -1,10 +1,11 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 
 namespace SPFSharp
 {
     public static partial class SPF
     {
-        public class ShaderBuilder
+        public abstract class ShaderBuilder
         {
 			public const string Version = "#version 330 core";
 
@@ -26,6 +27,11 @@ namespace SPFSharp
                     Name = name;
                 }
 
+				public Vec2(float x, float y)
+				{
+					Name = $"vec2({x.ToString(CultureInfo.InvariantCulture)},{y.ToString(CultureInfo.InvariantCulture)})";
+				}
+
 				public string Write() => Name;
 			}
 
@@ -39,6 +45,11 @@ namespace SPFSharp
                 {
                     Name = name;
                 }
+
+				public Vec3(float x, float y, float z)
+				{
+					Name = $"vec3({x.ToString(CultureInfo.InvariantCulture)},{y.ToString(CultureInfo.InvariantCulture)},{z.ToString(CultureInfo.InvariantCulture)})";
+				}
 
 				public string Write() => Name;
 			}
@@ -54,6 +65,11 @@ namespace SPFSharp
                     Name = name;
                 }
 
+				public Vec4(float x, float y, float z, float w)
+				{
+					Name = $"vec4({x.ToString(CultureInfo.InvariantCulture)},{y.ToString(CultureInfo.InvariantCulture)},{z.ToString(CultureInfo.InvariantCulture)},{w.ToString(CultureInfo.InvariantCulture)})";
+				}
+
 				public string Write() => Name;
             }
 
@@ -68,7 +84,12 @@ namespace SPFSharp
                     Name = name;
                 }
 
-                public string Write() => Name;
+				public Float(float value)
+				{
+					Name = value.ToString(CultureInfo.InvariantCulture);
+				}
+
+				public string Write() => Name;
 
                 public static readonly Float One = new Float("1.0");
                 public static readonly Float Zero = new Float("0.0");
@@ -140,7 +161,7 @@ namespace SPFSharp
 
             public IExpression<Vec4> ToVec4(IExpression<Vec3> xyz, IExpression<Float> w)
                 => new GenericExpression<Vec4>($"vec4({xyz.Write()}, {w.Write()})");
-        }
+		}
 
 		public class PixelShaderBuilder : ShaderBuilder
 		{
@@ -151,6 +172,7 @@ namespace SPFSharp
 			public readonly Float FogIntensity = new Float("FogIntensity");
 			public readonly Vec3 FogColor = new Vec3("FogColor");
 			public readonly Vec4 GlobalOverlay = new Vec4("Overlay");
+			public readonly Float Animation = new Float("Animation");
 			public readonly Vec4 OutputColor = new Vec4("out_Color");
 			public readonly Sampler2D Texture = new Sampler2D("Texture");
 
@@ -167,6 +189,7 @@ namespace SPFSharp
 				sb.AppendLine($"uniform float {FogIntensity.Name};");
 				sb.AppendLine($"uniform vec3 {FogColor.Name};");
 				sb.AppendLine($"uniform vec4 {GlobalOverlay.Name};");
+				sb.AppendLine($"uniform float {Animation.Name};");
 				sb.AppendLine($"in float {Distance.Name};");
 				sb.AppendLine($"in vec2 {UV.Name};");
 				sb.AppendLine($"in vec4 {Color.Name};");
@@ -190,5 +213,11 @@ namespace SPFSharp
             this ShaderBuilder.IExpression<ShaderBuilder.Sampler2D> sampler,
             ShaderBuilder.IExpression<ShaderBuilder.Vec2> uv)
             => new ShaderBuilder.GenericExpression<ShaderBuilder.Vec4>($"texture2D({sampler.Write()}, {uv.Write()})");
-    }
+
+		public static ShaderBuilder.IExpression<ShaderBuilder.Vec2> ToVec2(this ShaderBuilder.IExpression<ShaderBuilder.Float> f)
+			=> new ShaderBuilder.GenericExpression<ShaderBuilder.Vec2>($"vec2({f.Write()}, {f.Write()})");
+
+		public static ShaderBuilder.IExpression<ShaderBuilder.Vec4> ToVec4(this ShaderBuilder.IExpression<ShaderBuilder.Vec3> xyz, ShaderBuilder.IExpression<ShaderBuilder.Float> w)
+			=> new ShaderBuilder.GenericExpression<ShaderBuilder.Vec4>($"vec4({xyz.Write()}, {w.Write()})");
+	}
 }

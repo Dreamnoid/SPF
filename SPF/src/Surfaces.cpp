@@ -33,21 +33,11 @@ namespace SPF
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-			for (ResourceIndex surfaceID = 0; surfaceID < Resources.Surfaces.size(); ++surfaceID)
-			{
-				if (!Resources.Surfaces[surfaceID].InUse)
-				{
-					Resources.Surfaces[surfaceID] = { true,fboID,depthID,texture,depth };
-					return surfaceID;
-				}
-			}
-			Resources.Surfaces.push_back({ true,fboID,depthID,texture,depth });
-			return Resources.Surfaces.size() - 1;
+			return CreateResource(Resources.Surfaces, { true,fboID,depthID,texture,depth });
 		}
 
 		void Delete(ResourceIndex surface)
 		{
-			Resources.Surfaces[surface].InUse = false;
 			GLuint ids[1];
 			if (Resources.Surfaces[surface].HasDepth)
 			{
@@ -57,6 +47,7 @@ namespace SPF
 			ids[0] = Resources.Surfaces[surface].GLID;
 			glDeleteFramebuffers(1, ids);
 			Textures::Delete(Resources.Surfaces[surface].Texture);
+			DeleteResource(Resources.Surfaces, surface);
 		}
 
 		void Clear(ResourceIndex surface)
