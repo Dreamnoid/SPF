@@ -10,6 +10,13 @@ namespace SPFSharp
 			Additive = 1
 		}
 
+		public enum Culling : int
+		{
+			Disabled,
+			CW,
+			CCW
+		}
+
 		public static class Renderer
 		{
 			public static void Begin()
@@ -239,9 +246,9 @@ namespace SPFSharp
 				Native.SPF_SetWireframe(wireframeEnabled);
 			}
 
-			public static void SetBackfaceCulling(bool cullingEnabled)
+			public static void SetBackfaceCulling(Culling culling)
 			{
-				Native.SPF_SetBackfaceCulling(cullingEnabled);
+				Native.SPF_SetBackfaceCulling((int)culling);
 			}
 
 			public static void SetFogColor(Vector3 color)

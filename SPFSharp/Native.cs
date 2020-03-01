@@ -319,7 +319,7 @@ namespace SPFSharp
 
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void SPF_SetBackfaceCulling(bool cullingEnabled);
+		public static extern void SPF_SetBackfaceCulling(int culling);
 
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]

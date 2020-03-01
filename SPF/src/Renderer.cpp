@@ -43,7 +43,6 @@ namespace SPF
 		float CameraFarPlane;
 		float FogIntensity = 0.f;
 		bool Wireframe;
-		bool BackfaceCulling;
 		float FogColorR = 0.f, FogColorG = 0.f, FogColorB = 0.f;
 		float OverlayR = 0.f, OverlayG = 0.f, OverlayB = 0.f, OverlayA = 0.f;
 		float Animation = 0.f;
@@ -123,10 +122,8 @@ namespace SPF
 			RendererData.FinalSurface = Surfaces::Create(w, h, true);
 			RendererData.Model = glm::identity<glm::mat4>();
 			RendererData.Wireframe = false;
-			RendererData.BackfaceCulling = false;
 
-			glFrontFace(GL_CCW);
-			glCullFace(GL_BACK);
+			SetBackfaceCulling(0);
 
 			glEnable(GL_POLYGON_OFFSET_LINE);
 			glPolygonOffset(-1.0f, -1.0f);
@@ -137,14 +134,6 @@ namespace SPF
 			glViewport(0, 0, (GLsizei)RendererData.CurrentWidth, (GLsizei)RendererData.CurrentHeight);
 
 			glPolygonMode(GL_FRONT_AND_BACK, (RendererData.Wireframe) ? GL_LINE : GL_FILL);
-			if (RendererData.BackfaceCulling)
-			{
-				glEnable(GL_CULL_FACE);
-			}
-			else
-			{
-				glDisable(GL_CULL_FACE);
-			}
 
 			shader = (shader < 0) ? RendererData.DefaultShader : shader;
 			HardwareID programID = Resources.Shaders[shader].GLID;
@@ -515,9 +504,24 @@ namespace SPF
 			RendererData.Wireframe = wireframeEnabled;
 		}
 
-		void SetBackfaceCulling(bool cullingEnabled)
+		void SetBackfaceCulling(int culling)
 		{
-			RendererData.BackfaceCulling = cullingEnabled;
+			glCullFace(GL_BACK);
+			if (culling == 0) // Disabled
+			{
+				glDisable(GL_CULL_FACE);
+				
+			}
+			else if(culling == 1) // CW
+			{
+				glFrontFace(GL_CCW);
+				glEnable(GL_CULL_FACE);
+			}
+			else if (culling == 2) // CCW
+			{
+				glFrontFace(GL_CW);
+				glEnable(GL_CULL_FACE);
+			}
 		}
 
 		void SetFogColor(float r, float g, float b)
@@ -665,9 +669,9 @@ extern "C"
 		SPF::Renderer::SetWireframe(wireframeEnabled);
 	}
 
-	DLLExport void SPF_SetBackfaceCulling(bool cullingEnabled)
+	DLLExport void SPF_SetBackfaceCulling(int culling)
 	{
-		SPF::Renderer::SetBackfaceCulling(cullingEnabled);
+		SPF::Renderer::SetBackfaceCulling(culling);
 	}
 
 	DLLExport void SPF_SetFogColor(float r, float g, float b)
