@@ -81,6 +81,7 @@ namespace SPF
 
 			glUseProgram(program);
 			glUniform1i(glGetUniformLocation(program, "Texture"), 0);
+			glUniform1i(glGetUniformLocation(program, "Texture1"), 1);
 
 			return CreateResource(Resources.Shaders, { true, program });
 		}

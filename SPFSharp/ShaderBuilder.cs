@@ -175,6 +175,7 @@ namespace SPFSharp
 			public readonly Float Animation = new Float("Animation");
 			public readonly Vec4 OutputColor = new Vec4("out_Color");
 			public readonly Sampler2D Texture = new Sampler2D("Texture");
+			public readonly Sampler2D Texture1 = new Sampler2D("Texture1");
 
 			public void AlphaTest(IExpression<Vec4> color)
 			{
@@ -186,6 +187,7 @@ namespace SPFSharp
 				var sb = new StringBuilder();
 				sb.AppendLine(Version);
 				sb.AppendLine($"uniform sampler2D {Texture.Name};");
+				sb.AppendLine($"uniform sampler2D {Texture1.Name};");
 				sb.AppendLine($"uniform float {FogIntensity.Name};");
 				sb.AppendLine($"uniform vec3 {FogColor.Name};");
 				sb.AppendLine($"uniform vec4 {GlobalOverlay.Name};");
@@ -209,7 +211,10 @@ namespace SPFSharp
         public static ShaderBuilder.IExpression<ShaderBuilder.Float> A(this ShaderBuilder.IExpression<ShaderBuilder.Vec4> vector)
             => new ShaderBuilder.GenericExpression<ShaderBuilder.Float>($"{vector.Write()}.a");
 
-        public static ShaderBuilder.IExpression<ShaderBuilder.Vec4> Sample(
+		public static ShaderBuilder.IExpression<ShaderBuilder.Float> R(this ShaderBuilder.IExpression<ShaderBuilder.Vec4> vector)
+			=> new ShaderBuilder.GenericExpression<ShaderBuilder.Float>($"{vector.Write()}.r");
+
+		public static ShaderBuilder.IExpression<ShaderBuilder.Vec4> Sample(
             this ShaderBuilder.IExpression<ShaderBuilder.Sampler2D> sampler,
             ShaderBuilder.IExpression<ShaderBuilder.Vec2> uv)
             => new ShaderBuilder.GenericExpression<ShaderBuilder.Vec4>($"texture2D({sampler.Write()}, {uv.Write()})");

@@ -101,6 +101,7 @@ namespace SPF
 			RendererData.DefaultShader = Shaders::Create(
 				"#version 330 core\n"
 				"uniform sampler2D Texture;\n"
+				"uniform sampler2D Texture1;\n"
 				"uniform float FogIntensity;\n"
 				"uniform vec3 FogColor;\n"
 				"uniform vec4 Overlay;\n"
@@ -333,14 +334,14 @@ namespace SPF
 			float overlayR, float overlayG, float overlayB, float overlayA)
 		{
 			DrawMesh(
-				RendererData.DefaultShader, tex, 
+				RendererData.DefaultShader, tex, tex,
 				mesh, 0, Resources.Meshes[mesh].VerticesCount,
 				world, 
 				overlayR, overlayG, overlayB, overlayA);
 		}
 
 		void DrawMesh(
-			ResourceIndex shader, ResourceIndex tex, 
+			ResourceIndex shader, ResourceIndex tex, ResourceIndex tex1,
 			ResourceIndex mesh, int first, int count, 
 			const float* world,
 			float overlayR, float overlayG, float overlayB, float overlayA)
@@ -352,6 +353,10 @@ namespace SPF
 			glActiveTexture2(GL_TEXTURE0);
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, (tex < 0) ? RendererData.EmptyTexture : Resources.Textures[tex].GLID);
+
+			glActiveTexture2(GL_TEXTURE1);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, (tex1 < 0) ? RendererData.EmptyTexture : Resources.Textures[tex1].GLID);
 
 			RendererData.Model = glm::make_mat4x4(world);
 			RendererData.OverlayR = overlayR;
@@ -605,13 +610,13 @@ extern "C"
 	}
 
 	DLLExport void SPF_DrawMesh(
-		int shader, int tex, 
+		int shader, int tex, int tex1,
 		int mesh, int first, int count, 
 		float* world,
 		float overlayR, float overlayG, float overlayB, float overlayA)
 	{
 		SPF::Renderer::DrawMesh(
-			shader, tex, 
+			shader, tex, tex1,
 			mesh, first, count, 
 			world, 
 			overlayR, overlayG, overlayB, overlayA);

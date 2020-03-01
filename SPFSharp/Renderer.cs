@@ -173,24 +173,18 @@ namespace SPFSharp
 				0f, 0f, 0f, 1f
 			};
 
-			public static void DrawMesh(Texture texture, Mesh mesh)
-			{
-				Native.SPF_DrawMesh(-1, texture.ID, mesh.ID, 0, mesh.VerticesCount, IdentityMatrix, 0f, 0f, 0f, 0f);
-			}
+			public static void DrawMesh(Texture texture, Mesh mesh) => DrawMesh(null, texture, null, mesh, 0, mesh.VerticesCount, IdentityMatrix, Vector4.Zero);
 
-			public static void DrawMesh(Texture texture, Mesh mesh, float[] world)
-			{
-				Native.SPF_DrawMesh(-1, (texture != null) ? texture.ID : -1, mesh.ID, 0, mesh.VerticesCount, world, 0f, 0f, 0f, 0f);
-			}
+			public static void DrawMesh(Texture texture, Mesh mesh, float[] world) => DrawMesh(null, texture, null, mesh, 0, mesh.VerticesCount, world, Vector4.Zero);
 
 			public static void DrawMesh(
 				Texture texture,
 				Mesh mesh, int first, int count,
 				float[] world,
-				Vector4 overlay) => DrawMesh(null, texture, mesh, first, count, world, overlay);
+				Vector4 overlay) => DrawMesh(null, texture, null, mesh, first, count, world, overlay);
 
 				public static void DrawMesh(
-				Shader shader, Texture texture, 
+				Shader shader, Texture texture, Texture texture1,
 				Mesh mesh, int first, int count, 
 				float[] world, 
 				Vector4 overlay)
@@ -198,15 +192,13 @@ namespace SPFSharp
 				Native.SPF_DrawMesh(
 					(shader != null) ? shader.ID : -1, 
 					(texture != null) ? texture.ID : -1,
+					(texture1 != null) ? texture1.ID : -1,
 					mesh.ID, first, count, 
 					world,
 					overlay.X, overlay.Y, overlay.Z, overlay.W);
 			}
 
-			public static void DrawMesh(Mesh mesh, float[] world)
-			{
-				Native.SPF_DrawMesh(-1, -1, mesh.ID, 0, mesh.VerticesCount, world, 0f, 0f, 0f, 0f);
-			}
+			public static void DrawMesh(Mesh mesh, float[] world) => DrawMesh(null, null, null, mesh, 0, mesh.VerticesCount, world, Vector4.Zero);
 
 			public static void DrawBillboard(Texture tex,
 				Vector3 position, 
