@@ -13,7 +13,7 @@ namespace SPF
 {
 	namespace Textures
 	{
-		ResourceIndex Create(unsigned int w, unsigned int h, void* pixels, bool flipped)
+		ResourceIndex Create(unsigned int w, unsigned int h, void* pixels, bool depth, bool flipped)
 		{
 			GLuint ids[1];
 			glGenTextures(1, ids);
@@ -26,7 +26,14 @@ namespace SPF
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+			if (depth)
+			{
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, w, h, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, pixels);
+			}
+			else
+			{
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+			}
 
 			return CreateResource(Resources.Textures, { true,id,w,h,flipped });
 		}
@@ -50,7 +57,7 @@ namespace SPF
 		{
 			int w, h, bpp;
 			stbi_uc* pixels = stbi_load_from_memory(buffer, length, &w, &h, &bpp, 4);
-			ResourceIndex index = Create(w, h, (GLvoid*)pixels, 0);
+			ResourceIndex index = Create(w, h, (GLvoid*)pixels, false, false);
 			stbi_image_free((void*)pixels);
 			return index;
 		}

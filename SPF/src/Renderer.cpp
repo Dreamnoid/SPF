@@ -40,7 +40,7 @@ namespace SPF
 		glm::mat4 Model;
 		float CameraUpX = 0.f, CameraUpY = 1.f, CameraUpZ = 0.f;
 		float CameraSideX = 0.f, CameraSideY = 0.f, CameraSideZ = 0.f;
-		float CameraFarPlane;
+		float CameraNearPlane, CameraFarPlane;
 		float FogIntensity = 0.f;
 		bool Wireframe;
 		float FogColorR = 0.f, FogColorG = 0.f, FogColorB = 0.f;
@@ -101,14 +101,18 @@ namespace SPF
 				"#version 330 core\n"
 				"uniform sampler2D Texture;\n"
 				"uniform sampler2D Texture1;\n"
+				"uniform sampler2D Texture2;\n"
 				"uniform float FogIntensity;\n"
 				"uniform vec3 FogColor;\n"
 				"uniform vec4 Overlay;\n"
 				"uniform float Animation;\n"
+				"uniform float NearPlane;\n"
+				"uniform float FarPlane;\n"
 				"in float share_Distance;\n"
 				"in vec2 share_UV;\n"
 				"in vec4 share_Color;\n"
 				"in vec4 share_Overlay;\n"
+				"in vec3 share_Position;\n"
 				"out vec4 out_Color;\n"
 				"void main()\n"
 				"{\n"
@@ -129,7 +133,7 @@ namespace SPF
 			glPolygonOffset(-1.0f, -1.0f);
 		}
 
-		void Prepare(ResourceIndex shader = -1)
+		void Prepare(ResourceIndex shader = InvalidResource)
 		{
 			glViewport(0, 0, (GLsizei)RendererData.CurrentWidth, (GLsizei)RendererData.CurrentHeight);
 
@@ -145,6 +149,7 @@ namespace SPF
 			glUniform3f(glGetUniformLocation(programID, "CameraSide"), RendererData.CameraSideX, RendererData.CameraSideY, RendererData.CameraSideZ);
 			glUniform1f(glGetUniformLocation(programID, "FogIntensity"), RendererData.FogIntensity);
 			glUniform3f(glGetUniformLocation(programID, "FogColor"), RendererData.FogColorR, RendererData.FogColorG, RendererData.FogColorB);
+			glUniform1f(glGetUniformLocation(programID, "NearPlane"), RendererData.CameraNearPlane);
 			glUniform1f(glGetUniformLocation(programID, "FarPlane"), RendererData.CameraFarPlane);
 			glUniform4f(glGetUniformLocation(programID, "Overlay"), RendererData.OverlayR, RendererData.OverlayG, RendererData.OverlayB, RendererData.OverlayA);
 			glUniform1f(glGetUniformLocation(programID, "Animation"), RendererData.Animation);
@@ -323,14 +328,14 @@ namespace SPF
 			float overlayR, float overlayG, float overlayB, float overlayA)
 		{
 			DrawMesh(
-				RendererData.DefaultShader, tex, tex,
+				RendererData.DefaultShader, tex, InvalidResource, InvalidResource,
 				mesh, 0, Resources.Meshes[mesh].VerticesCount,
 				world, 
 				overlayR, overlayG, overlayB, overlayA);
 		}
 
 		void DrawMesh(
-			ResourceIndex shader, ResourceIndex tex, ResourceIndex tex1,
+			ResourceIndex shader, ResourceIndex tex, ResourceIndex tex1, ResourceIndex tex2,
 			ResourceIndex mesh, int first, int count, 
 			const float* world,
 			float overlayR, float overlayG, float overlayB, float overlayA)
@@ -346,6 +351,10 @@ namespace SPF
 			glActiveTexture2(GL_TEXTURE1);
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, (tex1 < 0) ? RendererData.EmptyTexture : Resources.Textures[tex1].GLID);
+
+			glActiveTexture2(GL_TEXTURE2);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, (tex2 < 0) ? RendererData.EmptyTexture : Resources.Textures[tex2].GLID);
 
 			RendererData.Model = glm::make_mat4x4(world);
 			RendererData.OverlayR = overlayR;
@@ -393,6 +402,7 @@ namespace SPF
 			RendererData.CameraSideX = 0.f;
 			RendererData.CameraSideY = 0.f;
 			RendererData.CameraSideZ = 0.f;
+			RendererData.CameraNearPlane = -1.0f;
 			RendererData.CameraFarPlane = 1.0f;
 
 			glDisable(GL_DEPTH_TEST);
@@ -423,6 +433,7 @@ namespace SPF
 			RendererData.CameraSideX = cameraSide.x;
 			RendererData.CameraSideY = cameraSide.y;
 			RendererData.CameraSideZ = cameraSide.z;
+			RendererData.CameraNearPlane = nearDist;
 			RendererData.CameraFarPlane = farDist;
 
 			RendererData.ViewProj = 
@@ -614,13 +625,13 @@ extern "C"
 	}
 
 	DLLExport void SPF_DrawMesh(
-		int shader, int tex, int tex1,
+		int shader, int tex, int tex1, int tex2,
 		int mesh, int first, int count, 
 		float* world,
 		float overlayR, float overlayG, float overlayB, float overlayA)
 	{
 		SPF::Renderer::DrawMesh(
-			shader, tex, tex1,
+			shader, tex, tex1, tex2,
 			mesh, first, count, 
 			world, 
 			overlayR, overlayG, overlayB, overlayA);

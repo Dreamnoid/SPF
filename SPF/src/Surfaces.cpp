@@ -11,7 +11,7 @@ namespace SPF
 	{
 		ResourceIndex Create(int w, int h, bool depth)
 		{
-			ResourceIndex texture = Textures::Create(w, h, nullptr, true);
+			ResourceIndex texture = Textures::Create(w, h, nullptr, false, true);
 
 			GLuint ids[1];
 			glGenFramebuffers(1, ids);
@@ -20,32 +20,27 @@ namespace SPF
 			glBindFramebuffer(GL_FRAMEBUFFER, fboID);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, Resources.Textures[texture].GLID, 0);
 
-			GLuint depthID = 0;
+			ResourceIndex depthTexture = -1;
 			if (depth)
 			{
-				glGenRenderbuffers(1, ids);
-				depthID = ids[0];
-				glBindRenderbuffer(GL_RENDERBUFFER, depthID);
-				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, w, h);
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthID);
-				glBindRenderbuffer(GL_RENDERBUFFER, 0);
+				depthTexture = Textures::Create(w, h, nullptr, true, true);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, Resources.Textures[depthTexture].GLID, 0);
 			}
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-			return CreateResource(Resources.Surfaces, { true,fboID,depthID,texture,depth });
+			return CreateResource(Resources.Surfaces, { true, fboID, texture, depthTexture, depth });
 		}
 
 		void Delete(ResourceIndex surface)
 		{
 			GLuint ids[1];
-			if (Resources.Surfaces[surface].HasDepth)
-			{
-				ids[0] = Resources.Surfaces[surface].DepthGLID;
-				glDeleteRenderBuffers(1, ids);
-			}
 			ids[0] = Resources.Surfaces[surface].GLID;
 			glDeleteFramebuffers(1, ids);
+			if (Resources.Surfaces[surface].HasDepth)
+			{
+				Textures::Delete(Resources.Surfaces[surface].DepthTexture);
+			}
 			Textures::Delete(Resources.Surfaces[surface].Texture);
 			DeleteResource(Resources.Surfaces, surface);
 		}
@@ -66,6 +61,11 @@ namespace SPF
 		ResourceIndex GetTexture(ResourceIndex surface)
 		{
 			return Resources.Surfaces[surface].Texture;
+		}
+
+		ResourceIndex GetDepthTexture(ResourceIndex surface)
+		{
+			return Resources.Surfaces[surface].DepthTexture;
 		}
 	}
 }
@@ -90,5 +90,10 @@ extern "C"
 	DLLExport int SPF_GetSurfaceTexture(int surface)
 	{
 		return SPF::Surfaces::GetTexture(surface);
+	}
+
+	DLLExport int SPF_GetSurfaceDepthTexture(int surface)
+	{
+		return SPF::Surfaces::GetDepthTexture(surface);
 	}
 }

@@ -50,7 +50,7 @@ namespace SPF
 			const float* world,
 			float overlayR, float overlayG, float overlayB, float overlayA);
 		DLLExport void DrawMesh(
-			ResourceIndex shader, ResourceIndex tex, ResourceIndex tex1,
+			ResourceIndex shader, ResourceIndex tex, ResourceIndex tex1, ResourceIndex tex2,
 			ResourceIndex mesh, int first, int count, 
 			const float* world, 
 			float overlayR, float overlayG, float overlayB, float overlayA);

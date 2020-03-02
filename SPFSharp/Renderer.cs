@@ -180,32 +180,33 @@ namespace SPFSharp
 				0f, 0f, 0f, 1f
 			};
 
-			public static void DrawMesh(Texture texture, Mesh mesh) => DrawMesh(null, texture, null, mesh, 0, mesh.VerticesCount, IdentityMatrix, Vector4.Zero);
+			public static void DrawMesh(Texture texture, Mesh mesh) => DrawMesh(null, texture, null, null, mesh, 0, mesh.VerticesCount, IdentityMatrix, Vector4.Zero);
 
-			public static void DrawMesh(Texture texture, Mesh mesh, float[] world) => DrawMesh(null, texture, null, mesh, 0, mesh.VerticesCount, world, Vector4.Zero);
+			public static void DrawMesh(Texture texture, Mesh mesh, float[] world) => DrawMesh(null, texture, null, null, mesh, 0, mesh.VerticesCount, world, Vector4.Zero);
 
 			public static void DrawMesh(
 				Texture texture,
 				Mesh mesh, int first, int count,
 				float[] world,
-				Vector4 overlay) => DrawMesh(null, texture, null, mesh, first, count, world, overlay);
+				Vector4 overlay) => DrawMesh(null, texture, null, null, mesh, first, count, world, overlay);
 
 				public static void DrawMesh(
-				Shader shader, Texture texture, Texture texture1,
+				Shader shader, Texture texture, Texture texture1, Texture texture2,
 				Mesh mesh, int first, int count, 
 				float[] world, 
 				Vector4 overlay)
 			{
 				Native.SPF_DrawMesh(
-					(shader != null) ? shader.ID : -1, 
-					(texture != null) ? texture.ID : -1,
-					(texture1 != null) ? texture1.ID : -1,
+					(shader != null) ? shader.ID : InvalidResource, 
+					(texture != null) ? texture.ID : InvalidResource,
+					(texture1 != null) ? texture1.ID : InvalidResource,
+					(texture2 != null) ? texture2.ID : InvalidResource,
 					mesh.ID, first, count, 
 					world,
 					overlay.X, overlay.Y, overlay.Z, overlay.W);
 			}
 
-			public static void DrawMesh(Mesh mesh, float[] world) => DrawMesh(null, null, null, mesh, 0, mesh.VerticesCount, world, Vector4.Zero);
+			public static void DrawMesh(Mesh mesh, float[] world) => DrawMesh(null, null, null, null, mesh, 0, mesh.VerticesCount, world, Vector4.Zero);
 
 			public static void DrawBillboard(Texture tex,
 				Vector3 position, 

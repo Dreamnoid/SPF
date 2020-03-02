@@ -12,11 +12,11 @@ namespace SPFSharp
             public interface IVariable
             {
                 string Name { get; }
-
                 string Type { get; }
+				string Write();
             }
 
-            public class Vec2 : IVariable, IExpression<Vec2>
+            public class Vec2 : IVariable
             {
                 public string Name { get; }
 
@@ -27,15 +27,23 @@ namespace SPFSharp
                     Name = name;
                 }
 
-				public Vec2(float x, float y)
+				public Vec2(Float x, Float y)
 				{
-					Name = $"vec2({x.ToString(CultureInfo.InvariantCulture)},{y.ToString(CultureInfo.InvariantCulture)})";
+					Name = $"vec2({x.Write()},{y.Write()})";
 				}
 
 				public string Write() => Name;
+
+				public static Vec2 operator *(Vec2 a, Vec2 b) => new Vec2($"({a.Write()} * {b.Write()})");
+				public static Vec2 operator -(Vec2 a, Vec2 b) => new Vec2($"({a.Write()} - {b.Write()})");
+				public static Vec2 operator +(Vec2 a, Vec2 b) => new Vec2($"({a.Write()} + {b.Write()})");
+				public static Vec2 operator /(Vec2 a, Vec2 b) => new Vec2($"({a.Write()} / {b.Write()})");
+
+				public static Vec2 operator *(Vec2 a, Float b) => new Vec2($"({a.Write()} * {b.Write()})");
+				public static Vec2 operator /(Vec2 a, Float b) => new Vec2($"({a.Write()} / {b.Write()})");
 			}
 
-            public class Vec3 : IVariable, IExpression<Vec3>
+            public class Vec3 : IVariable
 			{
                 public string Name { get; }
 
@@ -51,10 +59,31 @@ namespace SPFSharp
 					Name = $"vec3({x.ToString(CultureInfo.InvariantCulture)},{y.ToString(CultureInfo.InvariantCulture)},{z.ToString(CultureInfo.InvariantCulture)})";
 				}
 
+				public Vec3(Float f)
+				{
+					Name = $"vec3({f.Write()},{f.Write()},{f.Write()})";
+				}
+
 				public string Write() => Name;
+
+				public Float X => new Float($"{Write()}.x");
+				public Float Y => new Float($"{Write()}.y");
+				public Float Z => new Float($"{Write()}.z");
+
+				public Vec2 XY => new Vec2($"{Write()}.xy");
+
+				public Vec4 ToVec4(Float w) => new Vec4($"vec4({Write()}, {w.Write()})");
+
+				public static Vec3 operator *(Vec3 a, Vec3 b) => new Vec3($"({a.Write()} * {b.Write()})");
+				public static Vec3 operator -(Vec3 a, Vec3 b) => new Vec3($"({a.Write()} - {b.Write()})");
+				public static Vec3 operator +(Vec3 a, Vec3 b) => new Vec3($"({a.Write()} + {b.Write()})");
+				public static Vec3 operator /(Vec3 a, Vec3 b) => new Vec3($"({a.Write()} / {b.Write()})");
+
+				public static Vec3 operator *(Vec3 a, Float b) => new Vec3($"({a.Write()} * {b.Write()})");
+				public static Vec3 operator /(Vec3 a, Float b) => new Vec3($"({a.Write()} / {b.Write()})");
 			}
 
-            public class Vec4 : IVariable, IExpression<Vec4>
+            public class Vec4 : IVariable
 			{
                 public string Name { get; }
 
@@ -71,9 +100,30 @@ namespace SPFSharp
 				}
 
 				public string Write() => Name;
-            }
 
-            public class Float : IVariable, IExpression<Float>
+				public Float X => new Float($"{Write()}.x");
+				public Float Y => new Float($"{Write()}.y");
+				public Float Z => new Float($"{Write()}.z");
+
+				public Vec2 XY => new Vec2($"{Write()}.xy");
+
+				public Vec3 XYZ => new Vec3($"{Write()}.xyz");
+
+				public Float R => new Float($"{Write()}.r");
+				public Float G => new Float($"{Write()}.g");
+				public Float B => new Float($"{Write()}.b");
+				public Float A => new Float($"{Write()}.a");
+
+				public static Vec4 operator *(Vec4 a, Vec4 b) => new Vec4($"({a.Write()} * {b.Write()})");
+				public static Vec4 operator -(Vec4 a, Vec4 b) => new Vec4($"({a.Write()} - {b.Write()})");
+				public static Vec4 operator +(Vec4 a, Vec4 b) => new Vec4($"({a.Write()} + {b.Write()})");
+				public static Vec4 operator /(Vec4 a, Vec4 b) => new Vec4($"({a.Write()} / {b.Write()})");
+
+				public static Vec4 operator *(Vec4 a, Float b) => new Vec4($"({a.Write()} * {b.Write()})");
+				public static Vec4 operator /(Vec4 a, Float b) => new Vec4($"({a.Write()} / {b.Write()})");
+			}
+
+            public class Float : IVariable
             {
                 public string Name { get; }
 
@@ -91,11 +141,21 @@ namespace SPFSharp
 
 				public string Write() => Name;
 
-                public static readonly Float One = new Float("1.0");
-                public static readonly Float Zero = new Float("0.0");
-            }
+				// https://stackoverflow.com/questions/7777913/how-to-render-depth-linearly-in-modern-opengl-with-gl-fragcoord-z-in-fragment-sh
+				public Float LinearizeDepth()
+					=> new Float($"((-2 * FarPlane * NearPlane / (FarPlane - NearPlane)) / ((-(FarPlane + NearPlane) / (FarPlane - NearPlane)) + (2.0 * ({Write()}) - 1.0)))");
 
-			public class Sampler2D : IVariable, IExpression<Sampler2D>
+				public static implicit operator Float(float value) => new Float(value);
+
+				public static Float operator *(Float a, Float b) => new Float($"({a.Write()} * {b.Write()})");
+				public static Float operator -(Float a, Float b) => new Float($"({a.Write()} - {b.Write()})");
+				public static Float operator +(Float a, Float b) => new Float($"({a.Write()} + {b.Write()})");
+				public static Float operator /(Float a, Float b) => new Float($"({a.Write()} / {b.Write()})");
+
+				public Vec2 ToVec2() => new Vec2($"vec2({Write()}, {Write()})");
+			}
+
+			public class Sampler2D : IVariable
 			{
 				public string Name { get; }
 
@@ -107,60 +167,35 @@ namespace SPFSharp
 				}
 
 				public string Write() => Name;
-			}
 
-			public interface IExpression<TVariable> where TVariable : IVariable
-            {
-                string Write();
-            }
+				public Vec4 Sample(Vec2 uv) => new Vec4($"texture2D({Write()}, {uv.Write()})");
+			}
 
 			protected readonly StringBuilder _shaderBuilder = new StringBuilder();
 
-            public void Set<TVariable>(TVariable variable, IExpression<TVariable> expression) where TVariable : IVariable
+            public void Set<TVariable>(TVariable variable, TVariable expression) where TVariable : IVariable
             {
                 _shaderBuilder.Append(variable.Name).Append(" = ").Append(expression.Write()).AppendLine(";");
             }
 
-            public void Declare<TVariable>(TVariable variable, IExpression<TVariable> expression) where TVariable : IVariable
+            public TVariable Declare<TVariable>(TVariable variable, TVariable expression) where TVariable : IVariable
             {
                 _shaderBuilder.Append(variable.Type).Append(" ");
                 Set(variable, expression);
+				return variable;
             }
 
-            internal class GenericExpression<TVariable> : IExpression<TVariable> where TVariable : IVariable
-            {
-                private readonly string _code;
+			public Float Declare(string name, Float value) => Declare(new Float(name), value);
+			public Vec2 Declare(string name, Vec2 value) => Declare(new Vec2(name), value);
+			public Vec3 Declare(string name, Vec3 value) => Declare(new Vec3(name), value);
+			public Vec4 Declare(string name, Vec4 value) => Declare(new Vec4(name), value);
 
-                public GenericExpression(string code)
-                {
-                    _code = code;
-                }
+			public Float Lerp(Float a, Float b, Float t) => new Float($"mix({a.Write()}, {b.Write()}, {t.Write()})");
+			public Vec2 Lerp(Vec2 a, Vec2 b, Float t) => new Vec2($"mix({a.Write()}, {b.Write()}, {t.Write()})");
+			public Vec3 Lerp(Vec3 a, Vec3 b, Float t) => new Vec3($"mix({a.Write()}, {b.Write()}, {t.Write()})");
+			public Vec4 Lerp(Vec4 a, Vec4 b, Float t) => new Vec4($"mix({a.Write()}, {b.Write()}, {t.Write()})");
 
-                public string Write() => _code;
-            }
-
-            public IExpression<TVariable> Lerp<TVariable>(IExpression<TVariable> a, IExpression<TVariable> b, IExpression<Float> t)
-                where TVariable : IVariable
-                => new GenericExpression<TVariable>($"mix({a.Write()}, {b.Write()}, {t.Write()})");
-
-            public IExpression<TVariable> Mult<TVariable>(IExpression<TVariable> a,IExpression<TVariable> b)
-                where TVariable : IVariable
-                => new GenericExpression<TVariable>($"({a.Write()} * {b.Write()})");
-
-            public IExpression<TVariable> Add<TVariable>(IExpression<TVariable> a, IExpression<TVariable> b)
-                where TVariable : IVariable
-                => new GenericExpression<TVariable>($"({a.Write()} + {b.Write()})");
-
-            public IExpression<TVariable> Sub<TVariable>(IExpression<TVariable> a, IExpression<TVariable> b)
-                where TVariable : IVariable
-                => new GenericExpression<TVariable>($"({a.Write()} - {b.Write()})");
-
-            public IExpression<TVariable> Div<TVariable>(IExpression<TVariable> a, IExpression<TVariable> b)
-                where TVariable : IVariable
-                => new GenericExpression<TVariable>($"({a.Write()} / {b.Write()})");
-
-            public IExpression<Vec4> ToVec4(IExpression<Vec3> xyz, IExpression<Float> w)
-                => new GenericExpression<Vec4>($"vec4({xyz.Write()}, {w.Write()})");
+			public Float Saturate(Float value) => new Float($"clamp({value.Write()}, 0.0, 1.0)");
 		}
 
 		public class PixelShaderBuilder : ShaderBuilder
@@ -169,6 +204,7 @@ namespace SPFSharp
 			public readonly Vec2 UV = new Vec2("share_UV");
 			public readonly Vec4 Color = new Vec4("share_Color");
 			public readonly Vec4 Overlay = new Vec4("share_Overlay");
+			public readonly Vec3 Position = new Vec3("share_Position");
 			public readonly Float FogIntensity = new Float("FogIntensity");
 			public readonly Vec3 FogColor = new Vec3("FogColor");
 			public readonly Vec4 GlobalOverlay = new Vec4("Overlay");
@@ -176,8 +212,13 @@ namespace SPFSharp
 			public readonly Vec4 OutputColor = new Vec4("out_Color");
 			public readonly Sampler2D Texture = new Sampler2D("Texture");
 			public readonly Sampler2D Texture1 = new Sampler2D("Texture1");
+			public readonly Sampler2D Texture2 = new Sampler2D("Texture2");
+			public readonly Float CurrentDepth = new Float("gl_FragCoord.z");
+			public readonly Vec2 PixelCoordinates = new Vec2("gl_FragCoord.xy");
+			public readonly Float NearPlane = new Float("NearPlane");
+			public readonly Float FarPlane = new Float("FarPlane");
 
-			public void AlphaTest(IExpression<Vec4> color)
+			public void AlphaTest(Vec4 color)
 			{
 				_shaderBuilder.AppendLine($"if ({color.Write()}.a <= 0) discard;");
 			}
@@ -188,14 +229,18 @@ namespace SPFSharp
 				sb.AppendLine(Version);
 				sb.AppendLine($"uniform sampler2D {Texture.Name};");
 				sb.AppendLine($"uniform sampler2D {Texture1.Name};");
+				sb.AppendLine($"uniform sampler2D {Texture2.Name};");
 				sb.AppendLine($"uniform float {FogIntensity.Name};");
 				sb.AppendLine($"uniform vec3 {FogColor.Name};");
 				sb.AppendLine($"uniform vec4 {GlobalOverlay.Name};");
 				sb.AppendLine($"uniform float {Animation.Name};");
+				sb.AppendLine($"uniform float {NearPlane.Name};");
+				sb.AppendLine($"uniform float {FarPlane.Name};");
 				sb.AppendLine($"in float {Distance.Name};");
 				sb.AppendLine($"in vec2 {UV.Name};");
 				sb.AppendLine($"in vec4 {Color.Name};");
 				sb.AppendLine($"in vec4 {Overlay.Name};");
+				sb.AppendLine($"in vec3 {Position.Name};");
 				sb.AppendLine($"out vec4 {OutputColor.Name};");
 				sb.AppendLine("void main()");
 				sb.AppendLine("{");
@@ -204,25 +249,5 @@ namespace SPFSharp
 				return sb.ToString();
 			}
 		}
-
-        public static ShaderBuilder.IExpression<ShaderBuilder.Vec3> XYZ(this ShaderBuilder.IExpression<ShaderBuilder.Vec4> vector)
-            => new ShaderBuilder.GenericExpression<ShaderBuilder.Vec3>($"{vector.Write()}.xyz");
-
-        public static ShaderBuilder.IExpression<ShaderBuilder.Float> A(this ShaderBuilder.IExpression<ShaderBuilder.Vec4> vector)
-            => new ShaderBuilder.GenericExpression<ShaderBuilder.Float>($"{vector.Write()}.a");
-
-		public static ShaderBuilder.IExpression<ShaderBuilder.Float> R(this ShaderBuilder.IExpression<ShaderBuilder.Vec4> vector)
-			=> new ShaderBuilder.GenericExpression<ShaderBuilder.Float>($"{vector.Write()}.r");
-
-		public static ShaderBuilder.IExpression<ShaderBuilder.Vec4> Sample(
-            this ShaderBuilder.IExpression<ShaderBuilder.Sampler2D> sampler,
-            ShaderBuilder.IExpression<ShaderBuilder.Vec2> uv)
-            => new ShaderBuilder.GenericExpression<ShaderBuilder.Vec4>($"texture2D({sampler.Write()}, {uv.Write()})");
-
-		public static ShaderBuilder.IExpression<ShaderBuilder.Vec2> ToVec2(this ShaderBuilder.IExpression<ShaderBuilder.Float> f)
-			=> new ShaderBuilder.GenericExpression<ShaderBuilder.Vec2>($"vec2({f.Write()}, {f.Write()})");
-
-		public static ShaderBuilder.IExpression<ShaderBuilder.Vec4> ToVec4(this ShaderBuilder.IExpression<ShaderBuilder.Vec3> xyz, ShaderBuilder.IExpression<ShaderBuilder.Float> w)
-			=> new ShaderBuilder.GenericExpression<ShaderBuilder.Vec4>($"vec4({xyz.Write()}, {w.Write()})");
 	}
 }

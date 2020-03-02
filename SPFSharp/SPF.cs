@@ -8,6 +8,8 @@ namespace SPFSharp
     {
         private static int _windowWidth, _windowHeight;
 
+		public const Int32 InvalidResource = -1;
+
 		public class Texture : IDisposable
 		{
 			public Int32 ID { get; }
@@ -93,11 +95,12 @@ namespace SPFSharp
 
 		public class Surface : IDisposable
 		{
-			public Int32 ID { get; private set; }
-			public Texture Texture { get; private set; }
-			public int Width { get; private set; }
-			public int Height { get; private set; }
-			public bool HasDepth { get; private set; }
+			public Int32 ID { get; }
+			public Texture Texture { get; }
+			public Texture DepthTexture { get; }
+			public int Width { get; }
+			public int Height { get; }
+			public bool HasDepth { get; }
 
 			public Surface(int w, int h, bool depth = false)
 			{
@@ -106,6 +109,10 @@ namespace SPFSharp
 				Width = w;
 				Height = h;
 				HasDepth = depth;
+				if (depth)
+				{
+					DepthTexture = new Texture(Native.SPF_GetSurfaceDepthTexture(ID), w, h);
+				}
 			}
 
 			public void Clear()

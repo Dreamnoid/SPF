@@ -62,6 +62,7 @@ namespace SPF
 				"out vec2 share_UV;\n"
 				"out vec4 share_Color;\n"
 				"out vec4 share_Overlay;\n"
+				"out vec3 share_Position;\n"
 				"void main()\n"
 				"{\n"
 				"	vec3 actualPosition = in_Position + (in_UV.z * CameraSide) + (in_UV.w * CameraUp);\n"
@@ -70,6 +71,7 @@ namespace SPF
 				"   share_UV = in_UV.xy;\n"
 				"	share_Color = in_Color;\n"
 				"	share_Overlay = in_Overlay;\n"
+				"	share_Position = actualPosition;\n"
 				"}\n");
 		}
 
@@ -82,6 +84,7 @@ namespace SPF
 			glUseProgram(program);
 			glUniform1i(glGetUniformLocation(program, "Texture"), 0);
 			glUniform1i(glGetUniformLocation(program, "Texture1"), 1);
+			glUniform1i(glGetUniformLocation(program, "Texture2"), 2);
 
 			return CreateResource(Resources.Shaders, { true, program });
 		}

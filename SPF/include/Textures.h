@@ -5,7 +5,7 @@ namespace SPF
 {
 	namespace Textures
 	{
-		DLLExport ResourceIndex Create(unsigned int w, unsigned int h, void* pixels, bool flipped);
+		DLLExport ResourceIndex Create(unsigned int w, unsigned int h, void* pixels, bool depth, bool flipped);
 		DLLExport ResourceIndex Load(unsigned char* buffer, int length);
 		DLLExport void Delete(ResourceIndex texture);
 		DLLExport int GetWidth(ResourceIndex texture);

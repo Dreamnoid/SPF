@@ -9,6 +9,8 @@ namespace SPF
 
 	using ResourceIndex = int32_t;
 	using HardwareID = uint32_t;
+	
+	constexpr ResourceIndex InvalidResource = -1;
 
 	DLLExport void FatalError(const char* msg);
 

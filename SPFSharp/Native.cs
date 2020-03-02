@@ -118,6 +118,10 @@ namespace SPFSharp
 
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern Int32 SPF_GetSurfaceDepthTexture(Int32 surface);
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_SetBlending(int blendMode);
 
 		[SuppressUnmanagedCodeSecurity]
@@ -274,7 +278,7 @@ namespace SPFSharp
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_DrawMesh(
-			Int32 shader, Int32 texture, Int32 texture1,
+			Int32 shader, Int32 texture, Int32 texture1, Int32 texture2,
 			Int32 mesh, int first, int count,
 			[MarshalAs(UnmanagedType.LPArray, SizeConst = 16)] float[] world,
 			float overlayR, float overlayG, float overlayB, float overlayA);
