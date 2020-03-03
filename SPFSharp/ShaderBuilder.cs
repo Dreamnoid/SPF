@@ -34,6 +34,9 @@ namespace SPFSharp
 
 				public string Write() => Name;
 
+				public Float X => new Float($"{Write()}.x");
+				public Float Y => new Float($"{Write()}.y");
+
 				public static Vec2 operator *(Vec2 a, Vec2 b) => new Vec2($"({a.Write()} * {b.Write()})");
 				public static Vec2 operator -(Vec2 a, Vec2 b) => new Vec2($"({a.Write()} - {b.Write()})");
 				public static Vec2 operator +(Vec2 a, Vec2 b) => new Vec2($"({a.Write()} + {b.Write()})");
