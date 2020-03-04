@@ -135,15 +135,38 @@ namespace SPFSharp
 				Vector4 color,
 				Vector4 overlay)
 			{
-				Native.SPF_DrawTexturedQuad((tex != null) ? tex.ID : 0,
-					a.X, a.Y, 0f, 
-					b.X, b.Y, 0f, 
-					c.X, c.Y, 0f,
-					d.X, d.Y, 0f,
-					srcx, srcy, srcw, srch, 
+				DrawTexturedQuad(
+					tex,
+					new Vector3(a.X, a.Y, 0f),
+					new Vector3(b.X, b.Y, 0f),
+					new Vector3(c.X, c.Y, 0f),
+					new Vector3(d.X, d.Y, 0f),
+					srcx, srcy, srcw, srch,
 					flipX, flipY,
-					color.X, color.Y, color.Z, color.W,
-					overlay.X, overlay.Y, overlay.Z, overlay.W);
+					color, color, color, color,
+					overlay);
+			}
+
+			public static void DrawTexturedQuad(Texture tex,
+				Vector2 a,
+				Vector2 b,
+				Vector2 c,
+				Vector2 d,
+				int srcx, int srcy, int srcw, int srch,
+				bool flipX, bool flipY,
+				Vector4 aColor, Vector4 bColor, Vector4 cColor, Vector4 dColor,
+				Vector4 overlay)
+			{
+				DrawTexturedQuad(
+					tex,
+					new Vector3(a.X, a.Y, 0f),
+					new Vector3(b.X, b.Y, 0f),
+					new Vector3(c.X, c.Y, 0f),
+					new Vector3(d.X, d.Y, 0f),
+					srcx, srcy, srcw, srch,
+					flipX, flipY,
+					aColor, bColor, cColor, dColor,
+					overlay);
 			}
 
 			public static void DrawTexturedQuad(Texture tex,
@@ -156,14 +179,36 @@ namespace SPFSharp
 				Vector4 color,
 				Vector4 overlay)
 			{
-				Native.SPF_DrawTexturedQuad((tex != null) ? tex.ID : 0, 
-					a.X, a.Y, a.Z, 
-					b.X, b.Y, b.Z, 
-					c.X, c.Y, c.Z, 
-					d.X, d.Y, d.Z, 
+				DrawTexturedQuad(
+					tex,
+					a, b, c, d,
 					srcx, srcy, srcw, srch,
 					flipX, flipY,
-					color.X, color.Y, color.Z, color.W,
+					color, color, color, color,
+					overlay);
+			}
+
+			public static void DrawTexturedQuad(Texture tex,
+				Vector3 a,
+				Vector3 b,
+				Vector3 c,
+				Vector3 d,
+				int srcx, int srcy, int srcw, int srch,
+				bool flipX, bool flipY,
+				Vector4 aColor, Vector4 bColor, Vector4 cColor, Vector4 dColor,
+				Vector4 overlay)
+			{
+				Native.SPF_DrawTexturedQuad((tex != null) ? tex.ID : 0,
+					a.X, a.Y, a.Z,
+					b.X, b.Y, b.Z,
+					c.X, c.Y, c.Z,
+					d.X, d.Y, d.Z,
+					srcx, srcy, srcw, srch,
+					flipX, flipY,
+					aColor.X, aColor.Y, aColor.Z, aColor.W,
+					bColor.X, bColor.Y, bColor.Z, bColor.W,
+					cColor.X, cColor.Y, cColor.Z, cColor.W,
+					dColor.X, dColor.Y, dColor.Z, dColor.W,
 					overlay.X, overlay.Y, overlay.Z, overlay.W);
 			}
 

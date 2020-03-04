@@ -77,7 +77,10 @@ namespace SPFSharp
 			float Dx, float Dy, float Dz,
 			int srcx, int srcy, int srcw, int srch,
 			bool flipX, bool flipY,
-			float r, float g, float b, float a,
+			float Ar, float Ag, float Ab, float Aa,
+			float Br, float Bg, float Bb, float Ba,
+			float Cr, float Cg, float Cb, float Ca,
+			float Dr, float Dg, float Db, float Da,
 			float overlayR, float overlayG, float overlayB, float overlayA);
 
 		[SuppressUnmanagedCodeSecurity]

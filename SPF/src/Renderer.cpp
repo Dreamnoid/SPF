@@ -260,7 +260,10 @@ namespace SPF
 			float Dx, float Dy, float Dz,
 			int srcx, int srcy, int srcw, int srch,
 			bool flipX, bool flipY,
-			float r, float g, float b, float a,
+			float Ar, float Ag, float Ab, float Aa,
+			float Br, float Bg, float Bb, float Ba,
+			float Cr, float Cg, float Cb, float Ca,
+			float Dr, float Dg, float Db, float Da,
 			float overlayR, float overlayG, float overlayB, float overlayA)
 		{
 			unsigned int id = Resources.Textures[tex].GLID;
@@ -289,10 +292,10 @@ namespace SPF
 				v2 = t;
 			}
 			
-			PushVertex(id, Dx, Dy, Dz, u1, v2, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, Cx, Cy, Cz, u2, v2, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, Bx, By, Bz, u2, v1, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, Ax, Ay, Az, u1, v1, 0.f, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+			PushVertex(id, Dx, Dy, Dz, u1, v2, 0.f, 0.f, Dr, Dg, Db, Da, overlayR, overlayG, overlayB, overlayA);
+			PushVertex(id, Cx, Cy, Cz, u2, v2, 0.f, 0.f, Cr, Cg, Cb, Ca, overlayR, overlayG, overlayB, overlayA);
+			PushVertex(id, Bx, By, Bz, u2, v1, 0.f, 0.f, Br, Bg, Bb, Ba, overlayR, overlayG, overlayB, overlayA);
+			PushVertex(id, Ax, Ay, Az, u1, v1, 0.f, 0.f, Ar, Ag, Ab, Aa, overlayR, overlayG, overlayB, overlayA);
 		}
 
 		void DrawTexturedTriangle(ResourceIndex tex, Vertex a, Vertex b, Vertex c)
@@ -318,6 +321,9 @@ namespace SPF
 				(float)x, (float)(y + h), 0.f,
 				srcx, srcy, srcw, srch,
 				flipX, flipY,
+				r, g, b, a,
+				r, g, b, a,
+				r, g, b, a,
 				r, g, b, a,
 				overlayR, overlayG, overlayB, overlayA);
 		}
@@ -464,6 +470,9 @@ namespace SPF
 				0, 0, Textures::GetWidth(texture), Textures::GetHeight(texture),
 				false, false,
 				1.f, 1.f, 1.f, 1.f,
+				1.f, 1.f, 1.f, 1.f,
+				1.f, 1.f, 1.f, 1.f,
+				1.f, 1.f, 1.f, 1.f,
 				0.f, 0.f, 0.f, 0.f);
 			IssueVertices();
 		}
@@ -590,7 +599,10 @@ extern "C"
 		float Dx, float Dy, float Dz,
 		int srcx, int srcy, int srcw, int srch,
 		bool flipX, bool flipY,
-		float r, float g, float b, float a,
+		float Ar, float Ag, float Ab, float Aa,
+		float Br, float Bg, float Bb, float Ba,
+		float Cr, float Cg, float Cb, float Ca,
+		float Dr, float Dg, float Db, float Da,
 		float overlayR, float overlayG, float overlayB, float overlayA)
 	{
 		SPF::Renderer::DrawTexturedQuad(tex,
@@ -600,7 +612,10 @@ extern "C"
 			Dx, Dy, Dz,
 			srcx, srcy, srcw, srch,
 			flipX, flipY,
-			r, g, b, a,
+			Ar, Ag, Ab, Aa,
+			Br, Bg, Bb, Ba,
+			Cr, Cg, Cb, Ca,
+			Dr, Dg, Db, Da,
 			overlayR, overlayG, overlayB, overlayA);
 	}
 
