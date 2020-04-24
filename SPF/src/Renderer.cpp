@@ -450,6 +450,35 @@ namespace SPF
 			RendererData.FogIntensity = fogIntensity;
 		}
 
+		void BeginOrthographic(ResourceIndex surface,
+			float minX, float maxX,
+			float minY, float maxY,
+			float minZ, float maxZ, float fogIntensity)
+		{
+			IssueVertices();
+
+			surface = (surface < 0) ? RendererData.FinalSurface : surface;
+			ResourceIndex texture = Surfaces::GetTexture(surface);
+			glBindFramebuffer(GL_FRAMEBUFFER, Resources.Surfaces[surface].GLID);
+
+			RendererData.CurrentWidth = Resources.Textures[texture].Width;
+			RendererData.CurrentHeight = Resources.Textures[texture].Height;
+
+			RendererData.CameraUpX = 0.f;
+			RendererData.CameraUpY = 1.f;
+			RendererData.CameraUpZ = 0.f;
+			RendererData.CameraSideX = 1.f;
+			RendererData.CameraSideY = 0.f;
+			RendererData.CameraSideZ = 0.f;
+			RendererData.CameraNearPlane = minZ;
+			RendererData.CameraFarPlane = maxZ;
+
+			RendererData.ViewProj = glm::orthoLH(minX, maxX, minY, maxY, minZ, maxZ);
+
+			glEnable(GL_DEPTH_TEST);
+			RendererData.FogIntensity = fogIntensity;
+		}
+
 		void DrawFinalSurface(int w, int h)
 		{
 			IssueVertices();
@@ -671,6 +700,17 @@ extern "C"
 			cameraX, cameraY, cameraZ,
 			cameraTargetX, cameraTargetY, cameraTargetZ,
 			fov, nearDist, farDist, fogIntensity);
+	}
+
+	DLLExport void SPF_BeginOrthographic(int surface,
+		float minX, float maxX,
+		float minY, float maxY,
+		float minZ, float maxZ, float fogIntensity)
+	{
+		SPF::Renderer::BeginOrthographic(surface,
+			minX, maxX,
+			minY, maxY,
+			minZ, maxZ, fogIntensity);
 	}
 
 	DLLExport void SPF_DrawBillboard(int tex,

@@ -16,6 +16,10 @@ namespace SPF
 			float cameraX, float cameraY, float cameraZ,
 			float cameraTargetX, float cameraTargetY, float cameraTargetZ,
 			float fov, float nearDist, float farDist, float fogIntensity);
+		DLLExport void BeginOrthographic(ResourceIndex surface,
+			float minX, float maxX,
+			float minY, float maxY,
+			float minZ, float maxZ, float fogIntensity);
 		DLLExport void DrawFinalSurface(int w, int h);
 		DLLExport void Init(int w, int h);
 		DLLExport void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a);

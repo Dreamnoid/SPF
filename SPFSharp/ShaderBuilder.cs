@@ -102,6 +102,12 @@ namespace SPFSharp
 					Name = $"vec4({x.ToString(CultureInfo.InvariantCulture)},{y.ToString(CultureInfo.InvariantCulture)},{z.ToString(CultureInfo.InvariantCulture)},{w.ToString(CultureInfo.InvariantCulture)})";
 				}
 
+				public Vec4(Float x, Float y, Float z, Float w)
+				{
+					Name = $"vec4({x.Write()},{y.Write()},{z.Write()},{w.Write()})";
+				}
+
+
 				public string Write() => Name;
 
 				public Float X => new Float($"{Write()}.x");

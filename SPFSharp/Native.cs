@@ -278,7 +278,14 @@ namespace SPFSharp
 			float cameraTargetX, float cameraTargetY, float cameraTargetZ,
 			float fov, float nearDist, float farDist, float fogIntensity);
 
-		[SuppressUnmanagedCodeSecurity]
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void SPF_BeginOrthographic(Int32 surface,
+            float minX, float maxX,
+            float minY, float maxY,
+            float minZ, float maxZ, float fogIntensity);
+
+        [SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_DrawMesh(
 			Int32 shader, Int32 texture, Int32 texture1, Int32 texture2,

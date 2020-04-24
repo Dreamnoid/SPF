@@ -46,7 +46,19 @@ namespace SPFSharp
 					fov, nearDist, farDist, fogIntensity);
 			}
 
-			public static void SetBlending(BlendMode blendMode)
+            public static void BeginOrthographic(Surface surface,
+                float minX, float maxX,
+                float minY, float maxY,
+                float minZ, float maxZ, float fogIntensity = 0f)
+            {
+                Native.SPF_BeginOrthographic((surface != null) ? surface.ID : -1,
+                    minX, maxX,
+                    minY, maxY,
+                    minZ, maxZ, fogIntensity);
+            }
+
+
+            public static void SetBlending(BlendMode blendMode)
 			{
 				Native.SPF_SetBlending((int)blendMode);
 			}
