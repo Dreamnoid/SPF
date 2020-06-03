@@ -133,7 +133,7 @@ namespace SPFSharp
 
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int SPF_PlaySound(Int32 sound, bool looping);
+		public static extern int SPF_PlaySound(Int32 sound, float volume, bool looping);
 
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]

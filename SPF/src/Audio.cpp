@@ -53,10 +53,12 @@ namespace SPF
 			return AudioData.Sounds.size() - 1;
 		}
 
-		int PlaySound(ResourceIndex sound, bool looping)
+		int PlaySound(ResourceIndex sound, float volume, bool looping)
 		{
 			Mix_Chunk* sample = AudioData.Sounds[sound];
-			return Mix_PlayChannel(-1, sample, looping ? -1 : 0);
+			int channel = Mix_PlayChannel(-1, sample, looping ? -1 : 0);
+			Mix_Volume(channel, (int)(AudioData.SoundVolume * volume * MIX_MAX_VOLUME));
+			return channel;
 		}
 
 		void StopChannel(int channel)
@@ -146,9 +148,9 @@ extern "C"
 		return SPF::Audio::LoadSound(buffer, length);
 	}
 
-	DLLExport int SPF_PlaySound(int sound, bool looping)
+	DLLExport int SPF_PlaySound(int sound, float volume, bool looping)
 	{
-		return SPF::Audio::PlaySound(sound, looping);
+		return SPF::Audio::PlaySound(sound, volume, looping);
 	}
 
 	DLLExport void SPF_StopChannel(int channel)

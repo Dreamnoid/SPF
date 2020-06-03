@@ -9,7 +9,7 @@ namespace SPF
 		void Dispose();
 
 		DLLExport ResourceIndex LoadSound(unsigned char* buffer, int length);
-		DLLExport int PlaySound(ResourceIndex sound, bool looping);
+		DLLExport int PlaySound(ResourceIndex sound, float volume, bool looping);
 		DLLExport void StopChannel(int channel);
 		DLLExport void DeleteSound(ResourceIndex sound);
 

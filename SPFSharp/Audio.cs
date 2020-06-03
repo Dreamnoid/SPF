@@ -26,9 +26,9 @@ namespace SPFSharp
 				Native.SPF_DeleteSound(ID);
 			}
 
-			public int Play(bool looping = false)
+			public int Play(float volume = 1f, bool looping = false)
 			{
-				return Native.SPF_PlaySound(ID, looping);
+				return Native.SPF_PlaySound(ID, volume, looping);
 			}
 		}
 
