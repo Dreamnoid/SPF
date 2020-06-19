@@ -143,7 +143,9 @@ namespace SPFSharp
             return _windowHeight;
         }
 
-        public static void SetWindowSize(int w, int h)
+		public static bool HasFocus() => Native.SPF_HasFocus();
+
+		public static void SetWindowSize(int w, int h)
 		{
 			Native.SPF_SetWindowSize(w, h);
             RefreshWindowSize();

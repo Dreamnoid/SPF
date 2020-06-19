@@ -119,6 +119,11 @@ namespace SPF
 		{
 			return WindowData.Height;
 		}
+
+		bool HasFocus()
+		{
+			return (SDL_GetWindowFlags(WindowData.Window) & SDL_WINDOW_INPUT_FOCUS) == SDL_WINDOW_INPUT_FOCUS;
+		}
 	}
 }
 
@@ -164,4 +169,8 @@ extern "C"
 		SPF::Window::SetWindowSize(w, h);
 	}
 
+	DLLExport int SPF_HasFocus()
+	{
+		return SPF::Window::HasFocus();
+	}
 }

@@ -229,6 +229,10 @@ namespace SPFSharp
 
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool SPF_HasFocus();
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern int SPF_GetMousePositionX();
 
 		[SuppressUnmanagedCodeSecurity]

@@ -13,5 +13,6 @@ namespace SPF
 		DLLExport void SetWindowSize(int w, int h);
 		DLLExport inline int GetWidth();
 		DLLExport int GetHeight();
+		DLLExport bool HasFocus();
 	}
 }
