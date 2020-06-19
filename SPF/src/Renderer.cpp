@@ -133,6 +133,12 @@ namespace SPF
 			glPolygonOffset(-1.0f, -1.0f);
 		}
 
+		void Resize(int w, int h)
+		{
+			Surfaces::Delete(RendererData.FinalSurface);
+			RendererData.FinalSurface = Surfaces::Create(w, h, true);
+		}
+
 		void Prepare(ResourceIndex shader = InvalidResource)
 		{
 			glViewport(0, 0, (GLsizei)RendererData.CurrentWidth, (GLsizei)RendererData.CurrentHeight);

@@ -22,6 +22,7 @@ namespace SPF
 			float minZ, float maxZ, float fogIntensity);
 		DLLExport void DrawFinalSurface(int w, int h);
 		DLLExport void Init(int w, int h);
+		DLLExport void Resize(int w, int h);
 		DLLExport void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a);
 		DLLExport void FillVerticalGradient(
 			int x, int y, int w, int h,

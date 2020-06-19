@@ -106,7 +106,8 @@ namespace SPF
 		{
 			SDL_SetWindowSize(WindowData.Window, w, h);
 			WindowData.Width = w;
-			WindowData.Height = h;
+			WindowData.Height = h; 
+			Renderer::Resize(w, h);
 		}
 
 		int GetWidth()
