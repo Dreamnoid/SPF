@@ -160,6 +160,7 @@ namespace SPFSharp
 				public static Float operator -(Float a, Float b) => new Float($"({a.Write()} - {b.Write()})");
 				public static Float operator +(Float a, Float b) => new Float($"({a.Write()} + {b.Write()})");
 				public static Float operator /(Float a, Float b) => new Float($"({a.Write()} / {b.Write()})");
+				public static Float operator %(Float a, Float b) => new Float($"mod({a.Write()}, {b.Write()})");
 
 				public Vec2 ToVec2() => new Vec2($"vec2({Write()}, {Write()})");
 			}
@@ -203,6 +204,12 @@ namespace SPFSharp
 			public Vec2 Lerp(Vec2 a, Vec2 b, Float t) => new Vec2($"mix({a.Write()}, {b.Write()}, {t.Write()})");
 			public Vec3 Lerp(Vec3 a, Vec3 b, Float t) => new Vec3($"mix({a.Write()}, {b.Write()}, {t.Write()})");
 			public Vec4 Lerp(Vec4 a, Vec4 b, Float t) => new Vec4($"mix({a.Write()}, {b.Write()}, {t.Write()})");
+
+			public Float Dot(Vec3 a, Vec3 b) => new Float($"dot({a.Write()}, {b.Write()})");
+
+			public Float Abs(Float v) => new Float($"abs({v.Write()})");
+
+			public Float Pow(Float v, Float power) => new Float($"pow({v.Write()}, {power.Write()})");
 
 			public Float Saturate(Float value) => new Float($"clamp({value.Write()}, 0.0, 1.0)");
 		}
