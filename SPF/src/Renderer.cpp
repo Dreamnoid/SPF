@@ -38,13 +38,13 @@ namespace SPF
 		int CurrentHeight;
 		glm::mat4 ViewProj;
 		glm::mat4 Model;
-		float CameraUpX = 0.f, CameraUpY = 1.f, CameraUpZ = 0.f;
-		float CameraSideX = 0.f, CameraSideY = 0.f, CameraSideZ = 0.f;
+		Vector3 CameraUp = { 0.f, 0.f, 0.f };
+		Vector3 CameraSide = { 0.f, 0.f, 0.f };
 		float CameraNearPlane, CameraFarPlane;
 		float FogIntensity = 0.f;
 		bool Wireframe;
-		float FogColorR = 0.f, FogColorG = 0.f, FogColorB = 0.f;
-		float OverlayR = 0.f, OverlayG = 0.f, OverlayB = 0.f, OverlayA = 0.f;
+		RGB FogColor = { 0.f, 0.f, 0.f };
+		RGBA Overlay = { 0.f, 0.f, 0.f, 0.f };
 		float Animation = 0.f;
 	} RendererData;
 
@@ -113,6 +113,7 @@ namespace SPF
 				"in vec4 share_Color;\n"
 				"in vec4 share_Overlay;\n"
 				"in vec3 share_Position;\n"
+				"in vec3 share_Normal;\n"
 				"out vec4 out_Color;\n"
 				"void main()\n"
 				"{\n"
@@ -151,24 +152,26 @@ namespace SPF
 			glUseProgram(programID);
 			glm::mat4 mvp = RendererData.ViewProj * RendererData.Model;
 			glUniformMatrix4fv(glGetUniformLocation(programID, "MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
-			glUniform3f(glGetUniformLocation(programID, "CameraUp"), RendererData.CameraUpX, RendererData.CameraUpY, RendererData.CameraUpZ);
-			glUniform3f(glGetUniformLocation(programID, "CameraSide"), RendererData.CameraSideX, RendererData.CameraSideY, RendererData.CameraSideZ);
+			glUniform3f(glGetUniformLocation(programID, "CameraUp"), RendererData.CameraUp.X, RendererData.CameraUp.Y, RendererData.CameraUp.Z);
+			glUniform3f(glGetUniformLocation(programID, "CameraSide"), RendererData.CameraSide.X, RendererData.CameraSide.Y, RendererData.CameraSide.Z);
 			glUniform1f(glGetUniformLocation(programID, "FogIntensity"), RendererData.FogIntensity);
-			glUniform3f(glGetUniformLocation(programID, "FogColor"), RendererData.FogColorR, RendererData.FogColorG, RendererData.FogColorB);
+			glUniform3f(glGetUniformLocation(programID, "FogColor"), RendererData.FogColor.R, RendererData.FogColor.G, RendererData.FogColor.B);
 			glUniform1f(glGetUniformLocation(programID, "NearPlane"), RendererData.CameraNearPlane);
 			glUniform1f(glGetUniformLocation(programID, "FarPlane"), RendererData.CameraFarPlane);
-			glUniform4f(glGetUniformLocation(programID, "Overlay"), RendererData.OverlayR, RendererData.OverlayG, RendererData.OverlayB, RendererData.OverlayA);
+			glUniform4f(glGetUniformLocation(programID, "Overlay"), RendererData.Overlay.R, RendererData.Overlay.G, RendererData.Overlay.B, RendererData.Overlay.A);
 			glUniform1f(glGetUniformLocation(programID, "Animation"), RendererData.Animation);
 
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
 			glEnableVertexAttribArray(3);
+			glEnableVertexAttribArray(4);
 
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0 * sizeof(float)));
-			glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(3 * sizeof(float)));
-			glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(7 * sizeof(float)));
-			glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(11 * sizeof(float)));
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE,  sizeof(Vertex), BUFFER_OFFSET(3 * sizeof(float)));
+			glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(6 * sizeof(float)));
+			glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(10 * sizeof(float)));
+			glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(14 * sizeof(float)));
 		}
 
 		void IssueVertices()
@@ -199,10 +202,9 @@ namespace SPF
 		}
 
 		void PushVertex(HardwareID texture,
-			float x, float y, float z,
-			float u, float v, float bu, float bv,
-			float r, float g, float b, float a,
-			float overlayR, float overlayG, float overlayB, float overlayA)
+			const Vector3& position,
+			const Vector2& uv, const Vector2& buv,
+			const RGBA& color, const RGBA& overlay)
 		{
 			if (RendererData.BatchInfo.VertexCount == VerticesCount || texture != RendererData.BatchInfo.CurrentTexture)
 			{
@@ -210,101 +212,110 @@ namespace SPF
 				RendererData.BatchInfo.CurrentTexture = texture;
 			}
 			Vertex* vertex = &RendererData.Vertices[RendererData.BatchInfo.VertexCount];
-			vertex->X = x;
-			vertex->Y = y;
-			vertex->Z = z;
-			vertex->U = u;
-			vertex->V = v;
-			vertex->BU = bu;
-			vertex->BV = bv;
-			vertex->R = r;
-			vertex->G = g;
-			vertex->B = b;
-			vertex->A = a;
-			vertex->OverlayR = overlayR;
-			vertex->OverlayG = overlayG;
-			vertex->OverlayB = overlayB;
-			vertex->OverlayA = overlayA;
+			vertex->Position = position;
+			vertex->Normal = Vector3::Zero;
+			vertex->UV = uv;
+			vertex->BUV = buv;
+			vertex->Color = color;
+			vertex->Overlay = overlay;
 			RendererData.BatchInfo.VertexCount++;
 		}
 
-		void FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a)
+		void DetermineUV(ResourceIndex tex, const Rect& src, bool flipX, bool flipY, Vector2& uv1, Vector2& uv2)
 		{
-			PushVertex(RendererData.EmptyTexture, (float)x, (float)(y + h), 0.f, 0.f, 1.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
-			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)(y + h), 0.f, 1.f, 1.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
-			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)y, 0.f, 1.f, 0.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
-			PushVertex(RendererData.EmptyTexture, (float)x, (float)y, 0.f, 0.f, 0.f, 0.f, 0.f, r, g, b, a, 0.f, 0.f, 0.f, 0.f);
-		}
+			const int texW = Resources.Textures[tex].Width;
+			const int texH = Resources.Textures[tex].Height;
 
-		void FillVerticalGradient(
-			int x, int y, int w, int h,
-			float r1, float g1, float b1, float a1,
-			float r2, float g2, float b2, float a2)
-		{
-			PushVertex(RendererData.EmptyTexture, (float)x, (float)(y + h), 0.f, 0.f, 1.f, 0.f, 0.f, r2, g2, b2, a2, 0.f, 0.f, 0.f, 0.f);
-			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)(y + h), 0.f, 1.f, 1.f, 0.f, 0.f, r2, g2, b2, a2, 0.f, 0.f, 0.f, 0.f);
-			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)y, 0.f, 1.f, 0.f, 0.f, 0.f, r1, g1, b1, a1, 0.f, 0.f, 0.f, 0.f);
-			PushVertex(RendererData.EmptyTexture, (float)x, (float)y, 0.f, 0.f, 0.f, 0.f, 0.f, r1, g1, b1, a1, 0.f, 0.f, 0.f, 0.f);
-		}
+			uv1.X = src.X / (float)texW;
+			uv2.X = (src.X + src.Width) / (float)texW;
+			uv1.Y = src.Y / (float)texH;
+			uv2.Y = (src.Y + src.Height) / (float)texH;
 
-		void FillHorizontalGradient(
-			int x, int y, int w, int h,
-			float r1, float g1, float b1, float a1,
-			float r2, float g2, float b2, float a2)
-		{
-			PushVertex(RendererData.EmptyTexture, (float)x, (float)(y + h), 0.f, 0.f, 1.f, 0.f, 0.f, r1, g1, b1, a1, 0.f, 0.f, 0.f, 0.f);
-			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)(y + h), 0.f, 1.f, 1.f, 0.f, 0.f, r2, g2, b2, a2, 0.f, 0.f, 0.f, 0.f);
-			PushVertex(RendererData.EmptyTexture, (float)(x + w), (float)y, 0.f, 1.f, 0.f, 0.f, 0.f, r2, g2, b2, a2, 0.f, 0.f, 0.f, 0.f);
-			PushVertex(RendererData.EmptyTexture, (float)x, (float)y, 0.f, 0.f, 0.f, 0.f, 0.f, r1, g1, b1, a1, 0.f, 0.f, 0.f, 0.f);
-		}
-		
-		void DrawTexturedQuad(
-			ResourceIndex tex,
-			float Ax, float Ay, float Az,
-			float Bx, float By, float Bz,
-			float Cx, float Cy, float Cz,
-			float Dx, float Dy, float Dz,
-			int srcx, int srcy, int srcw, int srch,
-			bool flipX, bool flipY,
-			float Ar, float Ag, float Ab, float Aa,
-			float Br, float Bg, float Bb, float Ba,
-			float Cr, float Cg, float Cb, float Ca,
-			float Dr, float Dg, float Db, float Da,
-			float overlayR, float overlayG, float overlayB, float overlayA)
-		{
-			unsigned int id = Resources.Textures[tex].GLID;
-			int texW = Resources.Textures[tex].Width;
-			int texH = Resources.Textures[tex].Height;
-			float u1 = srcx / (float)texW;
-			float u2 = (srcx + srcw) / (float)texW;
-			float v1 = srcy / (float)texH;
-			float v2 = (srcy + srch) / (float)texH;
 			if (flipX)
 			{
-				float t = u1;
-				u1 = u2;
-				u2 = t;
+				const float t = uv1.X;
+				uv1.X = uv2.X;
+				uv2.X = t;
 			}
+
 			if (Resources.Textures[tex].Flipped)
 			{
-				float t = v1;
-				v1 = v2;
-				v2 = t;
+				const float t = uv1.Y;
+				uv1.Y = uv2.Y;
+				uv2.Y = t;
 			}
+
 			if (flipY)
 			{
-				float t = v1;
-				v1 = v2;
-				v2 = t;
+				const float t = uv1.Y;
+				uv1.Y = uv2.Y;
+				uv2.Y = t;
 			}
-			
-			PushVertex(id, Dx, Dy, Dz, u1, v2, 0.f, 0.f, Dr, Dg, Db, Da, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, Cx, Cy, Cz, u2, v2, 0.f, 0.f, Cr, Cg, Cb, Ca, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, Bx, By, Bz, u2, v1, 0.f, 0.f, Br, Bg, Bb, Ba, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, Ax, Ay, Az, u1, v1, 0.f, 0.f, Ar, Ag, Ab, Aa, overlayR, overlayG, overlayB, overlayA);
 		}
 
-		void DrawTexturedTriangle(ResourceIndex tex, Vertex a, Vertex b, Vertex c)
+		void DrawTexturedRect(
+			ResourceIndex tex,
+			const Rect& dest,
+			const Rect& src,
+			bool flipX, bool flipY,
+			const RGBA& aColor, const RGBA& bColor, const RGBA& cColor, const RGBA& dColor,
+			const RGBA& overlay)
+		{
+			unsigned int id = Resources.Textures[tex].GLID;
+
+			Vector2 uv1, uv2;
+			DetermineUV(tex, src, flipX, flipY, uv1, uv2);
+
+			PushVertex(id, { (float)dest.X, (float)(dest.Y + dest.Height), 0.f }, { uv1.X, uv2.Y }, Vector2::Zero, dColor, overlay);;
+			PushVertex(id, { (float)(dest.X + dest.Width), (float)(dest.Y + dest.Height), 0.f }, { uv2.X, uv2.Y }, Vector2::Zero, cColor, overlay);
+			PushVertex(id, { (float)(dest.X + dest.Width), (float)dest.Y, 0.f }, { uv2.X, uv1.Y }, Vector2::Zero, bColor, overlay);
+			PushVertex(id, { (float)dest.X, (float)dest.Y, 0.f }, { uv1.X, uv1.Y }, Vector2::Zero, aColor, overlay);
+		}
+
+		void FillRectangle(const Rect& dest, const RGBA& color)
+		{
+			PushVertex(RendererData.EmptyTexture, { (float)dest.X, (float)(dest.Y + dest.Height), 0.f }, { 0.f, 1.f }, Vector2::Zero, color, RGBA::TransparentBlack);
+			PushVertex(RendererData.EmptyTexture, { (float)(dest.X + dest.Width), (float)(dest.Y + dest.Height), 0.f }, { 1.f, 1.f }, Vector2::Zero, color, RGBA::TransparentBlack);
+			PushVertex(RendererData.EmptyTexture, { (float)(dest.X + dest.Width), (float)dest.Y, 0.f }, { 1.f, 0.f }, Vector2::Zero, color, RGBA::TransparentBlack);
+			PushVertex(RendererData.EmptyTexture, { (float)dest.X, (float)dest.Y, 0.f }, { 0.f, 0.f }, Vector2::Zero, color, RGBA::TransparentBlack);
+		}
+
+		void FillVerticalGradient(const Rect& dest, const RGBA& top, const RGBA& bottom)
+		{
+			DrawTexturedRect(RendererData.EmptyTexture, dest,
+				Rect::Unit, false, false, 
+				top, top, bottom, bottom, 
+				RGBA::TransparentBlack);
+		}
+
+		void FillHorizontalGradient(const Rect& dest, const RGBA& left, const RGBA& right)
+		{
+			DrawTexturedRect(RendererData.EmptyTexture, dest,
+				Rect::Unit, false, false,
+				left, right, left, right,
+				RGBA::TransparentBlack);
+		}
+
+		void DrawTexturedQuad(
+			ResourceIndex tex,
+			const Vector3& a, const Vector3& b, const Vector3& c, const Vector3& d,
+			const Rect& src,
+			bool flipX, bool flipY,
+			const RGBA& aColor, const RGBA& bColor, const RGBA& cColor, const RGBA& dColor,
+			const RGBA& overlay)
+		{
+			unsigned int id = Resources.Textures[tex].GLID;
+
+			Vector2 uv1, uv2;
+			DetermineUV(tex, src, flipX, flipY, uv1, uv2);
+			
+			PushVertex(id, d, { uv1.X, uv2.Y }, Vector2::Zero, dColor, overlay);
+			PushVertex(id, c, { uv2.X, uv2.Y }, Vector2::Zero, cColor, overlay);
+			PushVertex(id, b, { uv2.X, uv1.Y }, Vector2::Zero, bColor, overlay);
+			PushVertex(id, a, { uv1.X, uv1.Y }, Vector2::Zero, aColor, overlay);
+		}
+
+		void DrawTexturedTriangle(ResourceIndex tex, const Vertex& a, const Vertex& b, const Vertex& c)
 		{
 			unsigned int id = Resources.Textures[tex].GLID;
 			PushVertex(id, a);
@@ -314,43 +325,30 @@ namespace SPF
 
 		void DrawTexture(
 			ResourceIndex tex,
-			int x, int y, int w, int h,
-			int srcx, int srcy, int srcw, int srch,
+			const Rect& dest, const Rect& src,
 			bool flipX, bool flipY,
-			float r, float g, float b, float a,
-			float overlayR, float overlayG, float overlayB, float overlayA)
+			const RGBA& color, const RGBA& overlay)
 		{
-			DrawTexturedQuad(tex,
-				(float)x, (float)y, 0.f,
-				(float)(x + w), (float)y, 0.f,
-				(float)(x + w), (float)(y + h), 0.f,
-				(float)x, (float)(y + h), 0.f,
-				srcx, srcy, srcw, srch,
-				flipX, flipY,
-				r, g, b, a,
-				r, g, b, a,
-				r, g, b, a,
-				r, g, b, a,
-				overlayR, overlayG, overlayB, overlayA);
+			DrawTexturedRect(tex, dest, src, flipX, flipY, color, color, color, color, overlay);
 		}
 
 		void DrawMesh(
 			ResourceIndex tex, ResourceIndex mesh, 
 			const float* world,
-			float overlayR, float overlayG, float overlayB, float overlayA)
+			const RGBA& overlay)
 		{
 			DrawMesh(
 				RendererData.DefaultShader, tex, InvalidResource, InvalidResource,
 				mesh, 0, Resources.Meshes[mesh].VerticesCount,
 				world, 
-				overlayR, overlayG, overlayB, overlayA);
+				overlay);
 		}
 
 		void DrawMesh(
 			ResourceIndex shader, ResourceIndex tex, ResourceIndex tex1, ResourceIndex tex2,
 			ResourceIndex mesh, int first, int count, 
 			const float* world,
-			float overlayR, float overlayG, float overlayB, float overlayA)
+			const RGBA& overlay)
 		{
 			IssueVertices();
 
@@ -369,19 +367,13 @@ namespace SPF
 			glBindTexture(GL_TEXTURE_2D, (tex2 < 0) ? RendererData.EmptyTexture : Resources.Textures[tex2].GLID);
 
 			RendererData.Model = glm::make_mat4x4(world);
-			RendererData.OverlayR = overlayR;
-			RendererData.OverlayG = overlayG;
-			RendererData.OverlayB = overlayB;
-			RendererData.OverlayA = overlayA;
+			RendererData.Overlay = overlay;
 
 			Prepare(shader);
 			glDrawArrays(GL_TRIANGLES, first, count);
 
 			RendererData.Model = glm::identity<glm::mat4>();
-			RendererData.OverlayR = 0.0f;
-			RendererData.OverlayG = 0.0f;
-			RendererData.OverlayB = 0.0f;
-			RendererData.OverlayA = 0.0f;
+			RendererData.Overlay = RGBA::TransparentBlack;
 		}
 
 		void SetBlending(BlendMode blendMode)
@@ -408,12 +400,8 @@ namespace SPF
 			RendererData.CurrentWidth = Resources.Textures[texture].Width;
 			RendererData.CurrentHeight = Resources.Textures[texture].Height;
 			SetupOrthographic(glm::value_ptr(RendererData.ViewProj), 0, (float)RendererData.CurrentWidth, (float)RendererData.CurrentHeight, 0, -1.0f, 1.0f);
-			RendererData.CameraUpX = 0.f;
-			RendererData.CameraUpY = 1.f;
-			RendererData.CameraUpZ = 0.f;
-			RendererData.CameraSideX = 0.f;
-			RendererData.CameraSideY = 0.f;
-			RendererData.CameraSideZ = 0.f;
+			RendererData.CameraUp = Vector3::Up;
+			RendererData.CameraSide = Vector3::Zero;
 			RendererData.CameraNearPlane = -1.0f;
 			RendererData.CameraFarPlane = 1.0f;
 
@@ -439,18 +427,14 @@ namespace SPF
 			auto cameraTarget = glm::vec3(cameraTargetX, cameraTargetY, cameraTargetZ);
 			auto cameraForward = glm::normalize(cameraTarget - cameraPos);
 			auto cameraSide = glm::cross(cameraForward, glm::vec3(0.f, 1.f, 0.f));
-			RendererData.CameraUpX = 0.f;
-			RendererData.CameraUpY = 1.f;
-			RendererData.CameraUpZ = 0.f;
-			RendererData.CameraSideX = cameraSide.x;
-			RendererData.CameraSideY = cameraSide.y;
-			RendererData.CameraSideZ = cameraSide.z;
+			RendererData.CameraUp = Vector3::Up;
+			RendererData.CameraSide = { cameraSide.x, cameraSide.y, cameraSide.z };
 			RendererData.CameraNearPlane = nearDist;
 			RendererData.CameraFarPlane = farDist;
 
 			RendererData.ViewProj = 
 				glm::perspectiveFov(fov, (float)RendererData.CurrentWidth, (float)RendererData.CurrentHeight, nearDist, farDist) *
-				glm::lookAt(cameraPos, cameraTarget, glm::vec3(0.f, 1.f, 0.f));;
+				glm::lookAt(cameraPos, cameraTarget, glm::vec3(0.f, 1.f, 0.f));
 
 			glEnable(GL_DEPTH_TEST);
 			RendererData.FogIntensity = fogIntensity;
@@ -470,12 +454,8 @@ namespace SPF
 			RendererData.CurrentWidth = Resources.Textures[texture].Width;
 			RendererData.CurrentHeight = Resources.Textures[texture].Height;
 
-			RendererData.CameraUpX = 0.f;
-			RendererData.CameraUpY = 1.f;
-			RendererData.CameraUpZ = 0.f;
-			RendererData.CameraSideX = 1.f;
-			RendererData.CameraSideY = 0.f;
-			RendererData.CameraSideZ = 0.f;
+			RendererData.CameraUp = Vector3::Up;
+			RendererData.CameraUp = { 1.f, 0.f, 0.f };
 			RendererData.CameraNearPlane = minZ;
 			RendererData.CameraFarPlane = maxZ;
 
@@ -497,61 +477,37 @@ namespace SPF
 			SetupOrthographic(glm::value_ptr(RendererData.ViewProj), 0, (float)RendererData.CurrentWidth, (float)RendererData.CurrentHeight, 0, -1.0f, 1.0f);
 
 			ResourceIndex texture = Surfaces::GetTexture(RendererData.FinalSurface);
-			DrawTexturedQuad(texture,
-				0.f, 0.f, 0.f,
-				(float)w, 0.f, 0.f,
-				(float)w, (float)h, 0.f,
-				0.f, (float)h, 0.f,
-				0, 0, Textures::GetWidth(texture), Textures::GetHeight(texture),
+			DrawTexturedRect(texture,
+				{ 0, 0, w, h },
+				{ 0, 0, Textures::GetWidth(texture), Textures::GetHeight(texture) },
 				false, false,
-				1.f, 1.f, 1.f, 1.f,
-				1.f, 1.f, 1.f, 1.f,
-				1.f, 1.f, 1.f, 1.f,
-				1.f, 1.f, 1.f, 1.f,
-				0.f, 0.f, 0.f, 0.f);
+				RGBA::White,
+				RGBA::White,
+				RGBA::White,
+				RGBA::White,
+				RGBA::TransparentBlack);
 			IssueVertices();
 		}
 
 		void DrawBillboard(ResourceIndex tex,
-			float x, float y, float z,
+			const Vector3& center,
 			float width, float height,
-			int srcx, int srcy, int srcw, int srch,
+			const Rect& src,
 			bool flipX, bool flipY,
-			float r, float g, float b, float a,
-			float overlayR, float overlayG, float overlayB, float overlayA)
+			const RGBA& color,
+			const RGBA& overlay)
 		{
 			unsigned int id = Resources.Textures[tex].GLID;
-			int texW = Resources.Textures[tex].Width;
-			int texH = Resources.Textures[tex].Height;
-			float u1 = srcx / (float)texW;
-			float u2 = (srcx + srcw) / (float)texW;
-			float v1 = srcy / (float)texH;
-			float v2 = (srcy + srch) / (float)texH;
-			if (flipX)
-			{
-				float t = u1;
-				u1 = u2;
-				u2 = t;
-			}
-			if (Resources.Textures[tex].Flipped)
-			{
-				float t = v1;
-				v1 = v2;
-				v2 = t;
-			}
-			if (flipY)
-			{
-				float t = v1;
-				v1 = v2;
-				v2 = t;
-			}
+
+			Vector2 uv1, uv2;
+			DetermineUV(tex, src, flipX, flipY, uv1, uv2);
 
 			float halfWidth = width * 0.5f;
 
-			PushVertex(id, x, y, z, u1, v2, -halfWidth, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, x, y, z, u2, v2, +halfWidth, 0.f, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, x, y, z, u2, v1, +halfWidth, height, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
-			PushVertex(id, x, y, z, u1, v1, -halfWidth, height, r, g, b, a, overlayR, overlayG, overlayB, overlayA);
+			PushVertex(id, center, { uv1.X, uv2.Y }, { -halfWidth, 0.f }, color, overlay);
+			PushVertex(id, center, { uv2.X, uv2.Y }, { +halfWidth, 0.f }, color, overlay);
+			PushVertex(id, center, { uv2.X, uv1.Y }, { +halfWidth, height }, color, overlay);
+			PushVertex(id, center, { uv1.X, uv1.Y }, { -halfWidth, height }, color, overlay);
 		}
 
 		void SetWireframe(bool wireframeEnabled)
@@ -579,11 +535,9 @@ namespace SPF
 			}
 		}
 
-		void SetFogColor(float r, float g, float b)
+		void SetFogColor(const RGB& color)
 		{
-			RendererData.FogColorR = r;
-			RendererData.FogColorG = g;
-			RendererData.FogColorB = b;
+			RendererData.FogColor = color;
 		}
 
 		void SetAnimation(float animation)
@@ -607,7 +561,9 @@ extern "C"
 {
 	DLLExport void SPF_FillRectangle(int x, int y, int w, int h, float r, float g, float b, float a)
 	{
-		SPF::Renderer::FillRectangle(x, y, w, h, r, g, b, a);
+		SPF::Renderer::FillRectangle(
+			{ x, y, w, h }, 
+			{ r, g, b, a });
 	}
 
 	DLLExport void SPF_FillVerticalGradient(
@@ -615,7 +571,10 @@ extern "C"
 		float r1, float g1, float b1, float a1,
 		float r2, float g2, float b2, float a2)
 	{
-		SPF::Renderer::FillVerticalGradient(x, y, w, h, r1, g1, b1, a1, r2, g2, b2, a2);
+		SPF::Renderer::FillVerticalGradient(
+			{ x, y, w, h }, 
+			{ r1, g1, b1, a1 }, 
+			{ r2, g2, b2, a2 });
 	}
 
 	DLLExport void SPF_FillHorizontalGradient(
@@ -623,7 +582,10 @@ extern "C"
 		float r1, float g1, float b1, float a1,
 		float r2, float g2, float b2, float a2)
 	{
-		SPF::Renderer::FillHorizontalGradient(x, y, w, h, r1, g1, b1, a1, r2, g2, b2, a2);
+		SPF::Renderer::FillHorizontalGradient(
+			{ x, y, w, h }, 
+			{ r1, g1, b1,  a1 }, 
+			{ r2, g2, b2, a2 });
 	}
 
 	DLLExport void SPF_DrawTexturedQuad(
@@ -641,17 +603,17 @@ extern "C"
 		float overlayR, float overlayG, float overlayB, float overlayA)
 	{
 		SPF::Renderer::DrawTexturedQuad(tex,
-			Ax, Ay, Az,
-			Bx, By, Bz,
-			Cx, Cy, Cz,
-			Dx, Dy, Dz,
-			srcx, srcy, srcw, srch,
+			{ Ax, Ay, Az },
+			{ Bx, By, Bz },
+			{ Cx, Cy, Cz },
+			{ Dx, Dy, Dz },
+			{ srcx, srcy, srcw, srch },
 			flipX, flipY,
-			Ar, Ag, Ab, Aa,
-			Br, Bg, Bb, Ba,
-			Cr, Cg, Cb, Ca,
-			Dr, Dg, Db, Da,
-			overlayR, overlayG, overlayB, overlayA);
+			{ Ar, Ag, Ab, Aa },
+			{ Br, Bg, Bb, Ba },
+			{ Cr, Cg, Cb, Ca },
+			{ Dr, Dg, Db, Da },
+			{ overlayR, overlayG, overlayB, overlayA });
 	}
 
 	DLLExport void SPF_DrawTexturedTriangle(int tex, SPF::Vertex a, SPF::Vertex b, SPF::Vertex c)
@@ -667,11 +629,11 @@ extern "C"
 		float overlayR, float overlayG, float overlayB, float overlayA)
 	{
 		SPF::Renderer::DrawTexture(tex,
-			x, y, w, h,
-			srcx, srcy, srcw, srch,
+			{ x, y, w, h },
+			{ srcx, srcy, srcw, srch },
 			flipX, flipY,
-			r, g, b, a,
-			overlayR, overlayG, overlayB, overlayA);
+			{ r, g, b, a },
+			{ overlayR, overlayG, overlayB, overlayA });
 	}
 
 	DLLExport void SPF_DrawMesh(
@@ -684,7 +646,7 @@ extern "C"
 			shader, tex, tex1, tex2,
 			mesh, first, count, 
 			world, 
-			overlayR, overlayG, overlayB, overlayA);
+			{ overlayR, overlayG, overlayB, overlayA });
 	}
 
 	DLLExport void SPF_SetBlending(int blendMode)
@@ -728,12 +690,12 @@ extern "C"
 		float overlayR, float overlayG, float overlayB, float overlayA)
 	{
 		SPF::Renderer::DrawBillboard(tex,
-			x, y, z, 
+			{ x, y, z },
 			width, height,
-			srcx, srcy, srcw, srch,
+			{ srcx, srcy, srcw, srch },
 			flipX, flipY,
-			r, g, b, a,
-			overlayR, overlayG, overlayB, overlayA);
+			{ r, g, b, a },
+			{ overlayR, overlayG, overlayB, overlayA });
 	}
 
 	DLLExport void SPF_SetWireframe(bool wireframeEnabled)
@@ -748,7 +710,7 @@ extern "C"
 
 	DLLExport void SPF_SetFogColor(float r, float g, float b)
 	{
-		SPF::Renderer::SetFogColor(r, g, b);
+		SPF::Renderer::SetFogColor({ r, g, b });
 	}
 
 	DLLExport void SPF_SetAnimation(float animation)

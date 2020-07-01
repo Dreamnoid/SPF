@@ -221,6 +221,7 @@ namespace SPFSharp
 			public readonly Vec4 Color = new Vec4("share_Color");
 			public readonly Vec4 Overlay = new Vec4("share_Overlay");
 			public readonly Vec3 Position = new Vec3("share_Position");
+            public readonly Vec3 Normal = new Vec3("share_Normal");
 			public readonly Float FogIntensity = new Float("FogIntensity");
 			public readonly Vec3 FogColor = new Vec3("FogColor");
 			public readonly Vec4 GlobalOverlay = new Vec4("Overlay");
@@ -257,6 +258,7 @@ namespace SPFSharp
 				sb.AppendLine($"in vec4 {Color.Name};");
 				sb.AppendLine($"in vec4 {Overlay.Name};");
 				sb.AppendLine($"in vec3 {Position.Name};");
+                sb.AppendLine($"in vec3 {Normal.Name};");
 				sb.AppendLine($"out vec4 {OutputColor.Name};");
 				sb.AppendLine("void main()");
 				sb.AppendLine("{");
