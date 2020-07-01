@@ -315,6 +315,9 @@ namespace SPFSharp
 			}
 
 			public static void SetAnimation(float animation) => Native.SPF_SetAnimation(animation);
+
+			public static Texture GetDefaultDepthTexture()
+				=> new Texture(Native.SPF_GetSurfaceDepthTexture(Native.SPF_GetFinalSurface()), GetWindowWidth(), GetWindowHeight());
 		}
 	}
 }

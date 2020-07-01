@@ -125,6 +125,10 @@ namespace SPFSharp
 
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern Int32 SPF_GetFinalSurface();
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_SetBlending(int blendMode);
 
 		[SuppressUnmanagedCodeSecurity]

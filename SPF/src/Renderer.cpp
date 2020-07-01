@@ -717,4 +717,9 @@ extern "C"
 	{
 		SPF::Renderer::SetAnimation(animation);
 	}
+
+	DLLExport int SPF_GetFinalSurface()
+	{
+		return SPF::Renderer::GetFinalSurface();
+	}
 }
