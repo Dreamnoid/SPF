@@ -69,7 +69,7 @@ namespace SPF
 				"{\n"
 				"	vec3 actualPosition = in_Position + (in_UV.z * CameraSide) + (in_UV.w * CameraUp);\n"
 				"	gl_Position = MVP * vec4(actualPosition,1.0);\n"
-				"	share_Normal = (MVP * vec4(in_Normal, 0.0)).xyz;\n"
+				"	share_Normal = in_Normal;\n" // TODO: multiply by M only
 				"	share_Distance = min(gl_Position.z / FarPlane,1);\n"
 				"   share_UV = in_UV.xy;\n"
 				"	share_Color = in_Color;\n"

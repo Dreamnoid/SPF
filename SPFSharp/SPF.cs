@@ -199,21 +199,25 @@ namespace SPFSharp
 		public struct Vertex
 		{
 			public float X, Y, Z;
+			public float NormalX, NormalY, NormalZ;
 			public float U, V, BU, BV;
 			public float R, G, B, A;
 			public float OverlayR, OverlayG, OverlayB, OverlayA;
 
-			public static Vertex Create(Vector3 position, Vector2 uv) => Create(position, uv, Vector2.Zero, Vector4.One, Vector4.Zero);
+			public static Vertex Create(Vector3 position, Vector2 uv) => Create(position, Vector3.Zero, uv, Vector2.Zero, Vector4.One, Vector4.Zero);
 
-			public static Vertex Create(Vector3 position, Vector2 uv, Vector4 color) => Create(position, uv, Vector2.Zero, color, Vector4.Zero);
+			public static Vertex Create(Vector3 position, Vector2 uv, Vector4 color) => Create(position, Vector3.Zero, uv, Vector2.Zero, color, Vector4.Zero);
 
-			public static Vertex Create(Vector3 position, Vector2 uv, Vector2 billboard, Vector4 color, Vector4 overlay)
+			public static Vertex Create(Vector3 position, Vector3 normal, Vector2 uv, Vector2 billboard, Vector4 color, Vector4 overlay)
 			{
 				return new Vertex()
 				{
 					X = position.X,
 					Y = position.Y,
 					Z = position.Z,
+					NormalX = normal.X,
+					NormalY = normal.Y,
+					NormalZ = normal.Z,
 					U = uv.X,
 					V = uv.Y,
 					BU = billboard.X,
