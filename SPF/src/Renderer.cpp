@@ -282,17 +282,17 @@ namespace SPF
 
 		void FillVerticalGradient(const Rect& dest, const RGBA& top, const RGBA& bottom)
 		{
-			DrawTexturedRect(RendererData.EmptyTexture, dest,
-				Rect::Unit, false, false, 
+			DrawTexturedRect(0, dest,
+				Rect::Unit, false, false,
 				top, top, bottom, bottom, 
 				RGBA::TransparentBlack);
 		}
 
 		void FillHorizontalGradient(const Rect& dest, const RGBA& left, const RGBA& right)
 		{
-			DrawTexturedRect(RendererData.EmptyTexture, dest,
+			DrawTexturedRect(0, dest,
 				Rect::Unit, false, false,
-				left, right, left, right,
+				left, right, right, left,
 				RGBA::TransparentBlack);
 		}
 
