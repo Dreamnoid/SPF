@@ -157,6 +157,8 @@ namespace SPFSharp
             _windowHeight = Native.SPF_GetWindowHeight();
         }
 
+		public static void SetWindowTitle(string title) => Native.SPF_SetWindowTitle(title);
+
 		public class Image : IDisposable
 		{
 			public Int32 ID { get; private set; }

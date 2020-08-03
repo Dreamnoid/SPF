@@ -177,6 +177,10 @@ namespace SPFSharp
 
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SPF_SetWindowTitle(string title);
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern bool SPF_IsButtonDown(int button);
 
 		[SuppressUnmanagedCodeSecurity]

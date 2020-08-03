@@ -110,6 +110,11 @@ namespace SPF
 			Renderer::Resize(w, h);
 		}
 
+		void SetWindowTitle(const char* title)
+		{
+			SDL_SetWindowTitle(WindowData.Window, title);
+		}
+
 		int GetWidth()
 		{
 			return WindowData.Width;
@@ -167,6 +172,11 @@ extern "C"
 	DLLExport void SPF_SetWindowSize(int w, int h)
 	{
 		SPF::Window::SetWindowSize(w, h);
+	}
+
+	DLLExport void SPF_SetWindowTitle(const char* title)
+	{
+		SPF::Window::SetWindowTitle(title);
 	}
 
 	DLLExport int SPF_HasFocus()
