@@ -240,6 +240,11 @@ namespace SPFSharp
 				_shaderBuilder.AppendLine($"if ({color.Write()}.a <= 0) discard;");
 			}
 
+			public void DiscardIfLTE(Float a, Float b)
+			{
+				_shaderBuilder.AppendLine($"if ({a.Write()} <= {b.Write()}) discard;");
+			}
+
 			public override string ToString()
 			{
 				var sb = new StringBuilder();
