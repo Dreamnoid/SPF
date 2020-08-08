@@ -79,6 +79,8 @@ namespace SPF
 
 		DLLExport void SetAnimation(float animation);
 
+		DLLExport void SetUserData(const Vector4& userData);
+
 		ResourceIndex GetFinalSurface();
 
 		ResourceIndex GetDefaultShader();

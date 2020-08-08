@@ -46,6 +46,7 @@ namespace SPF
 		RGB FogColor = { 0.f, 0.f, 0.f };
 		RGBA Overlay = { 0.f, 0.f, 0.f, 0.f };
 		float Animation = 0.f;
+		Vector4 UserData = { 0.f, 0.f, 0.f, 0.f };
 	} RendererData;
 
 	namespace Renderer
@@ -106,6 +107,7 @@ namespace SPF
 				"uniform vec3 FogColor;\n"
 				"uniform vec4 Overlay;\n"
 				"uniform float Animation;\n"
+				"uniform vec4 UserData;\n"
 				"uniform float NearPlane;\n"
 				"uniform float FarPlane;\n"
 				"in float share_Distance;\n"
@@ -160,6 +162,7 @@ namespace SPF
 			glUniform1f(glGetUniformLocation(programID, "FarPlane"), RendererData.CameraFarPlane);
 			glUniform4f(glGetUniformLocation(programID, "Overlay"), RendererData.Overlay.R, RendererData.Overlay.G, RendererData.Overlay.B, RendererData.Overlay.A);
 			glUniform1f(glGetUniformLocation(programID, "Animation"), RendererData.Animation);
+			glUniform4f(glGetUniformLocation(programID, "UserData"), RendererData.UserData.X, RendererData.UserData.Y, RendererData.UserData.Z, RendererData.UserData.W);
 
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
@@ -545,6 +548,11 @@ namespace SPF
 			RendererData.Animation = animation;
 		}
 
+		void SetUserData(const Vector4& userData)
+		{
+			RendererData.UserData = userData;
+		}
+
 		ResourceIndex GetFinalSurface()
 		{
 			return RendererData.FinalSurface;
@@ -716,6 +724,11 @@ extern "C"
 	DLLExport void SPF_SetAnimation(float animation)
 	{
 		SPF::Renderer::SetAnimation(animation);
+	}
+
+	DLLExport void SPF_SetUserData(float x, float y, float z, float w)
+	{
+		SPF::Renderer::SetUserData({ x,y,z,w });
 	}
 
 	DLLExport int SPF_GetFinalSurface()

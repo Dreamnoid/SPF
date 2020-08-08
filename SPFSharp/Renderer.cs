@@ -316,6 +316,8 @@ namespace SPFSharp
 
 			public static void SetAnimation(float animation) => Native.SPF_SetAnimation(animation);
 
+			public static void SetUserData(Vector4 userData) => Native.SPF_SetUserData(userData.X, userData.Y, userData.Z, userData.W);
+
 			public static Texture GetDefaultDepthTexture()
 				=> new Texture(Native.SPF_GetSurfaceDepthTexture(Native.SPF_GetFinalSurface()), GetWindowWidth(), GetWindowHeight());
 		}

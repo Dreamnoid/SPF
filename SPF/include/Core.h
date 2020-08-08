@@ -29,6 +29,11 @@ namespace SPF
 		static Vector3 Up;
 	};
 
+	struct Vector4
+	{
+		float X, Y, Z, W;
+	};
+
 	struct Vector2
 	{
 		float X, Y;

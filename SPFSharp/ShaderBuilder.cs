@@ -44,6 +44,8 @@ namespace SPFSharp
 
 				public static Vec2 operator *(Vec2 a, Float b) => new Vec2($"({a.Write()} * {b.Write()})");
 				public static Vec2 operator /(Vec2 a, Float b) => new Vec2($"({a.Write()} / {b.Write()})");
+
+				public Vec2 ReverseV() => new Vec2($"vec2({Write()}.x, 1f - {Write()}.y)");
 			}
 
             public class Vec3 : IVariable
@@ -115,6 +117,8 @@ namespace SPFSharp
 				public Float Z => new Float($"{Write()}.z");
 
 				public Vec2 XY => new Vec2($"{Write()}.xy");
+
+				public Vec2 ZW => new Vec2($"{Write()}.zw");
 
 				public Vec3 XYZ => new Vec3($"{Write()}.xyz");
 
@@ -226,6 +230,7 @@ namespace SPFSharp
 			public readonly Vec3 FogColor = new Vec3("FogColor");
 			public readonly Vec4 GlobalOverlay = new Vec4("Overlay");
 			public readonly Float Animation = new Float("Animation");
+			public readonly Vec4 UserData = new Vec4("UserData");
 			public readonly Vec4 OutputColor = new Vec4("out_Color");
 			public readonly Sampler2D Texture = new Sampler2D("Texture");
 			public readonly Sampler2D Texture1 = new Sampler2D("Texture1");
@@ -256,6 +261,7 @@ namespace SPFSharp
 				sb.AppendLine($"uniform vec3 {FogColor.Name};");
 				sb.AppendLine($"uniform vec4 {GlobalOverlay.Name};");
 				sb.AppendLine($"uniform float {Animation.Name};");
+				sb.AppendLine($"uniform vec4 {UserData.Name};");
 				sb.AppendLine($"uniform float {NearPlane.Name};");
 				sb.AppendLine($"uniform float {FarPlane.Name};");
 				sb.AppendLine($"in float {Distance.Name};");

@@ -404,5 +404,8 @@ namespace SPFSharp
 
 		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_SetAnimation(float animation);
+
+		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SPF_SetUserData(float x, float y, float z, float w);
 	}
 }
