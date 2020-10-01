@@ -243,9 +243,8 @@ namespace SPF
 
 			if (Resources.Textures[tex].Flipped)
 			{
-				const float t = uv1.Y;
-				uv1.Y = uv2.Y;
-				uv2.Y = t;
+				uv1.Y = 1.f - uv1.Y;
+				uv2.Y = 1.f - uv2.Y;
 			}
 
 			if (flipY)
