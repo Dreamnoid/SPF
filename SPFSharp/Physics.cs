@@ -28,7 +28,7 @@ namespace SPFSharp
 
 				public void SetVelocity(Vector3 velocity) => Native.SPF_SetBodyVelocity(_bodyID, velocity.X, velocity.Y, velocity.Z);
 
-				public void SetPosition(Vector3 velocity) => Native.SPF_SetBodyPosition(_bodyID, velocity.X, velocity.Y, velocity.Z);
+				public void SetPosition(Vector3 position) => Native.SPF_SetBodyPosition(_bodyID, position.X, position.Y, position.Z);
 
 				public Vector3 GetPosition() => Native.SPF_GetBodyPosition(_bodyID);
 
@@ -40,6 +40,17 @@ namespace SPFSharp
 				public Capsule(float radius, float height)
 					: base(Native.SPF_CreateCapsuleBody(radius, height))
 				{
+				}
+			}
+
+			public class Sphere : Body
+			{
+				public readonly bool CCD;
+
+				public Sphere(float radius, bool ccd)
+					: base(Native.SPF_CreateSphereBody(radius, ccd))
+				{
+					CCD = ccd;
 				}
 			}
 

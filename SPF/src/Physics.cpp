@@ -171,6 +171,18 @@ namespace SPF
 			return CreateBody(shape, 1.0f);
 		}
 
+		ResourceIndex CreateSphere(float radius, bool ccd)
+		{
+			btCollisionShape* shape = new btSphereShape(btScalar(radius));
+			ResourceIndex bodyID = CreateBody(shape, 1.0f);
+			if (ccd)
+			{
+				PhysicsData.Bodies[bodyID].Body->setCcdMotionThreshold(btScalar(1e-7));
+				PhysicsData.Bodies[bodyID].Body->setCcdSweptSphereRadius(btScalar(radius));
+			}
+			return bodyID;
+		}
+
 		void SetVelocity(ResourceIndex bodyID, float x, float y, float z)
 		{
 			PhysicsBody& body = PhysicsData.Bodies[bodyID];
@@ -244,6 +256,11 @@ extern "C"
 	DLLExport int SPF_CreateCapsuleBody(float radius, float height)
 	{
 		return SPF::Physics::CreateCapsule(radius, height);
+	}
+
+	DLLExport int SPF_CreateSphereBody(float radius, int ccd)
+	{
+		return SPF::Physics::CreateSphere(radius, ccd);
 	}
 
 	DLLExport void SPF_DeleteBody(int bodyID)

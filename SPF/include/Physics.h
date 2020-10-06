@@ -11,6 +11,7 @@ namespace SPF
 		DLLExport void Stop();
 		DLLExport ResourceIndex CreateMesh(Vector3* vertices, int count);
 		DLLExport ResourceIndex CreateCapsule(float radius, float height);
+		DLLExport ResourceIndex CreateSphere(float radius, bool ccd);
 		DLLExport void SetVelocity(ResourceIndex bodyID, float x, float y, float z);
 		DLLExport void SetPosition(ResourceIndex bodyID, float x, float y, float z);
 		DLLExport Vector3 GetPosition(ResourceIndex bodyID);

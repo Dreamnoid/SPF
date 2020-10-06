@@ -379,6 +379,9 @@ namespace SPFSharp
 		public static extern int SPF_CreateCapsuleBody(float radius, float height);
 
 		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern int SPF_CreateSphereBody(float radius, bool ccd);
+
+		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_DeleteBody(int bodyID);
 
 		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
