@@ -1,6 +1,7 @@
 #include <vector>
 #include <btBulletDynamicsCommon.h>
 #include <Physics.h>
+#include "Resources.h"
 
 namespace SPF
 {
@@ -97,7 +98,7 @@ namespace SPF
 			btCollisionShape* shape = PhysicsData.Bodies[bodyID].Shape;
 			btRigidBody* body = PhysicsData.Bodies[bodyID].Body;
 			btTriangleMesh* mesh = PhysicsData.Bodies[bodyID].Mesh;
-			PhysicsData.Bodies[bodyID] = { false, nullptr, nullptr, nullptr, -1.0f };
+			DeleteResource(PhysicsData.Bodies, bodyID);
 			PhysicsData.World->removeRigidBody(body);
 			delete body;
 			delete shape;
@@ -147,16 +148,7 @@ namespace SPF
 				body->setActivationState(DISABLE_DEACTIVATION);
 			}
 
-			for (ResourceIndex bodyID = 0; bodyID < PhysicsData.Bodies.size(); ++bodyID)
-			{
-				if (!PhysicsData.Bodies[bodyID].InUse)
-				{
-					PhysicsData.Bodies[bodyID] = { true, shape, body, nullptr, -1.0f };
-					return bodyID;
-				}
-			}
-			PhysicsData.Bodies.push_back({ true, shape, body, nullptr, -1.0f });
-			return PhysicsData.Bodies.size() - 1;
+			return CreateResource(PhysicsData.Bodies, { true, shape, body, nullptr, -1.0f });
 		}
 
 		ResourceIndex CreateMesh(Vector3* vertices, int count)
