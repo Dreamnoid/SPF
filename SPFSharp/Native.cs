@@ -307,6 +307,13 @@ namespace SPFSharp
 
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SPF_DrawLine(
+			float fromX, float fromY, float fromZ,
+			float toX, float toY, float toZ,
+			float r, float g, float b, float a);
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_DrawBillboard(Int32 tex,
 			float x, float y, float z,
 			float width, float height,

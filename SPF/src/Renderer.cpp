@@ -142,6 +142,11 @@ namespace SPF
 			RendererData.FinalSurface = Surfaces::Create(w, h, true);
 		}
 
+		struct DrawCall
+		{
+			GLenum Mode;
+		};
+
 		void Prepare(ResourceIndex shader = InvalidResource)
 		{
 			glViewport(0, 0, (GLsizei)RendererData.CurrentWidth, (GLsizei)RendererData.CurrentHeight);
@@ -376,6 +381,25 @@ namespace SPF
 
 			RendererData.Model = glm::identity<glm::mat4>();
 			RendererData.Overlay = RGBA::TransparentBlack;
+		}
+
+		void DrawLine(const Vector3& from, const Vector3& to, const RGBA& color)
+		{
+			IssueVertices();
+
+			PushVertex(RendererData.EmptyTexture, { from, Vector3::Zero, Vector2::Zero, Vector2::Zero, color, RGBA::TransparentBlack });
+			PushVertex(RendererData.EmptyTexture, { to, Vector3::Zero, Vector2::Zero, Vector2::Zero, color, RGBA::TransparentBlack });
+
+			glBindBuffer(GL_ARRAY_BUFFER, RendererData.BatchVBOID);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, VerticesCount * sizeof(Vertex), &RendererData.Vertices);
+
+			glActiveTexture2(GL_TEXTURE0);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, RendererData.BatchInfo.CurrentTexture);
+
+			Prepare();
+			glDrawArrays(GL_LINES, 0, RendererData.BatchInfo.VertexCount);
+			memset(&RendererData.BatchInfo, 0, sizeof(RendererData.BatchInfo));
 		}
 
 		void SetBlending(BlendMode blendMode)
@@ -654,6 +678,14 @@ extern "C"
 			mesh, first, count, 
 			world, 
 			{ overlayR, overlayG, overlayB, overlayA });
+	}
+
+	DLLExport void SPF_DrawLine(
+		float fromX, float fromY, float fromZ,
+		float toX, float toY, float toZ,
+		float r, float g, float b, float a)
+	{
+		SPF::Renderer::DrawLine({ fromX, fromY, fromZ }, { toX, toY, toZ }, { r,g,b,a });
 	}
 
 	DLLExport void SPF_SetBlending(int blendMode)

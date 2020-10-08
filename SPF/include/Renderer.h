@@ -62,6 +62,8 @@ namespace SPF
 			const float* world, 
 			const RGBA& overlay);
 
+		DLLExport void DrawLine(const Vector3& from, const Vector3& to, const RGBA& color);
+
 		DLLExport void SetBlending(BlendMode blendMode);
 
 		DLLExport void DrawBillboard(ResourceIndex tex,

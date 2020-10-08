@@ -265,6 +265,8 @@ namespace SPFSharp
 
 			public static void DrawMesh(Mesh mesh, float[] world) => DrawMesh(null, null, null, null, mesh, 0, mesh.VerticesCount, world, Vector4.Zero);
 
+			public static void DrawLine(Vector3 from, Vector3 to, Vector4 color) => Native.SPF_DrawLine(from.X, from.Y, from.Z, to.X, to.Y, to.Z, color.X, color.Y, color.Z, color.W);
+
 			public static void DrawBillboard(Texture tex,
 				Vector3 position, 
 				float radius,
