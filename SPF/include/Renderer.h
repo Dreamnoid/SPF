@@ -9,6 +9,13 @@ namespace SPF
 		Additive
 	};
 
+	struct TextureSet
+	{
+		ResourceIndex Texture1;
+		ResourceIndex Texture2;
+		ResourceIndex Texture3;
+	};
+
 	namespace Renderer
 	{
 		DLLExport void Begin(ResourceIndex surface);
@@ -57,7 +64,7 @@ namespace SPF
 			const RGBA& overlay);
 
 		DLLExport void DrawMesh(
-			ResourceIndex shader, ResourceIndex tex, ResourceIndex tex1, ResourceIndex tex2,
+			ResourceIndex shader, const TextureSet& texSet,
 			ResourceIndex mesh, int first, int count, 
 			const float* world, 
 			const RGBA& overlay);

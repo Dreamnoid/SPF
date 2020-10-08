@@ -31,7 +31,7 @@ namespace SPF
 		struct
 		{
 			int VertexCount;
-			HardwareID CurrentTexture;
+			ResourceIndex CurrentTexture;
 		} BatchInfo;
 
 		int CurrentWidth;
@@ -147,12 +147,13 @@ namespace SPF
 			GLenum Mode;
 		};
 
-		void Prepare(ResourceIndex shader = InvalidResource)
+		void Prepare(ResourceIndex shader, const TextureSet& texSet)
 		{
 			glViewport(0, 0, (GLsizei)RendererData.CurrentWidth, (GLsizei)RendererData.CurrentHeight);
 
 			glPolygonMode(GL_FRONT_AND_BACK, (RendererData.Wireframe) ? GL_LINE : GL_FILL);
 
+			// Bind the shader
 			shader = (shader < 0) ? RendererData.DefaultShader : shader;
 			HardwareID programID = Resources.Shaders[shader].GLID;
 
@@ -169,6 +170,20 @@ namespace SPF
 			glUniform1f(glGetUniformLocation(programID, "Animation"), RendererData.Animation);
 			glUniform4f(glGetUniformLocation(programID, "UserData"), RendererData.UserData.X, RendererData.UserData.Y, RendererData.UserData.Z, RendererData.UserData.W);
 
+			// Bind the textures
+			glActiveTexture2(GL_TEXTURE0);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, (texSet.Texture1 < 0) ? RendererData.EmptyTexture : Resources.Textures[texSet.Texture1].GLID);
+
+			glActiveTexture2(GL_TEXTURE1);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, (texSet.Texture2 < 0) ? RendererData.EmptyTexture : Resources.Textures[texSet.Texture2].GLID);
+
+			glActiveTexture2(GL_TEXTURE2);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, (texSet.Texture3 < 0) ? RendererData.EmptyTexture : Resources.Textures[texSet.Texture3].GLID);
+
+			// Bind the vertex attributes
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
@@ -189,16 +204,12 @@ namespace SPF
 			glBindBuffer(GL_ARRAY_BUFFER, RendererData.BatchVBOID);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, VerticesCount * sizeof(Vertex), &RendererData.Vertices);
 
-			glActiveTexture2(GL_TEXTURE0);
-			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, RendererData.BatchInfo.CurrentTexture);
-
-			Prepare();
+			Prepare(RendererData.DefaultShader, { RendererData.BatchInfo.CurrentTexture, InvalidResource, InvalidResource });
 			glDrawArrays(GL_QUADS, 0, RendererData.BatchInfo.VertexCount);
 			memset(&RendererData.BatchInfo, 0, sizeof(RendererData.BatchInfo));
 		}
 
-		void PushVertex(HardwareID texture, const Vertex& v)
+		void PushVertex(ResourceIndex texture, const Vertex& v)
 		{
 			if (RendererData.BatchInfo.VertexCount == VerticesCount || texture != RendererData.BatchInfo.CurrentTexture)
 			{
@@ -209,7 +220,7 @@ namespace SPF
 			RendererData.BatchInfo.VertexCount++;
 		}
 
-		void PushVertex(HardwareID texture,
+		void PushVertex(ResourceIndex texture,
 			const Vector3& position,
 			const Vector2& uv, const Vector2& buv,
 			const RGBA& color, const RGBA& overlay)
@@ -268,23 +279,21 @@ namespace SPF
 			const RGBA& aColor, const RGBA& bColor, const RGBA& cColor, const RGBA& dColor,
 			const RGBA& overlay)
 		{
-			unsigned int id = Resources.Textures[tex].GLID;
-
 			Vector2 uv1, uv2;
 			DetermineUV(tex, src, flipX, flipY, uv1, uv2);
 
-			PushVertex(id, { (float)dest.X, (float)(dest.Y + dest.Height), 0.f }, { uv1.X, uv2.Y }, Vector2::Zero, dColor, overlay);;
-			PushVertex(id, { (float)(dest.X + dest.Width), (float)(dest.Y + dest.Height), 0.f }, { uv2.X, uv2.Y }, Vector2::Zero, cColor, overlay);
-			PushVertex(id, { (float)(dest.X + dest.Width), (float)dest.Y, 0.f }, { uv2.X, uv1.Y }, Vector2::Zero, bColor, overlay);
-			PushVertex(id, { (float)dest.X, (float)dest.Y, 0.f }, { uv1.X, uv1.Y }, Vector2::Zero, aColor, overlay);
+			PushVertex(tex, { (float)dest.X, (float)(dest.Y + dest.Height), 0.f }, { uv1.X, uv2.Y }, Vector2::Zero, dColor, overlay);;
+			PushVertex(tex, { (float)(dest.X + dest.Width), (float)(dest.Y + dest.Height), 0.f }, { uv2.X, uv2.Y }, Vector2::Zero, cColor, overlay);
+			PushVertex(tex, { (float)(dest.X + dest.Width), (float)dest.Y, 0.f }, { uv2.X, uv1.Y }, Vector2::Zero, bColor, overlay);
+			PushVertex(tex, { (float)dest.X, (float)dest.Y, 0.f }, { uv1.X, uv1.Y }, Vector2::Zero, aColor, overlay);
 		}
 
 		void FillRectangle(const Rect& dest, const RGBA& color)
 		{
-			PushVertex(RendererData.EmptyTexture, { (float)dest.X, (float)(dest.Y + dest.Height), 0.f }, { 0.f, 1.f }, Vector2::Zero, color, RGBA::TransparentBlack);
-			PushVertex(RendererData.EmptyTexture, { (float)(dest.X + dest.Width), (float)(dest.Y + dest.Height), 0.f }, { 1.f, 1.f }, Vector2::Zero, color, RGBA::TransparentBlack);
-			PushVertex(RendererData.EmptyTexture, { (float)(dest.X + dest.Width), (float)dest.Y, 0.f }, { 1.f, 0.f }, Vector2::Zero, color, RGBA::TransparentBlack);
-			PushVertex(RendererData.EmptyTexture, { (float)dest.X, (float)dest.Y, 0.f }, { 0.f, 0.f }, Vector2::Zero, color, RGBA::TransparentBlack);
+			PushVertex(InvalidResource, { (float)dest.X, (float)(dest.Y + dest.Height), 0.f }, { 0.f, 1.f }, Vector2::Zero, color, RGBA::TransparentBlack);
+			PushVertex(InvalidResource, { (float)(dest.X + dest.Width), (float)(dest.Y + dest.Height), 0.f }, { 1.f, 1.f }, Vector2::Zero, color, RGBA::TransparentBlack);
+			PushVertex(InvalidResource, { (float)(dest.X + dest.Width), (float)dest.Y, 0.f }, { 1.f, 0.f }, Vector2::Zero, color, RGBA::TransparentBlack);
+			PushVertex(InvalidResource, { (float)dest.X, (float)dest.Y, 0.f }, { 0.f, 0.f }, Vector2::Zero, color, RGBA::TransparentBlack);
 		}
 
 		void FillVerticalGradient(const Rect& dest, const RGBA& top, const RGBA& bottom)
@@ -311,23 +320,20 @@ namespace SPF
 			const RGBA& aColor, const RGBA& bColor, const RGBA& cColor, const RGBA& dColor,
 			const RGBA& overlay)
 		{
-			unsigned int id = Resources.Textures[tex].GLID;
-
 			Vector2 uv1, uv2;
 			DetermineUV(tex, src, flipX, flipY, uv1, uv2);
 			
-			PushVertex(id, d, { uv1.X, uv2.Y }, Vector2::Zero, dColor, overlay);
-			PushVertex(id, c, { uv2.X, uv2.Y }, Vector2::Zero, cColor, overlay);
-			PushVertex(id, b, { uv2.X, uv1.Y }, Vector2::Zero, bColor, overlay);
-			PushVertex(id, a, { uv1.X, uv1.Y }, Vector2::Zero, aColor, overlay);
+			PushVertex(tex, d, { uv1.X, uv2.Y }, Vector2::Zero, dColor, overlay);
+			PushVertex(tex, c, { uv2.X, uv2.Y }, Vector2::Zero, cColor, overlay);
+			PushVertex(tex, b, { uv2.X, uv1.Y }, Vector2::Zero, bColor, overlay);
+			PushVertex(tex, a, { uv1.X, uv1.Y }, Vector2::Zero, aColor, overlay);
 		}
 
 		void DrawTexturedTriangle(ResourceIndex tex, const Vertex& a, const Vertex& b, const Vertex& c)
 		{
-			unsigned int id = Resources.Textures[tex].GLID;
-			PushVertex(id, a);
-			PushVertex(id, b);
-			PushVertex(id, c);
+			PushVertex(tex, a);
+			PushVertex(tex, b);
+			PushVertex(tex, c);
 		}
 
 		void DrawTexture(
@@ -345,14 +351,14 @@ namespace SPF
 			const RGBA& overlay)
 		{
 			DrawMesh(
-				RendererData.DefaultShader, tex, InvalidResource, InvalidResource,
+				RendererData.DefaultShader, { tex, InvalidResource, InvalidResource },
 				mesh, 0, Resources.Meshes[mesh].VerticesCount,
 				world, 
 				overlay);
 		}
 
 		void DrawMesh(
-			ResourceIndex shader, ResourceIndex tex, ResourceIndex tex1, ResourceIndex tex2,
+			ResourceIndex shader, const TextureSet& texSet,
 			ResourceIndex mesh, int first, int count, 
 			const float* world,
 			const RGBA& overlay)
@@ -361,22 +367,10 @@ namespace SPF
 
 			glBindBuffer(GL_ARRAY_BUFFER, Resources.Meshes[mesh].GLID);
 
-			glActiveTexture2(GL_TEXTURE0);
-			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, (tex < 0) ? RendererData.EmptyTexture : Resources.Textures[tex].GLID);
-
-			glActiveTexture2(GL_TEXTURE1);
-			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, (tex1 < 0) ? RendererData.EmptyTexture : Resources.Textures[tex1].GLID);
-
-			glActiveTexture2(GL_TEXTURE2);
-			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, (tex2 < 0) ? RendererData.EmptyTexture : Resources.Textures[tex2].GLID);
-
 			RendererData.Model = glm::make_mat4x4(world);
 			RendererData.Overlay = overlay;
 
-			Prepare(shader);
+			Prepare(shader, texSet);
 			glDrawArrays(GL_TRIANGLES, first, count);
 
 			RendererData.Model = glm::identity<glm::mat4>();
@@ -387,17 +381,13 @@ namespace SPF
 		{
 			IssueVertices();
 
-			PushVertex(RendererData.EmptyTexture, { from, Vector3::Zero, Vector2::Zero, Vector2::Zero, color, RGBA::TransparentBlack });
-			PushVertex(RendererData.EmptyTexture, { to, Vector3::Zero, Vector2::Zero, Vector2::Zero, color, RGBA::TransparentBlack });
+			PushVertex(InvalidResource, { from, Vector3::Zero, Vector2::Zero, Vector2::Zero, color, RGBA::TransparentBlack });
+			PushVertex(InvalidResource, { to, Vector3::Zero, Vector2::Zero, Vector2::Zero, color, RGBA::TransparentBlack });
 
 			glBindBuffer(GL_ARRAY_BUFFER, RendererData.BatchVBOID);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, VerticesCount * sizeof(Vertex), &RendererData.Vertices);
 
-			glActiveTexture2(GL_TEXTURE0);
-			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, RendererData.BatchInfo.CurrentTexture);
-
-			Prepare();
+			Prepare(RendererData.DefaultShader, { InvalidResource, InvalidResource, InvalidResource });
 			glDrawArrays(GL_LINES, 0, RendererData.BatchInfo.VertexCount);
 			memset(&RendererData.BatchInfo, 0, sizeof(RendererData.BatchInfo));
 		}
@@ -523,17 +513,15 @@ namespace SPF
 			const RGBA& color,
 			const RGBA& overlay)
 		{
-			unsigned int id = Resources.Textures[tex].GLID;
-
 			Vector2 uv1, uv2;
 			DetermineUV(tex, src, flipX, flipY, uv1, uv2);
 
 			float halfWidth = width * 0.5f;
 
-			PushVertex(id, center, { uv1.X, uv2.Y }, { -halfWidth, 0.f }, color, overlay);
-			PushVertex(id, center, { uv2.X, uv2.Y }, { +halfWidth, 0.f }, color, overlay);
-			PushVertex(id, center, { uv2.X, uv1.Y }, { +halfWidth, height }, color, overlay);
-			PushVertex(id, center, { uv1.X, uv1.Y }, { -halfWidth, height }, color, overlay);
+			PushVertex(tex, center, { uv1.X, uv2.Y }, { -halfWidth, 0.f }, color, overlay);
+			PushVertex(tex, center, { uv2.X, uv2.Y }, { +halfWidth, 0.f }, color, overlay);
+			PushVertex(tex, center, { uv2.X, uv1.Y }, { +halfWidth, height }, color, overlay);
+			PushVertex(tex, center, { uv1.X, uv1.Y }, { -halfWidth, height }, color, overlay);
 		}
 
 		void SetWireframe(bool wireframeEnabled)
@@ -674,7 +662,7 @@ extern "C"
 		float overlayR, float overlayG, float overlayB, float overlayA)
 	{
 		SPF::Renderer::DrawMesh(
-			shader, tex, tex1, tex2,
+			shader, { tex, tex1, tex2 },
 			mesh, first, count, 
 			world, 
 			{ overlayR, overlayG, overlayB, overlayA });
