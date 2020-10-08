@@ -13,7 +13,7 @@ namespace SPFSharp
 
 			public static void Stop() => Native.SPF_StopPhysics();
 
-			public static bool Raycast(Vector3 from, Vector3 to, out float dist) => Native.SPF_PhysicsRaycast(from.X, from.Y, from.Z, to.X, to.Y, to.Z, out dist);
+			public static bool Raycast(Vector3 from, Vector3 to, out float dist, out int triangleIndex) => Native.SPF_PhysicsRaycast(from.X, from.Y, from.Z, to.X, to.Y, to.Z, out dist, out triangleIndex);
 
 			public abstract class Body : IDisposable
 			{

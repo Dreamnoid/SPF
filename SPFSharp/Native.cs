@@ -394,7 +394,7 @@ namespace SPFSharp
 		public static extern Vector3 SPF_GetBodyPosition(int bodyID);
 
 		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool SPF_PhysicsRaycast(float srcX, float srcY, float srcZ, float destX, float destY, float destZ, out float dist);
+		public static extern bool SPF_PhysicsRaycast(float srcX, float srcY, float srcZ, float destX, float destY, float destZ, out float dist, out int triangleIndex);
 
 		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern bool SPF_IsBodyGrounded(int bodyID, float treshold);

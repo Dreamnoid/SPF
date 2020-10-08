@@ -24,6 +24,21 @@ namespace SPF
 
 	} PhysicsData;
 
+	struct ClosestRayResultCallbackEx : public btCollisionWorld::ClosestRayResultCallback
+	{
+		int m_hitTriangleIndex;
+
+		ClosestRayResultCallbackEx(const btVector3& rayFrom, const btVector3& rayTo)
+			: btCollisionWorld::ClosestRayResultCallback(rayFrom, rayTo), m_hitTriangleIndex(0){}
+
+		virtual ~ClosestRayResultCallbackEx(){}
+
+		virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace)
+		{
+			m_hitTriangleIndex = (rayResult.m_localShapeInfo) ? rayResult.m_localShapeInfo->m_triangleIndex : 0;
+			return ClosestRayResultCallback::addSingleResult(rayResult, normalInWorldSpace);
+		}
+	};
 
 	namespace Physics
 	{
@@ -210,15 +225,17 @@ namespace SPF
 		bool Raycast(
 			float srcX, float srcY, float srcZ,
 			float destX, float destY, float destZ,
-			float* dist)
+			float* dist, int* triangleIndex)
 		{
 			btVector3 from(srcX, srcY, srcZ);
 			btVector3 to(destX, destY, destZ);
 
-			btCollisionWorld::ClosestRayResultCallback callback(from, to);
+			ClosestRayResultCallbackEx callback(from, to);
 			callback.m_collisionFilterMask = btBroadphaseProxy::StaticFilter;
 			PhysicsData.World->rayTest(from, to, callback);
 			*dist = callback.m_closestHitFraction;
+			*triangleIndex = callback.m_hitTriangleIndex;
+			callback.m_hitNormalWorld;
 			return callback.hasHit();
 		}
 
@@ -286,9 +303,9 @@ extern "C"
 	DLLExport int SPF_PhysicsRaycast(
 		float srcX, float srcY, float srcZ,
 		float destX, float destY, float destZ,
-		float* dist)
+		float* dist, int* triangleIndex)
 	{
-		return SPF::Physics::Raycast(srcX, srcY, srcZ, destX, destY, destZ, dist);
+		return SPF::Physics::Raycast(srcX, srcY, srcZ, destX, destY, destZ, dist, triangleIndex);
 	}
 
 	DLLExport int SPF_IsBodyGrounded(int bodyID, float treshold)

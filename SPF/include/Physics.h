@@ -18,7 +18,7 @@ namespace SPF
 		DLLExport bool Raycast(
 			float srcX, float srcY, float srcZ,
 			float destX, float destY, float destZ,
-			float* dist);
+			float* dist, int* triangleIndex);
 		DLLExport bool IsGrounded(ResourceIndex bodyID, float treshold);
 	}
 }
