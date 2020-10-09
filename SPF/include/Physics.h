@@ -20,5 +20,6 @@ namespace SPF
 			float destX, float destY, float destZ,
 			float* dist, int* triangleIndex);
 		DLLExport bool IsGrounded(ResourceIndex bodyID, float treshold);
+		DLLExport bool CollidedWithWalls(ResourceIndex bodyID, Vector3* outNormal);
 	}
 }

@@ -407,6 +407,9 @@ namespace SPFSharp
 		public static extern bool SPF_IsBodyGrounded(int bodyID, float treshold);
 
 		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool SPF_BodyCollidedWithWalls(int bodyID, out Vector3 treshold);
+
+		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern int SPF_CreateShader(string sourceCode);
 
 		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]

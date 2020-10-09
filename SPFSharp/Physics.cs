@@ -33,6 +33,8 @@ namespace SPFSharp
 				public Vector3 GetPosition() => Native.SPF_GetBodyPosition(_bodyID);
 
 				public bool IsGrounded(float treshold) => Native.SPF_IsBodyGrounded(_bodyID, treshold);
+
+				public bool CollidedWithWalls(out Vector3 normal) => Native.SPF_BodyCollidedWithWalls(_bodyID, out normal);
 			}
 
 			public class Capsule : Body

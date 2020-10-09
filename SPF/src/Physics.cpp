@@ -12,6 +12,8 @@ namespace SPF
 		btRigidBody* Body;
 		btTriangleMesh* Mesh;
 		float ContactUpFactor;
+		bool CollidedWithWalls;
+		btVector3 WallCollisionNormal;
 	};
 
 	struct
@@ -54,6 +56,7 @@ namespace SPF
 				if (body.InUse)
 				{
 					body.ContactUpFactor = -1;
+					body.CollidedWithWalls = false;
 					for (int i = 0; i < numManifolds; ++i)
 					{
 						btPersistentManifold* contactManifold = PhysicsData.Dispatcher->getManifoldByIndexInternal(i);
@@ -70,6 +73,11 @@ namespace SPF
 									btVector3 normal = (objB == body.Body) ? -pt.m_normalWorldOnB : pt.m_normalWorldOnB;
 									float groundAngle = normal.dot(upVector);
 									body.ContactUpFactor = groundAngle > body.ContactUpFactor ? groundAngle : body.ContactUpFactor;
+									if (groundAngle > -0.5f && groundAngle < 0.5f)
+									{
+										body.CollidedWithWalls = true;
+										body.WallCollisionNormal = normal;
+									}
 								}
 							}
 						}
@@ -236,6 +244,23 @@ namespace SPF
 			PhysicsBody& body = PhysicsData.Bodies[bodyID];
 			return (body.ContactUpFactor > treshold);
 		}
+
+		bool CollidedWithWalls(ResourceIndex bodyID, Vector3* outNormal)
+		{
+			PhysicsBody& body = PhysicsData.Bodies[bodyID];
+			if (body.CollidedWithWalls)
+			{
+				*outNormal = 
+				{
+					body.WallCollisionNormal.x(),
+					body.WallCollisionNormal.y(),
+					body.WallCollisionNormal.z()
+				};
+				return true;
+			}
+			*outNormal = Vector3::Zero;
+			return false;
+		}
 	}
 
 }
@@ -303,5 +328,10 @@ extern "C"
 	DLLExport int SPF_IsBodyGrounded(int bodyID, float treshold)
 	{
 		return SPF::Physics::IsGrounded(bodyID, treshold);
+	}
+
+	DLLExport int SPF_BodyCollidedWithWalls(int bodyID, SPF::Vector3* outNormal)
+	{
+		return SPF::Physics::CollidedWithWalls(bodyID, outNormal);
 	}
 }
