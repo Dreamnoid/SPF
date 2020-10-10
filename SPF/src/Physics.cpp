@@ -94,6 +94,7 @@ namespace SPF
 			PhysicsData.Solver = new btSequentialImpulseConstraintSolver;
 			PhysicsData.World = new btDiscreteDynamicsWorld(PhysicsData.Dispatcher, PhysicsData.Broadphase, PhysicsData.Solver, PhysicsData.Configuration);
 			PhysicsData.World->setInternalTickCallback(TickCallback);
+			PhysicsData.World->setGravity(btVector3(0, 0, 0));
 		}
 
 		void Update(float dt)
