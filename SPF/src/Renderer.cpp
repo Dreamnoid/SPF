@@ -377,7 +377,7 @@ namespace SPF
 			RendererData.Overlay = RGBA::TransparentBlack;
 		}
 
-		void DrawLine(const Vector3& from, const Vector3& to, const RGBA& color)
+		void DrawLine(const Vector3& from, const Vector3& to, const RGBA& color, float width)
 		{
 			IssueVertices();
 
@@ -388,7 +388,9 @@ namespace SPF
 			glBufferSubData(GL_ARRAY_BUFFER, 0, VerticesCount * sizeof(Vertex), &RendererData.Vertices);
 
 			Prepare(RendererData.DefaultShader, { InvalidResource, InvalidResource, InvalidResource });
+			glLineWidth(width);
 			glDrawArrays(GL_LINES, 0, RendererData.BatchInfo.VertexCount);
+			glLineWidth(1.0f);
 			memset(&RendererData.BatchInfo, 0, sizeof(RendererData.BatchInfo));
 		}
 
@@ -671,9 +673,10 @@ extern "C"
 	DLLExport void SPF_DrawLine(
 		float fromX, float fromY, float fromZ,
 		float toX, float toY, float toZ,
-		float r, float g, float b, float a)
+		float r, float g, float b, float a,
+		float width)
 	{
-		SPF::Renderer::DrawLine({ fromX, fromY, fromZ }, { toX, toY, toZ }, { r,g,b,a });
+		SPF::Renderer::DrawLine({ fromX, fromY, fromZ }, { toX, toY, toZ }, { r,g,b,a }, width);
 	}
 
 	DLLExport void SPF_SetBlending(int blendMode)

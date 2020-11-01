@@ -310,7 +310,8 @@ namespace SPFSharp
 		public static extern void SPF_DrawLine(
 			float fromX, float fromY, float fromZ,
 			float toX, float toY, float toZ,
-			float r, float g, float b, float a);
+			float r, float g, float b, float a,
+			float width);
 
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
