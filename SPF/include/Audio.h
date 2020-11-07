@@ -12,6 +12,7 @@ namespace SPF
 		DLLExport int PlaySound(ResourceIndex sound, float volume, bool looping);
 		DLLExport void StopChannel(int channel);
 		DLLExport void DeleteSound(ResourceIndex sound);
+		DLLExport float GetSoundDuration(ResourceIndex sound);
 
 		DLLExport float GetSoundVolume();
 		DLLExport float GetMusicVolume();

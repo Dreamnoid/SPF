@@ -12,6 +12,7 @@ namespace SPFSharp
 		public class Sound : IDisposable
 		{
 			public Int32 ID { get; private set; }
+			public float Duration { get; private set; }
 
 			public Sound(byte[] buffer)
 			{
@@ -19,6 +20,7 @@ namespace SPFSharp
 				{
 					ID = Native.SPF_LoadSound(cbuffer.Pointer, cbuffer.Length);
 				}
+				Duration = Native.SPF_GetSoundDuration(ID);
 			}
 
 			public void Dispose()

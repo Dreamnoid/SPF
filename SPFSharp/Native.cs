@@ -141,6 +141,10 @@ namespace SPFSharp
 
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern float SPF_GetSoundDuration(Int32 sound);
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_StopChannel(int channel);
 
 		[SuppressUnmanagedCodeSecurity]

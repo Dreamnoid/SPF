@@ -6,6 +6,9 @@
 
 namespace SPF
 {
+	constexpr int Frequency = 44100;
+	constexpr int Channels = 2;
+
 	struct
 	{
 		float SoundVolume = 1.0f;
@@ -24,7 +27,7 @@ namespace SPF
 				FatalError(Mix_GetError());
 			}
 
-			if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1)
+			if (Mix_OpenAudio(Frequency, MIX_DEFAULT_FORMAT, Channels, 1024) == -1)
 			{
 				FatalError(Mix_GetError());
 			}
@@ -70,6 +73,12 @@ namespace SPF
 		{
 			Mix_FreeChunk(AudioData.Sounds[sound]);
 			AudioData.Sounds[sound] = nullptr;
+		}
+
+		float GetSoundDuration(ResourceIndex sound)
+		{
+			Mix_Chunk* sample = AudioData.Sounds[sound];
+			return sample->alen / (float)((Frequency * 2 * Channels));
 		}
 
 		float GetSoundVolume()
@@ -161,6 +170,11 @@ extern "C"
 	DLLExport void SPF_DeleteSound(int sound)
 	{
 		SPF::Audio::DeleteSound(sound);
+	}
+
+	DLLExport float SPF_GetSoundDuration(int sound)
+	{
+		return SPF::Audio::GetSoundDuration(sound);
 	}
 
 	DLLExport float SPF_GetSoundVolume()
