@@ -86,6 +86,8 @@ namespace SPFSharp
 
 				public static Vec3 operator *(Vec3 a, Float b) => new Vec3($"({a.Write()} * {b.Write()})");
 				public static Vec3 operator /(Vec3 a, Float b) => new Vec3($"({a.Write()} / {b.Write()})");
+
+				public Vec3 Normalize() => new Vec3($"normalize({Write()})");
 			}
 
             public class Vec4 : IVariable
@@ -165,6 +167,7 @@ namespace SPFSharp
 				public static Float operator +(Float a, Float b) => new Float($"({a.Write()} + {b.Write()})");
 				public static Float operator /(Float a, Float b) => new Float($"({a.Write()} / {b.Write()})");
 				public static Float operator %(Float a, Float b) => new Float($"mod({a.Write()}, {b.Write()})");
+				public static Float operator -(Float a) => new Float($"(-{a.Write()})");
 
 				public Vec2 ToVec2() => new Vec2($"vec2({Write()}, {Write()})");
 			}
@@ -213,9 +216,13 @@ namespace SPFSharp
 
 			public Float Abs(Float v) => new Float($"abs({v.Write()})");
 
+			public Vec3 Abs(Vec3 v) => new Vec3($"abs({v.Write()})");
+
 			public Float Pow(Float v, Float power) => new Float($"pow({v.Write()}, {power.Write()})");
 
 			public Float Saturate(Float value) => new Float($"clamp({value.Write()}, 0.0, 1.0)");
+
+			public Float Posterize(Float value, Float cutout) => new Float($"(({value.Write()} >= {cutout.Write()}) ? 1.0 : 0.0)");
 		}
 
 		public class PixelShaderBuilder : ShaderBuilder
