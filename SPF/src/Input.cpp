@@ -92,6 +92,7 @@ namespace SPF
 			{
 			case MouseButton::Left: return SDL_BUTTON_LEFT;
 			case MouseButton::Right: return SDL_BUTTON_RIGHT;
+			case MouseButton::Middle: return SDL_BUTTON_MIDDLE;
 			default: return SDL_BUTTON_LEFT;
 			}
 		}
