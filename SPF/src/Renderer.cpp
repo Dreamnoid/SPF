@@ -477,7 +477,7 @@ namespace SPF
 			RendererData.CameraNearPlane = minZ;
 			RendererData.CameraFarPlane = maxZ;
 
-			RendererData.ViewProj = glm::orthoLH(minX, maxX, minY, maxY, minZ, maxZ);
+			RendererData.ViewProj = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
 
 			glEnable(GL_DEPTH_TEST);
 			RendererData.FogIntensity = fogIntensity;
