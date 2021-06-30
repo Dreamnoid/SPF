@@ -47,10 +47,13 @@ namespace SPFSharp
 		{
 			private static int Resolve(IResource resource) => (resource != null) ? resource.ID : -1;
 
+			private static Surface _currentSurface = null;
+
 			public static void Begin() => Begin(null);
 
 			public static void Begin(Surface surface, bool clear = false)
 			{
+				_currentSurface = surface;
 				Native.Renderer.SPF_Begin(Resolve(surface), clear);
 			}
 
@@ -216,6 +219,17 @@ namespace SPFSharp
 				PushVertex(a);
 				PushVertex(b);
 				PushVertex(c);
+				SetPrimitiveType(PrimitiveType.Quad);
+			}
+
+			public static void FillSurface()
+			{
+				var width = _currentSurface?.Width ?? GetWindowWidth();
+				var height = _currentSurface?.Height ?? GetWindowHeight();
+				PushVertex(new Vector3(0, 0, 0), new Vector2(0, 1));
+				PushVertex(new Vector3(width, 0, 0), new Vector2(1, 1));
+				PushVertex(new Vector3(width, height, 0), new Vector2(1, 0));
+				PushVertex(new Vector3(0, height, 0), new Vector2(0, 0));
 			}
 
 			public static readonly float[] IdentityMatrix = new float[]
@@ -243,6 +257,7 @@ namespace SPFSharp
 				SetPrimitiveType(PrimitiveType.Line);
 				PushVertex(from, Vector2.Zero, color);
 				PushVertex(to, Vector2.Zero, color);
+				SetPrimitiveType(PrimitiveType.Quad);
 			}
 
 			public static void DrawBillboard(
