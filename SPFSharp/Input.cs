@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SPFSharp
 {
-	public static partial class SPF
+    public static partial class SPF
 	{
 		public enum Key : int
 		{
@@ -102,81 +97,39 @@ namespace SPFSharp
 
             internal static void Update()
             {
-                _mousePositionX = Native.SPF_GetMousePositionX();
-                _mousePositionY = Native.SPF_GetMousePositionY();
+                _mousePositionX = Native.Input.SPF_GetMousePositionX();
+                _mousePositionY = Native.Input.SPF_GetMousePositionY();
             }
 
-            public static bool IsKeyDown(Key key)
-			{
-				return Native.SPF_IsKeyDown((int)key);
-			}
+            public static bool IsKeyDown(Key key) => Native.Input.SPF_IsKeyDown((int)key);
 
-			public static bool IsKeyPressed(Key key)
-			{
-				return Native.SPF_IsKeyPressed((int)key);
-			}
+			public static bool IsKeyPressed(Key key) => Native.Input.SPF_IsKeyPressed((int)key);
 
-			public static bool IsKeyReleased(Key key)
-			{
-				return Native.SPF_IsKeyReleased((int)key);
-			}
+			public static bool IsKeyReleased(Key key) => Native.Input.SPF_IsKeyReleased((int)key);
 
-			public static bool IsButtonDown(Button button)
-			{
-				return Native.SPF_IsButtonDown((int)button);
-			}
+			public static bool IsButtonDown(Button button) => Native.Input.SPF_IsButtonDown((int)button);
 
-			public static bool IsButtonPressed(Button button)
-			{
-				return Native.SPF_IsButtonPressed((int)button);
-			}
+			public static bool IsButtonPressed(Button button) => Native.Input.SPF_IsButtonPressed((int)button);
 
-			public static bool IsButtonReleased(Button button)
-			{
-				return Native.SPF_IsButtonReleased((int)button);
-			}
+			public static bool IsButtonReleased(Button button) => Native.Input.SPF_IsButtonReleased((int)button);
+			
+			public static int GetMousePositionX() => _mousePositionX;
 
-			public static int GetMousePositionX()
-            {
-                return _mousePositionX;
-            }
+			public static int GetMousePositionY() => _mousePositionY;
 
-			public static int GetMousePositionY()
-            {
-                return _mousePositionY;
-            }
+            public static int GetMouseDeltaX() => Native.Input.SPF_GetMouseDeltaX();
 
-            public static int GetMouseDeltaX()
-			{
-				return Native.SPF_GetMouseDeltaX();
-			}
+			public static int GetMouseDeltaY() => Native.Input.SPF_GetMouseDeltaY();
 
-			public static int GetMouseDeltaY()
-			{
-				return Native.SPF_GetMouseDeltaY();
-			}
+			public static bool IsMouseButtonDown(MouseButton button) => Native.Input.SPF_IsMouseButtonDown((int)button);
 
-			public static bool IsMouseButtonDown(MouseButton button)
-			{
-				return Native.SPF_IsMouseButtonDown((int)button);
-			}
+			public static bool IsMouseButtonPressed(MouseButton button) => Native.Input.SPF_IsMouseButtonPressed((int)button);
 
-			public static bool IsMouseButtonPressed(MouseButton button)
-			{
-				return Native.SPF_IsMouseButtonPressed((int)button);
-			}
+			public static bool IsMouseButtonReleased(MouseButton button) => Native.Input.SPF_IsMouseButtonReleased((int)button);
 
-			public static bool IsMouseButtonReleased(MouseButton button)
-			{
-				return Native.SPF_IsMouseButtonReleased((int)button);
-			}
+            public static int GetMouseWheel() => Native.Input.SPF_GetMouseWheel();
 
-            public static int GetMouseWheel() => Native.SPF_GetMouseWheel();
-
-			public static bool IsControllerConnected()
-			{
-				return Native.SPF_IsControllerConnected();
-			}
+			public static bool IsControllerConnected() => Native.Input.SPF_IsControllerConnected();
 
 			public static float Deadzone = 0.05f;
 
@@ -200,36 +153,21 @@ namespace SPFSharp
 				return direction;
 			}
 
-			public static float GetLeftThumbstickX()
-			{
-				return Native.SPF_GetLeftThumbstickX();
-			}
+			public static float GetLeftThumbstickX() => Native.Input.SPF_GetLeftThumbstickX();
 
-			public static float GetLeftThumbstickY()
-			{
-				return Native.SPF_GetLeftThumbstickY();
-			}
+			public static float GetLeftThumbstickY() => Native.Input.SPF_GetLeftThumbstickY();
 
-			public static float GetRightThumbstickX()
-			{
-				return Native.SPF_GetRightThumbstickX();
-			}
+			public static float GetRightThumbstickX() => Native.Input.SPF_GetRightThumbstickX();
 
-			public static float GetRightThumbstickY()
-			{
-				return Native.SPF_GetRightThumbstickY();
-			}
+			public static float GetRightThumbstickY() => Native.Input.SPF_GetRightThumbstickY();
 
-			public static void SetRelativeMouseState(bool state)
-			{
-				Native.SPF_SetRelativeMouseState(state);
-			}
+			public static void SetRelativeMouseState(bool state) => Native.Input.SPF_SetRelativeMouseState(state);
 
-			public static void StartTextInput() => Native.SPF_StartTextInput();
+			public static void StartTextInput() => Native.Input.SPF_StartTextInput();
 
-			public static void StopTextInput() => Native.SPF_StopTextInput();
+			public static void StopTextInput() => Native.Input.SPF_StopTextInput();
 
-			public static string GetTextInput() => Marshal.PtrToStringAnsi(Native.SPF_GetTextInput());
+			public static string GetTextInput() => Marshal.PtrToStringAnsi(Native.Input.SPF_GetTextInput());
 		}
 	}
 }

@@ -44,6 +44,8 @@ namespace SPF
 	struct RGB
 	{
 		float R, G, B;
+
+		static RGB Black;
 	};
 
 	struct RGBA
@@ -64,4 +66,14 @@ namespace SPF
 		RGBA Overlay;
 	};
 
+	struct Matrix
+	{
+		float M[16];
+
+		Matrix();
+
+		Matrix(const float* other);
+
+		static Matrix Identity;
+	};
 }

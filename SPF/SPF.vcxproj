@@ -74,11 +74,13 @@
     <ClInclude Include="include\Meshes.h" />
     <ClInclude Include="include\Physics.h" />
     <ClInclude Include="include\Renderer.h" />
+    <ClInclude Include="include\RenderStates.h" />
     <ClInclude Include="include\Shaders.h" />
     <ClInclude Include="include\SPF.h" />
     <ClInclude Include="include\Surfaces.h" />
     <ClInclude Include="include\Textures.h" />
     <ClInclude Include="include\Window.h" />
+    <ClInclude Include="src\OpenGLHelpers.h" />
     <ClInclude Include="src\Resources.h" />
     <ClInclude Include="src\GL4.h" />
     <ClInclude Include="src\stb_image.h" />

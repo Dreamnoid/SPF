@@ -38,13 +38,22 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="IO.cs" />
-    <Compile Include="Native.cs" />
+    <Compile Include="Native\Audio.cs" />
+    <Compile Include="Native\Images.cs" />
+    <Compile Include="Native\Input.cs" />
+    <Compile Include="Native\Native.cs" />
+    <Compile Include="Native\Physics.cs" />
+    <Compile Include="Native\Renderer.cs" />
+    <Compile Include="Native\Surfaces.cs" />
+    <Compile Include="Native\Textures.cs" />
+    <Compile Include="Native\Window.cs" />
     <Compile Include="Physics.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Renderer.cs" />
     <Compile Include="ShaderBuilder.cs" />
     <Compile Include="SPF.cs" />
+    <Compile Include="Texture.cs" />
     <Compile Include="VirtualFileSystem.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

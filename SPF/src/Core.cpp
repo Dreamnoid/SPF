@@ -1,5 +1,6 @@
 #include <Core.h>
 #include <SDL.h>
+#include <string.h>
 
 namespace SPF
 {
@@ -15,7 +16,34 @@ namespace SPF
 	Vector2 Vector2::Zero = { 0.f, 0.f };
 	RGBA RGBA::White = { 1.f, 1.f, 1.f, 1.f };
 	RGBA RGBA::TransparentBlack = { 0.f, 0.f, 0.f, 0.f };
+	RGB RGB::Black = { 0.f, 0.f, 0.f };
 
+	Matrix::Matrix()
+	{
+		M[0] = 1.f;
+		M[1] = 0.f;
+		M[2] = 0.f;
+		M[3] = 0.f;
+		M[4] = 0.f;
+		M[5] = 1.f;
+		M[6] = 0.f;
+		M[7] = 0.f;
+		M[8] = 0.f;
+		M[9] = 0.f;
+		M[10] = 1.f;
+		M[11] = 0.f;
+		M[12] = 0.f;
+		M[13] = 0.f;
+		M[14] = 0.f;
+		M[15] = 1.f;
+	}
+
+	Matrix::Matrix(const float* other)
+	{
+		memcpy(&M, other, 16 * sizeof(float));
+	}
+
+	Matrix Matrix::Identity = {};
 }
 
 extern "C"

@@ -28,7 +28,7 @@ namespace SPF
 
 			if (depth)
 			{
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, w, h, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, pixels);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, w, h, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, pixels);
 			}
 			else
 			{
@@ -79,6 +79,11 @@ namespace SPF
 		{
 			return Resources.Textures[texture].Height;
 		}
+
+		bool IsFlipped(ResourceIndex texture)
+		{
+			return Resources.Textures[texture].Flipped;
+		}
 	}
 }
 
@@ -107,5 +112,10 @@ extern "C"
 	DLLExport int SPF_GetTextureHeight(int texture)
 	{
 		return SPF::Textures::GetHeight(texture);
+	}
+
+	DLLExport int SPF_IsTextureFlipped(int texture)
+	{
+		return SPF::Textures::IsFlipped(texture);
 	}
 }

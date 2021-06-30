@@ -10,42 +10,12 @@ namespace SPFSharp
 
 		public const Int32 InvalidResource = -1;
 
-		public class Texture : IDisposable
+		public interface IResource : IDisposable
 		{
-			public Int32 ID { get; }
-			public int Width { get; }
-			public int Height { get; }
-
-			internal Texture(Int32 id, int w, int h)
-			{
-				ID = id;
-				Width = w;
-				Height = h;
-			}
-
-			public Texture(byte[] buffer)
-			{
-				using (var cbuffer = new CBuffer(buffer))
-				{
-					ID = Native.SPF_LoadTexture(cbuffer.Pointer, cbuffer.Length);
-				}
-
-				Width = Native.SPF_GetTextureWidth(ID);
-				Height = Native.SPF_GetTextureHeight(ID);
-			}
-
-			public void Dispose()
-			{
-				Native.SPF_DeleteTexture(ID);
-			}
-
-			public void SetFiltering(bool filtering)
-			{
-				Native.SPF_SetTextureFiltering(ID, filtering);
-			}
+			int ID { get; }
 		}
 
-		public class Shader : IDisposable
+		public class Shader : IResource
 		{
 			public Int32 ID { get; }
 
@@ -54,24 +24,21 @@ namespace SPFSharp
 				ID = Native.SPF_CreateShader(shader.ToString());
 			}
 
-			public void Dispose()
-			{
-				Native.SPF_DeleteShader(ID);
-			}
+			public void Dispose() => Native.SPF_DeleteShader(ID);
 		}
 
 		public class Instance : IDisposable
 		{
 			public Instance(string title, int w, int h)
 			{
-				Native.SPF_Open(title, w, h);
-                SPF.RefreshWindowSize();
+				Native.Window.SPF_Open(title, w, h);
+                RefreshWindowSize();
 			}
 
 			public void Dispose()
 			{
 				VirtualFileSystem.CloseAll();
-				Native.SPF_Close();
+				Native.Window.SPF_Close();
 			}
 		}
 
@@ -82,18 +49,15 @@ namespace SPFSharp
 
 		public static bool BeginLoop(out float dt)
         {
-			var doesContinue = Native.SPF_BeginLoop(out dt);
+			var doesContinue = Native.Window.SPF_BeginLoop(out dt);
             Input.Update();
             RefreshWindowSize();
             return doesContinue;
         }
 
-		public static void EndLoop()
-		{
-			Native.SPF_EndLoop();
-		}
+		public static void EndLoop() => Native.Window.SPF_EndLoop();
 
-		public class Surface : IDisposable
+		public class Surface : IResource
 		{
 			public Int32 ID { get; }
 			public Texture Texture { get; }
@@ -104,60 +68,54 @@ namespace SPFSharp
 
 			public Surface(int w, int h, bool depth = false)
 			{
-				ID = Native.SPF_CreateSurface(w, h, depth);
-				Texture = new Texture(Native.SPF_GetSurfaceTexture(ID), w, h);
+				ID = Native.Surfaces.SPF_CreateSurface(w, h, depth);
+				Texture = new Texture(Native.Surfaces.SPF_GetSurfaceTexture(ID), w, h, true);
 				Width = w;
 				Height = h;
 				HasDepth = depth;
 				if (depth)
 				{
-					DepthTexture = new Texture(Native.SPF_GetSurfaceDepthTexture(ID), w, h);
+					DepthTexture = new Texture(Native.Surfaces.SPF_GetSurfaceDepthTexture(ID), w, h, true);
 				}
 			}
 
 			public void Clear()
 			{
-				Native.SPF_ClearSurface(ID);
+				Native.Surfaces.SPF_ClearSurface(ID);
 			}
 
 			public void Dispose()
 			{
-				Native.SPF_DeleteTexture(Native.SPF_GetSurfaceTexture(ID));
-				Native.SPF_DeleteSurface(ID);
+				Native.Textures.SPF_DeleteTexture(Native.Surfaces.SPF_GetSurfaceTexture(ID));
+				Native.Surfaces.SPF_DeleteSurface(ID);
 			}
 		}
 
 		public static void SetFullscreen(bool fullscreen)
 		{
-			Native.SPF_SetFullscreen(fullscreen);
+			Native.Window.SPF_SetFullscreen(fullscreen);
             RefreshWindowSize();
 		}
 
-		public static int GetWindowWidth()
-        {
-            return _windowWidth;
-        }
+		public static int GetWindowWidth() => _windowWidth;
 
-		public static int GetWindowHeight()
-        {
-            return _windowHeight;
-        }
+		public static int GetWindowHeight() => _windowHeight;
 
-		public static bool HasFocus() => Native.SPF_HasFocus();
+		public static bool HasFocus() => Native.Window.SPF_HasFocus();
 
 		public static void SetWindowSize(int w, int h)
 		{
-			Native.SPF_SetWindowSize(w, h);
+			Native.Window.SPF_SetWindowSize(w, h);
             RefreshWindowSize();
 		}
 
         private static void RefreshWindowSize()
         {
-            _windowWidth = Native.SPF_GetWindowWidth();
-            _windowHeight = Native.SPF_GetWindowHeight();
+            _windowWidth = Native.Window.SPF_GetWindowWidth();
+            _windowHeight = Native.Window.SPF_GetWindowHeight();
         }
 
-		public static void SetWindowTitle(string title) => Native.SPF_SetWindowTitle(title);
+		public static void SetWindowTitle(string title) => Native.Window.SPF_SetWindowTitle(title);
 
 		public class Image : IDisposable
 		{
@@ -169,10 +127,10 @@ namespace SPFSharp
 			{
 				using (var cbuffer = new CBuffer(buffer))
 				{
-					ID = Native.SPF_LoadImage(cbuffer.Pointer, cbuffer.Length);
+					ID = Native.Images.SPF_LoadImage(cbuffer.Pointer, cbuffer.Length);
 				}
-				Width = Native.SPF_GetImageWidth(ID);
-				Height = Native.SPF_GetImageHeight(ID);
+				Width = Native.Images.SPF_GetImageWidth(ID);
+				Height = Native.Images.SPF_GetImageHeight(ID);
 			}
 
 			public struct RGBA
@@ -183,7 +141,7 @@ namespace SPFSharp
 			{
 				if (x < 0 || y < 0 || x >= Width || y >= Height) return new RGBA();
 
-				UInt32 pixel = Native.SPF_GetImagePixel(ID, x, y);
+				UInt32 pixel = Native.Images.SPF_GetImagePixel(ID, x, y);
 				byte r = (byte)((pixel & 0xFF000000) >> 24);
 				byte g = (byte)((pixel & 0x00FF0000) >> 16);
 				byte b = (byte)((pixel & 0x0000FF00) >> 8);
@@ -191,10 +149,7 @@ namespace SPFSharp
 				return new RGBA() { R = r, G = g, B = b, A = a };
 			}
 
-			public void Dispose()
-			{
-				Native.SPF_DeleteImage(ID);
-			}
+			public void Dispose() => Native.Images.SPF_DeleteImage(ID);
 		}
 
 		[StructLayout(LayoutKind.Sequential)]

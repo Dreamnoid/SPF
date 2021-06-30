@@ -33,6 +33,7 @@ namespace SPF
 			//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 			SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+			SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
 			WindowData.Window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL);
 			WindowData.OpenGLContext = SDL_GL_CreateContext(WindowData.Window);
@@ -74,8 +75,7 @@ namespace SPF
 				Input::HandleEvent(&evt);
 			}
 
-			Surfaces::Clear(Renderer::GetFinalSurface());
-			Renderer::Begin(Renderer::GetFinalSurface());
+			Renderer::Begin(Renderer::GetFinalSurface(), true);
 			return true;
 		}
 

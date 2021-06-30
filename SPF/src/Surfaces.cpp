@@ -24,7 +24,7 @@ namespace SPF
 			if (depth)
 			{
 				depthTexture = Textures::Create(w, h, nullptr, true, true);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, Resources.Textures[depthTexture].GLID, 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, Resources.Textures[depthTexture].GLID, 0);
 			}
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -50,7 +50,7 @@ namespace SPF
 			glBindFramebuffer(GL_FRAMEBUFFER, Resources.Surfaces[surface].GLID);
 			if (Resources.Surfaces[surface].HasDepth)
 			{
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 			}
 			else
 			{

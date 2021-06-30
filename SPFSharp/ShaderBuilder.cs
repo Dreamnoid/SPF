@@ -32,6 +32,11 @@ namespace SPFSharp
 					Name = $"vec2({x.Write()},{y.Write()})";
 				}
 
+				public Vec2(Float f)
+				{
+					Name = $"vec2({f.Write()},{f.Write()})";
+				}
+
 				public string Write() => Name;
 
 				public Float X => new Float($"{Write()}.x");
@@ -88,6 +93,8 @@ namespace SPFSharp
 				public static Vec3 operator /(Vec3 a, Float b) => new Vec3($"({a.Write()} / {b.Write()})");
 
 				public Vec3 Normalize() => new Vec3($"normalize({Write()})");
+
+				public Float Length() => new Float($"length({Write()})");
 			}
 
             public class Vec4 : IVariable
@@ -117,6 +124,7 @@ namespace SPFSharp
 				public Float X => new Float($"{Write()}.x");
 				public Float Y => new Float($"{Write()}.y");
 				public Float Z => new Float($"{Write()}.z");
+				public Float W => new Float($"{Write()}.w");
 
 				public Vec2 XY => new Vec2($"{Write()}.xy");
 
@@ -138,7 +146,40 @@ namespace SPFSharp
 				public static Vec4 operator /(Vec4 a, Float b) => new Vec4($"({a.Write()} / {b.Write()})");
 			}
 
-            public class Float : IVariable
+			public class Mat4 : IVariable
+			{
+				public string Name { get; }
+
+				public string Type => "mat4";
+
+				public Mat4(string name)
+				{
+					Name = name;
+				}
+
+				public Mat4(Vec4 a, Vec4 b, Vec4 c, Vec4 d)
+				{
+					Name = $"mat4({a.Write()},{b.Write()},{c.Write()},{d.Write()})";
+				}
+
+
+				public string Write() => Name;
+
+				public static Vec4 operator *(Mat4 a, Vec4 b) => new Vec4($"({a.Write()} * {b.Write()})");
+
+				public static Mat4 operator *(Mat4 a, Mat4 b) => new Mat4($"({a.Write()} * {b.Write()})");
+
+				public Mat4 Inverse() => new Mat4($"inverse({Write()})");
+
+				public Vec3 ExtractPosition(Vec2 texCoords, Float depth)
+				{
+					Vec4 clipSpaceLocation = new Vec4(texCoords.X * 2f - 1f, texCoords.Y * 2f - 1f, depth * 2f - 1f, 1f);
+					Vec4 homogenousLocation = Inverse() * clipSpaceLocation;
+					return homogenousLocation.XYZ / homogenousLocation.W;
+				}
+			}
+
+			public class Float : IVariable
             {
                 public string Name { get; }
 
@@ -159,6 +200,9 @@ namespace SPFSharp
 				// https://stackoverflow.com/questions/7777913/how-to-render-depth-linearly-in-modern-opengl-with-gl-fragcoord-z-in-fragment-sh
 				public Float LinearizeDepth()
 					=> new Float($"((-2 * FarPlane * NearPlane / (FarPlane - NearPlane)) / ((-(FarPlane + NearPlane) / (FarPlane - NearPlane)) + (2.0 * ({Write()}) - 1.0)))");
+
+				public Float LinearizeDepth(Float nearPlane, Float farPlane)
+					=> new Float($"((-2 * {farPlane.Write()} * {nearPlane.Write()} / ({farPlane.Write()} - {nearPlane.Write()})) / ((-({farPlane.Write()} + {nearPlane.Write()}) / ({farPlane.Write()} - {nearPlane.Write()})) + (2.0 * ({Write()}) - 1.0)))");
 
 				public static implicit operator Float(float value) => new Float(value);
 
@@ -206,6 +250,7 @@ namespace SPFSharp
 			public Vec2 Declare(string name, Vec2 value) => Declare(new Vec2(name), value);
 			public Vec3 Declare(string name, Vec3 value) => Declare(new Vec3(name), value);
 			public Vec4 Declare(string name, Vec4 value) => Declare(new Vec4(name), value);
+			public Mat4 Declare(string name, Mat4 value) => Declare(new Mat4(name), value);
 
 			public Float Lerp(Float a, Float b, Float t) => new Float($"mix({a.Write()}, {b.Write()}, {t.Write()})");
 			public Vec2 Lerp(Vec2 a, Vec2 b, Float t) => new Vec2($"mix({a.Write()}, {b.Write()}, {t.Write()})");
@@ -214,15 +259,56 @@ namespace SPFSharp
 
 			public Float Dot(Vec3 a, Vec3 b) => new Float($"dot({a.Write()}, {b.Write()})");
 
+			public Vec3 Cross(Vec3 a, Vec3 b) => new Vec3($"cross({a.Write()}, {b.Write()})");
+
 			public Float Abs(Float v) => new Float($"abs({v.Write()})");
 
 			public Vec3 Abs(Vec3 v) => new Vec3($"abs({v.Write()})");
+
+			public Float Min(Float a, Float b) => new Float($"min({a.Write()}, {b.Write()})");
+			public Float Max(Float a, Float b) => new Float($"max({a.Write()}, {b.Write()})");
 
 			public Float Pow(Float v, Float power) => new Float($"pow({v.Write()}, {power.Write()})");
 
 			public Float Saturate(Float value) => new Float($"clamp({value.Write()}, 0.0, 1.0)");
 
 			public Float Posterize(Float value, Float cutout) => new Float($"(({value.Write()} >= {cutout.Write()}) ? 1.0 : 0.0)");
+
+			public Float GreaterThan(Float a, Float b) => new Float($"(({a.Write()} > {b.Write()}) ? 1.0 : 0.0)");
+
+			public Mat4 OrthographicProjection(Float left, Float right, Float bottom, Float top, Float near, Float far)
+			{
+				var m11 = 2f / (right - left);
+				var m22 = 2f / (top - bottom);
+				var m33 = 1f / (near - far);
+				var m41 = (left + right) / (left - right);
+				var m42 = (top + bottom) / (bottom - top);
+				var m43 = near / (near - far);
+				var m44 = 1f;
+
+				return new Mat4(
+					new Vec4(m11, 0, 0, 0),
+					new Vec4(0, m22, 0, 0),
+					new Vec4(0, 0, m33, 0),
+					new Vec4(m41, m42, m43, m44));
+			}
+
+			public Mat4 LookAt(Vec3 cameraPosition, Vec3 cameraTarget, Vec3 cameraUp)
+			{
+				var vector = (cameraPosition - cameraTarget).Normalize();
+				var vector2 = Cross(cameraUp, vector).Normalize();
+				var vector3 = Cross(vector, vector2);
+
+				var m41 = -Dot(vector2, cameraPosition);
+				var m42 = -Dot(vector3, cameraPosition);
+				var m43 = -Dot(vector, cameraPosition);
+
+				return new Mat4(
+					new Vec4(vector2.X, vector3.X, vector.X, 0),
+					new Vec4(vector2.Y, vector3.Y, vector.Y, 0),
+					new Vec4(vector2.Z, vector3.Z, vector.Z, 0),
+					new Vec4(m41, m42, m43, 1));
+			}
 		}
 
 		public class PixelShaderBuilder : ShaderBuilder
@@ -233,11 +319,15 @@ namespace SPFSharp
 			public readonly Vec4 Overlay = new Vec4("share_Overlay");
 			public readonly Vec3 Position = new Vec3("share_Position");
             public readonly Vec3 Normal = new Vec3("share_Normal");
+			public readonly Mat4 WorldViewProjection = new Mat4("MVP");
+			public readonly Vec3 CameraUp = new Vec3("CameraUp");
+			public readonly Vec3 CameraSide = new Vec3("CameraSide");
 			public readonly Float FogIntensity = new Float("FogIntensity");
 			public readonly Vec3 FogColor = new Vec3("FogColor");
 			public readonly Vec4 GlobalOverlay = new Vec4("Overlay");
 			public readonly Float Animation = new Float("Animation");
 			public readonly Vec4 UserData = new Vec4("UserData");
+			public readonly Mat4 UserMatrix = new Mat4("UserMatrix");
 			public readonly Vec4 OutputColor = new Vec4("out_Color");
 			public readonly Sampler2D Texture = new Sampler2D("Texture");
 			public readonly Sampler2D Texture1 = new Sampler2D("Texture1");
@@ -264,11 +354,15 @@ namespace SPFSharp
 				sb.AppendLine($"uniform sampler2D {Texture.Name};");
 				sb.AppendLine($"uniform sampler2D {Texture1.Name};");
 				sb.AppendLine($"uniform sampler2D {Texture2.Name};");
+				sb.AppendLine($"uniform mat4 {WorldViewProjection.Name};");
+				sb.AppendLine($"uniform vec3 {CameraUp.Name};");
+				sb.AppendLine($"uniform vec3 {CameraSide.Name};");
 				sb.AppendLine($"uniform float {FogIntensity.Name};");
 				sb.AppendLine($"uniform vec3 {FogColor.Name};");
 				sb.AppendLine($"uniform vec4 {GlobalOverlay.Name};");
 				sb.AppendLine($"uniform float {Animation.Name};");
 				sb.AppendLine($"uniform vec4 {UserData.Name};");
+				sb.AppendLine($"uniform mat4 {UserMatrix.Name};");
 				sb.AppendLine($"uniform float {NearPlane.Name};");
 				sb.AppendLine($"uniform float {FarPlane.Name};");
 				sb.AppendLine($"in float {Distance.Name};");
