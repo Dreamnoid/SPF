@@ -119,8 +119,12 @@ namespace SPF
 
 		void SetFog(const RenderState::Fog& fog)
 		{
-			IssueVertices();
-			RendererData.CurrentState.Fog = fog;
+			const RenderState::Fog& current = RendererData.CurrentState.Fog;
+			if (fog.Intensity != current.Intensity || fog.Color.R != current.Color.R || fog.Color.G != current.Color.G || fog.Color.B != current.Color.B)
+			{
+				IssueVertices();
+				RendererData.CurrentState.Fog = fog;
+			}
 		}
 
 		void SetUserData(const RenderState::UserData& userData)
@@ -131,11 +135,11 @@ namespace SPF
 
 		void SetRasterization(const RenderState::Rasterization& rasterization)
 		{
-			IssueVertices();
 			const RenderState::Rasterization& current = RendererData.CurrentState.Rasterization;
 
 			if (rasterization.Blending != current.Blending)
 			{
+				IssueVertices();
 				if (rasterization.Blending == BlendMode::Alpha)
 				{
 					glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -148,6 +152,7 @@ namespace SPF
 
 			if (rasterization.BackfaceCulling != current.BackfaceCulling)
 			{
+				IssueVertices();
 				glCullFace(GL_BACK);
 				SetOpenGLCapability(GL_CULL_FACE, (rasterization.BackfaceCulling != BackfaceCulling::Disabled));
 				if (rasterization.BackfaceCulling == BackfaceCulling::CW)
@@ -162,11 +167,13 @@ namespace SPF
 
 			if (rasterization.Wireframe != current.Wireframe)
 			{
+				IssueVertices();
 				glPolygonMode(GL_FRONT_AND_BACK, rasterization.Wireframe ? GL_LINE : GL_FILL);
 			}
 
 			if (rasterization.LineWidth != current.LineWidth)
 			{
+				IssueVertices();
 				glLineWidth(rasterization.LineWidth);
 			}
 
@@ -175,22 +182,24 @@ namespace SPF
 
 		void SetBuffers(const RenderState::Buffers& buffers)
 		{
-			IssueVertices();
 			const RenderState::Buffers& current = RendererData.CurrentState.Buffers;
 
 			if (buffers.ColorWrite != current.ColorWrite)
 			{
+				IssueVertices();
 				GLboolean colorWriting = buffers.ColorWrite ? GL_TRUE : GL_FALSE;
 				glColorMask(colorWriting, colorWriting, colorWriting, colorWriting);
 			}
 
 			if (buffers.DepthWrite != current.DepthWrite)
 			{
+				IssueVertices();
 				glDepthMask(buffers.DepthWrite ? GL_TRUE : GL_FALSE);
 			}
 
 			if (buffers.DepthTest != current.DepthTest)
 			{
+				IssueVertices();
 				SetOpenGLCapability(GL_DEPTH_TEST, (buffers.DepthTest != Comparison::Always));
 				glDepthFunc(TranslateComparison(buffers.DepthTest));
 			}
@@ -200,11 +209,11 @@ namespace SPF
 
 		void SetStencil(const RenderState::Stencil& stencil)
 		{
-			IssueVertices();
 			const RenderState::Stencil& current = RendererData.CurrentState.Stencil;
 
 			if (stencil.Write != current.Write || stencil.Test != current.Test)
 			{
+				IssueVertices();
 				if (!stencil.Write && (stencil.Test == Comparison::Always))
 				{
 					glStencilMask(0xFF);
@@ -217,11 +226,13 @@ namespace SPF
 
 			if (stencil.Test != current.Test || stencil.Reference != current.Reference)
 			{
+				IssueVertices();
 				glStencilFunc(TranslateComparison(stencil.Test), stencil.Reference, 0xFF);
 			}
 
 			if (stencil.StencilFail != current.StencilFail || stencil.DepthFail != current.DepthFail || stencil.DepthPass != current.DepthPass)
 			{
+				IssueVertices();
 				glStencilOp(
 					TranslateStencilAction(stencil.StencilFail),
 					TranslateStencilAction(stencil.DepthFail),
