@@ -36,6 +36,13 @@ namespace SPFSharp
 			Increase,
 		}
 
+		public enum PrimitiveType : int
+		{
+			Quad,
+			Triangle,
+			Line
+		}
+
 		public static class Renderer
 		{
 			private static int Resolve(IResource resource) => (resource != null) ? resource.ID : -1;
@@ -204,6 +211,7 @@ namespace SPFSharp
 
 			public static void DrawTexturedTriangle(Texture tex, in Vertex a, in Vertex b, in Vertex c)
 			{
+				SetPrimitiveType(PrimitiveType.Triangle);
 				SetMaterial(null, tex);
 				PushVertex(a);
 				PushVertex(b);
@@ -229,7 +237,13 @@ namespace SPFSharp
 			public static void DrawMesh(Mesh mesh, float[] world, in Vector4 overlay) => DrawMesh(mesh, 0, mesh.VerticesCount, world, overlay);
 
 			public static void DrawLine(in Vector3 from, in Vector3 to, in Vector4 color, float width = 1f)
-				=> Native.Renderer.SPF_DrawLine(from.X, from.Y, from.Z, to.X, to.Y, to.Z, color.X, color.Y, color.Z, color.W, width);
+			{
+				SetMaterial(null);
+				SetRasterization(lineWidth: width);
+				SetPrimitiveType(PrimitiveType.Line);
+				PushVertex(from, Vector2.Zero, color);
+				PushVertex(to, Vector2.Zero, color);
+			}
 
 			public static void DrawBillboard(
 				Texture tex,
@@ -274,10 +288,10 @@ namespace SPFSharp
 				=> Native.Renderer.SPF_SetMaterial(Resolve(shader), Resolve(texture1), Resolve(texture2), Resolve(texture3));
 
 			public static void SetRasterization(
-				BlendMode blendMode = BlendMode.Alpha, 
-				Culling backfaceCulling = Culling.Disabled, 
-				bool wireframeEnabled = false)
-				=> Native.Renderer.SPF_SetRasterization((int)blendMode, wireframeEnabled, (int)backfaceCulling);
+				BlendMode blendMode = BlendMode.Alpha,
+				Culling backfaceCulling = Culling.Disabled,
+				bool wireframeEnabled = false, float lineWidth = 1f)
+				=> Native.Renderer.SPF_SetRasterization((int)blendMode, wireframeEnabled, (int)backfaceCulling, lineWidth);
 
 			public static void SetFog(float intensity, in Vector3 color)
 				=> Native.Renderer.SPF_SetFog(intensity, color.X, color.Y, color.Z);
@@ -301,6 +315,9 @@ namespace SPFSharp
 
 			public static Texture GetDefaultDepthTexture()
 				=> new Texture(Native.Surfaces.SPF_GetSurfaceDepthTexture(Native.Renderer.SPF_GetFinalSurface()), GetWindowWidth(), GetWindowHeight(), true);
+
+			public static void SetPrimitiveType(PrimitiveType type)
+				=> Native.Renderer.SPF_SetPrimitiveType((int)type);
 
 			public static void PushVertex(in Vertex v)
 				=> Native.Renderer.SPF_PushVertex(

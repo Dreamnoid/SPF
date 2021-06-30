@@ -78,6 +78,7 @@ namespace SPF
 			BlendMode Blending;
 			bool Wireframe;
 			BackfaceCulling BackfaceCulling;
+			float LineWidth = 1.f;
 		};
 
 		struct Buffers

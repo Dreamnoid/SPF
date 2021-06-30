@@ -25,6 +25,7 @@ namespace SPF
 		Vertex Vertices[MaxVerticesCount];
 		HardwareID BatchVBOID;
 		int CurrentVertexCount = 0;
+		PrimitiveType CurrentPrimitiveType = PrimitiveType::Quad;
 
 		HardwareID EmptyTexture;
 		HardwareID VertexShader;
@@ -164,6 +165,11 @@ namespace SPF
 				glPolygonMode(GL_FRONT_AND_BACK, rasterization.Wireframe ? GL_LINE : GL_FILL);
 			}
 
+			if (rasterization.LineWidth != current.LineWidth)
+			{
+				glLineWidth(rasterization.LineWidth);
+			}
+
 			RendererData.CurrentState.Rasterization = rasterization;
 		}
 
@@ -275,24 +281,6 @@ namespace SPF
 			RendererData.CurrentState.ModelData = { Matrix::Identity, RGBA::TransparentBlack };
 		}
 
-		void DrawLine(const Vector3& from, const Vector3& to, const RGBA& color, float width)
-		{
-			IssueVertices();
-
-			SetMaterial({ InvalidResource, InvalidResource, InvalidResource, InvalidResource });
-			PushVertex({ from, Vector3::Zero, Vector2::Zero, Vector2::Zero, color, RGBA::TransparentBlack });
-			PushVertex({ to, Vector3::Zero, Vector2::Zero, Vector2::Zero, color, RGBA::TransparentBlack });
-
-			glBindBuffer(GL_ARRAY_BUFFER, RendererData.BatchVBOID);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, MaxVerticesCount * sizeof(Vertex), &RendererData.Vertices);
-
-			glLineWidth(width);
-			SendDrawCall(GL_LINES, 0, RendererData.CurrentVertexCount);
-			glLineWidth(1.0f);
-
-			RendererData.CurrentVertexCount = 0;
-		}
-
 		void IssueVertices()
 		{
 			if (RendererData.CurrentVertexCount == 0) return;
@@ -300,7 +288,17 @@ namespace SPF
 			glBindBuffer(GL_ARRAY_BUFFER, RendererData.BatchVBOID);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, RendererData.CurrentVertexCount * sizeof(Vertex), &RendererData.Vertices);
 
-			SendDrawCall(GL_QUADS, 0, RendererData.CurrentVertexCount);
+			GLenum primitiveType = GL_QUADS;
+			if (RendererData.CurrentPrimitiveType == PrimitiveType::Triangle)
+			{
+				primitiveType = GL_TRIANGLES;
+			}
+			else if (RendererData.CurrentPrimitiveType == PrimitiveType::Line)
+			{
+				primitiveType = GL_LINES;
+			}
+
+			SendDrawCall(primitiveType, 0, RendererData.CurrentVertexCount);
 			RendererData.CurrentVertexCount = 0;
 		}
 
@@ -393,9 +391,23 @@ namespace SPF
 			IssueVertices();
 		}
 
+		void SetPrimitiveType(PrimitiveType type)
+		{
+			if (RendererData.CurrentPrimitiveType != type)
+			{
+				IssueVertices();
+				RendererData.CurrentPrimitiveType = type;
+			}
+		}
+
 		void PushVertex(const Vertex& v)
 		{
-			if (RendererData.CurrentVertexCount == MaxVerticesCount)
+			int maxVerticesCount = MaxVerticesCount;
+			if (RendererData.CurrentPrimitiveType == PrimitiveType::Triangle)
+			{
+				maxVerticesCount--; // Make it a multiple of 3
+			}
+			if (RendererData.CurrentVertexCount == maxVerticesCount)
 			{
 				IssueVertices();
 			}
@@ -446,9 +458,9 @@ extern "C"
 		SPF::Renderer::SetUserData({ animation, {x,y,z,w}, userMatrix });
 	}
 
-	DLLExport void SPF_SetRasterization(int blending, int wireframe, int backfaceCulling)
+	DLLExport void SPF_SetRasterization(int blending, int wireframe, int backfaceCulling, float lineWidth)
 	{
-		SPF::Renderer::SetRasterization({ (SPF::BlendMode)blending, (bool)wireframe, (SPF::BackfaceCulling)backfaceCulling });
+		SPF::Renderer::SetRasterization({ (SPF::BlendMode)blending, (bool)wireframe, (SPF::BackfaceCulling)backfaceCulling, lineWidth });
 	}
 
 	DLLExport void SPF_SetBuffers(int colorWrite, int depthWrite, int depthTest)
@@ -473,13 +485,9 @@ extern "C"
 		SPF::Renderer::DrawMesh(mesh, first, count, { world, { overlayR, overlayG, overlayB, overlayA } });
 	}
 
-	DLLExport void SPF_DrawLine(
-		float fromX, float fromY, float fromZ,
-		float toX, float toY, float toZ,
-		float r, float g, float b, float a,
-		float width)
+	DLLExport void SPF_SetPrimitiveType(int primitiveType)
 	{
-		SPF::Renderer::DrawLine({ fromX, fromY, fromZ }, { toX, toY, toZ }, { r, g, b, a }, width);
+		SPF::Renderer::SetPrimitiveType((SPF::PrimitiveType)primitiveType);
 	}
 
 	DLLExport void SPF_PushVertex(

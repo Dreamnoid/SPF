@@ -4,6 +4,13 @@
 
 namespace SPF
 {
+	enum class PrimitiveType
+	{
+		Quad,
+		Triangle,
+		Line
+	};
+
 	namespace Renderer
 	{
 		DLLExport void Begin(ResourceIndex surface, bool clear);
@@ -21,6 +28,8 @@ namespace SPF
 		DLLExport void SetBuffers(const RenderState::Buffers& buffers);
 
 		DLLExport void SetStencil(const RenderState::Stencil& stencil);
+
+		DLLExport void SetPrimitiveType(PrimitiveType type);
 
 		DLLExport void PushVertex(const Vertex& v);
 
