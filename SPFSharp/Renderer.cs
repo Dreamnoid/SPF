@@ -226,10 +226,11 @@ namespace SPFSharp
 			{
 				var width = _currentSurface?.Width ?? GetWindowWidth();
 				var height = _currentSurface?.Height ?? GetWindowHeight();
-				PushVertex(new Vector3(0, 0, 0), new Vector2(0, 1));
-				PushVertex(new Vector3(width, 0, 0), new Vector2(1, 1));
-				PushVertex(new Vector3(width, height, 0), new Vector2(1, 0));
+
 				PushVertex(new Vector3(0, height, 0), new Vector2(0, 0));
+				PushVertex(new Vector3(width, height, 0), new Vector2(1, 0));
+				PushVertex(new Vector3(width, 0, 0), new Vector2(1, 1));
+				PushVertex(new Vector3(0, 0, 0), new Vector2(0, 1));
 			}
 
 			public static readonly float[] IdentityMatrix = new float[]
