@@ -59,7 +59,6 @@ namespace SPF
 				"uniform vec3 CameraUp;\n"
 				"uniform vec3 CameraSide;\n"
 				"uniform float FarPlane;\n"
-				"out float share_Distance;\n"
 				"out vec2 share_UV;\n"
 				"out vec4 share_Color;\n"
 				"out vec4 share_Overlay;\n"
@@ -70,7 +69,6 @@ namespace SPF
 				"	vec3 actualPosition = in_Position + (in_UV.z * CameraSide) + (in_UV.w * CameraUp);\n"
 				"	gl_Position = MVP * vec4(actualPosition,1.0);\n"
 				"	share_Normal = in_Normal;\n" // TODO: multiply by M only
-				"	share_Distance = min(gl_Position.z / FarPlane,1);\n"
 				"   share_UV = in_UV.xy;\n"
 				"	share_Color = in_Color;\n"
 				"	share_Overlay = in_Overlay;\n"

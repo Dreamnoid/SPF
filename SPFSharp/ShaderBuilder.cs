@@ -313,7 +313,6 @@ namespace SPFSharp
 
 		public class PixelShaderBuilder : ShaderBuilder
 		{
-			public readonly Float Distance = new Float("share_Distance");
 			public readonly Vec2 UV = new Vec2("share_UV");
 			public readonly Vec4 Color = new Vec4("share_Color");
 			public readonly Vec4 Overlay = new Vec4("share_Overlay");
@@ -365,7 +364,6 @@ namespace SPFSharp
 				sb.AppendLine($"uniform mat4 {UserMatrix.Name};");
 				sb.AppendLine($"uniform float {NearPlane.Name};");
 				sb.AppendLine($"uniform float {FarPlane.Name};");
-				sb.AppendLine($"in float {Distance.Name};");
 				sb.AppendLine($"in vec2 {UV.Name};");
 				sb.AppendLine($"in vec4 {Color.Name};");
 				sb.AppendLine($"in vec4 {Overlay.Name};");

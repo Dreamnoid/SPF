@@ -353,7 +353,6 @@ namespace SPF
 				"uniform mat4 UserMatrix;\n"
 				"uniform float NearPlane;\n"
 				"uniform float FarPlane;\n"
-				"in float share_Distance;\n"
 				"in vec2 share_UV;\n"
 				"in vec4 share_Color;\n"
 				"in vec4 share_Overlay;\n"
@@ -365,7 +364,8 @@ namespace SPF
 				"	vec4 texColor = texture2D(Texture, share_UV) * share_Color;\n"
 				"	if (texColor.a <= 0) discard;\n"
 				"	out_Color = mix(texColor, vec4(share_Overlay.xyz, texColor.a), share_Overlay.a);\n"
-				"	out_Color = mix(out_Color, vec4(FogColor,texColor.a), FogIntensity * share_Distance);\n"
+				"	float dist = smoothstep(NearPlane, FarPlane, gl_FragCoord.z / gl_FragCoord.w);\n"
+				"	out_Color = mix(out_Color, vec4(FogColor,texColor.a), FogIntensity * dist);\n"
 				"	out_Color = mix(out_Color, vec4(Overlay.xyz, 1.0), Overlay.a);\n"
 				"}\n");
 
