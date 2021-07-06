@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Numerics;
 using System.Text;
 
 namespace SPFSharp
@@ -72,6 +73,11 @@ namespace SPFSharp
 				public Vec3(Float f)
 				{
 					Name = $"vec3({f.Write()},{f.Write()},{f.Write()})";
+				}
+
+				public Vec3(Float x, Float y, Float z)
+				{
+					Name = $"vec3({x.Write()},{y.Write()},{z.Write()})";
 				}
 
 				public string Write() => Name;
@@ -199,10 +205,15 @@ namespace SPFSharp
 
 				// https://stackoverflow.com/questions/7777913/how-to-render-depth-linearly-in-modern-opengl-with-gl-fragcoord-z-in-fragment-sh
 				public Float LinearizeDepth()
-					=> new Float($"((-2 * FarPlane * NearPlane / (FarPlane - NearPlane)) / ((-(FarPlane + NearPlane) / (FarPlane - NearPlane)) + (2.0 * ({Write()}) - 1.0)))");
+					=> LinearizeDepth(new Float("NearPlane"), new Float("FarPlane"), false);
 
-				public Float LinearizeDepth(Float nearPlane, Float farPlane)
-					=> new Float($"((-2 * {farPlane.Write()} * {nearPlane.Write()} / ({farPlane.Write()} - {nearPlane.Write()})) / ((-({farPlane.Write()} + {nearPlane.Write()}) / ({farPlane.Write()} - {nearPlane.Write()})) + (2.0 * ({Write()}) - 1.0)))");
+				public Float LinearizeDepth(Float nearPlane, Float farPlane, bool normalize)
+				{
+					var ndc_depth = this * 2f - 1f;
+					var depth = 2f * nearPlane * farPlane / (farPlane + nearPlane - ndc_depth * (farPlane - nearPlane));
+					return normalize ? ((depth - nearPlane) / (farPlane - nearPlane)) : depth;
+				}
+
 
 				public static implicit operator Float(float value) => new Float(value);
 
@@ -276,6 +287,8 @@ namespace SPFSharp
 
 			public Float GreaterThan(Float a, Float b) => new Float($"(({a.Write()} > {b.Write()}) ? 1.0 : 0.0)");
 
+			public Float LesserThan(Float a, Float b) => new Float($"(({a.Write()} < {b.Write()}) ? 1.0 : 0.0)");
+
 			public Mat4 OrthographicProjection(Float left, Float right, Float bottom, Float top, Float near, Float far)
 			{
 				var m11 = 2f / (right - left);
@@ -335,6 +348,7 @@ namespace SPFSharp
 			public readonly Vec2 PixelCoordinates = new Vec2("gl_FragCoord.xy");
 			public readonly Float NearPlane = new Float("NearPlane");
 			public readonly Float FarPlane = new Float("FarPlane");
+			public readonly Float Distance = new Float("(smoothstep(NearPlane, FarPlane, gl_FragCoord.z / gl_FragCoord.w))");
 
 			public void AlphaTest(Vec4 color)
 			{
@@ -345,6 +359,39 @@ namespace SPFSharp
 			{
 				_shaderBuilder.AppendLine($"if ({a.Write()} <= {b.Write()}) discard;");
 			}
+
+			public Vec3 ApplyKernel(Vec3 color, float offset, float[] kernel)
+			{
+				var offsets = new Vector2[]
+				{
+					new Vector2(-offset, offset), // top-left
+					new Vector2(0.0f, offset), // top-center
+					new Vector2(offset, offset), // top-right
+					new Vector2(-offset, 0.0f),   // center-left
+					new Vector2(0.0f, 0.0f),   // center-center
+					new Vector2(offset, 0.0f),   // center-right
+					new Vector2(-offset, -offset), // bottom-left
+					new Vector2(0.0f, -offset), // bottom-center
+					new Vector2(offset, -offset)  // bottom-right    
+				};
+
+				for (int i = 0; i < kernel.Length; ++i)
+				{
+					Set(color, color + Texture.Sample(UV + new Vec2(offsets[i].X, offsets[i].Y)).XYZ * kernel[i]);
+				}
+
+				return color;
+			}
+
+			private static readonly float[] _blurKernel = new float[]
+			{
+				1.0f / 16f, 2.0f / 16f, 1.0f / 16f,
+				2.0f / 16f, 4.0f / 16f, 2.0f / 16f,
+				1.0f / 16f, 2.0f / 16f, 1.0f / 16f
+			};
+
+			public Vec3 Blur(Vec3 color, float offset) => ApplyKernel(color, offset, _blurKernel);
+
 
 			public override string ToString()
 			{

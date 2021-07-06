@@ -222,15 +222,17 @@ namespace SPFSharp
 				SetPrimitiveType(PrimitiveType.Quad);
 			}
 
-			public static void FillSurface()
+			public static void FillSurface() => FillSurface(Vector4.Zero);
+
+			public static void FillSurface(in Vector4 color)
 			{
 				var width = _currentSurface?.Width ?? GetWindowWidth();
 				var height = _currentSurface?.Height ?? GetWindowHeight();
 
-				PushVertex(new Vector3(0, height, 0), new Vector2(0, 0));
-				PushVertex(new Vector3(width, height, 0), new Vector2(1, 0));
-				PushVertex(new Vector3(width, 0, 0), new Vector2(1, 1));
-				PushVertex(new Vector3(0, 0, 0), new Vector2(0, 1));
+				PushVertex(new Vector3(0, height, 0), new Vector2(0, 0), color);
+				PushVertex(new Vector3(width, height, 0), new Vector2(1, 0), color);
+				PushVertex(new Vector3(width, 0, 0), new Vector2(1, 1), color);
+				PushVertex(new Vector3(0, 0, 0), new Vector2(0, 1), color);
 			}
 
 			public static readonly float[] IdentityMatrix = new float[]
