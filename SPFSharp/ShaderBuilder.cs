@@ -287,7 +287,11 @@ namespace SPFSharp
 
 			public Float GreaterThan(Float a, Float b) => new Float($"(({a.Write()} > {b.Write()}) ? 1.0 : 0.0)");
 
+			public Float GreaterThanEqual(Float a, Float b) => new Float($"(({a.Write()} >= {b.Write()}) ? 1.0 : 0.0)");
+
 			public Float LesserThan(Float a, Float b) => new Float($"(({a.Write()} < {b.Write()}) ? 1.0 : 0.0)");
+
+			public Float LesserThanEqual(Float a, Float b) => new Float($"(({a.Write()} <= {b.Write()}) ? 1.0 : 0.0)");
 
 			public Mat4 OrthographicProjection(Float left, Float right, Float bottom, Float top, Float near, Float far)
 			{
