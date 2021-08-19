@@ -41,6 +41,11 @@ namespace SPF
 		}
 	}
 
+	void Bind(HardwareID programID, const char* name, const Vector2& data)
+	{
+		glUniform2f(glGetUniformLocation(programID, name), data.X, data.Y);
+	}
+
 	void Bind(HardwareID programID, const char* name, const Vector3& data)
 	{
 		glUniform3f(glGetUniformLocation(programID, name), data.X, data.Y, data.Z);

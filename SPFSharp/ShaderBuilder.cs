@@ -241,6 +241,8 @@ namespace SPFSharp
 				public string Write() => Name;
 
 				public Vec4 Sample(Vec2 uv) => new Vec4($"texture2D({Write()}, {uv.Write()})");
+
+				public Vec2 Size() => new Vec2($"vec2(textureSize({Write()}, 0))");
 			}
 
 			protected readonly StringBuilder _shaderBuilder = new StringBuilder();
@@ -338,6 +340,7 @@ namespace SPFSharp
 			public readonly Mat4 WorldViewProjection = new Mat4("MVP");
 			public readonly Vec3 CameraUp = new Vec3("CameraUp");
 			public readonly Vec3 CameraSide = new Vec3("CameraSide");
+			public readonly Vec2 ViewportSize = new Vec2("ViewportSize");
 			public readonly Float FogIntensity = new Float("FogIntensity");
 			public readonly Vec3 FogColor = new Vec3("FogColor");
 			public readonly Vec4 GlobalOverlay = new Vec4("Overlay");
@@ -353,6 +356,8 @@ namespace SPFSharp
 			public readonly Float NearPlane = new Float("NearPlane");
 			public readonly Float FarPlane = new Float("FarPlane");
 			public readonly Float Distance = new Float("(smoothstep(NearPlane, FarPlane, gl_FragCoord.z / gl_FragCoord.w))");
+
+			public Vec2 NormalizedCoordinates => PixelCoordinates / ViewportSize;
 
 			public void AlphaTest(Vec4 color)
 			{
@@ -407,6 +412,7 @@ namespace SPFSharp
 				sb.AppendLine($"uniform mat4 {WorldViewProjection.Name};");
 				sb.AppendLine($"uniform vec3 {CameraUp.Name};");
 				sb.AppendLine($"uniform vec3 {CameraSide.Name};");
+				sb.AppendLine($"uniform vec2 {ViewportSize.Name};");
 				sb.AppendLine($"uniform float {FogIntensity.Name};");
 				sb.AppendLine($"uniform vec3 {FogColor.Name};");
 				sb.AppendLine($"uniform vec4 {GlobalOverlay.Name};");

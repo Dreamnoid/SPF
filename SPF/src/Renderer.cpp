@@ -253,6 +253,11 @@ namespace SPF
 			Bind(RendererData.CurrentProgram, "NearPlane", state.Camera.NearPlane);
 			Bind(RendererData.CurrentProgram, "FarPlane", state.Camera.FarPlane);
 
+			// Viewport
+			static GLint viewport[4];
+			glGetIntegerv(GL_VIEWPORT, viewport);
+			Bind(RendererData.CurrentProgram, "ViewportSize", Vector2{ (float)viewport[2], (float)viewport[3] });
+
 			// Fog
 			Bind(RendererData.CurrentProgram, "FogIntensity", state.Fog.Intensity);
 			Bind(RendererData.CurrentProgram, "FogColor", state.Fog.Color);

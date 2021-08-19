@@ -59,6 +59,7 @@ namespace SPF
 				"uniform vec3 CameraUp;\n"
 				"uniform vec3 CameraSide;\n"
 				"uniform float FarPlane;\n"
+				"uniform vec2 ViewportSize;\n"
 				"out vec2 share_UV;\n"
 				"out vec4 share_Color;\n"
 				"out vec4 share_Overlay;\n"
