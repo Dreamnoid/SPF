@@ -229,6 +229,7 @@ namespace SPFSharp
 				var width = _currentSurface?.Width ?? GetWindowWidth();
 				var height = _currentSurface?.Height ?? GetWindowHeight();
 
+				SetMaterial(null);
 				PushVertex(new Vector3(0, height, 0), new Vector2(0, 0), color);
 				PushVertex(new Vector3(width, height, 0), new Vector2(1, 0), color);
 				PushVertex(new Vector3(width, 0, 0), new Vector2(1, 1), color);

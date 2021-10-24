@@ -19,6 +19,9 @@ namespace SPF
 			glGenTextures(1, ids);
 			GLuint id = ids[0];
 
+			GLint previousId;
+			glGetIntegerv(GL_TEXTURE_BINDING_2D, &previousId);
+
 			glBindTexture(GL_TEXTURE_2D, id);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -35,11 +38,16 @@ namespace SPF
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 			}
 
+			glBindTexture(GL_TEXTURE_2D, previousId);
+
 			return CreateResource(Resources.Textures, { true,id,w,h,flipped });
 		}
 
 		void SetFiltering(ResourceIndex texture, bool filtering)
 		{
+			GLint previousId;
+			glGetIntegerv(GL_TEXTURE_BINDING_2D, &previousId);
+
 			glBindTexture(GL_TEXTURE_2D, Resources.Textures[texture].GLID);
 			if (filtering)
 			{
@@ -51,6 +59,8 @@ namespace SPF
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			}
+
+			glBindTexture(GL_TEXTURE_2D, previousId);
 		}
 
 		ResourceIndex Load(unsigned char* buffer, int length)
