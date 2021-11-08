@@ -236,6 +236,17 @@ namespace SPFSharp
 				PushVertex(new Vector3(0, 0, 0), new Vector2(0, 1), color);
 			}
 
+			public static void DrawFullScreenQuad()
+			{
+				var width = _currentSurface?.Width ?? GetWindowWidth();
+				var height = _currentSurface?.Height ?? GetWindowHeight();
+
+				PushVertex(new Vector3(0, height, 0), new Vector2(0, 0), Vector4.One);
+				PushVertex(new Vector3(width, height, 0), new Vector2(1, 0), Vector4.One);
+				PushVertex(new Vector3(width, 0, 0), new Vector2(1, 1), Vector4.One);
+				PushVertex(new Vector3(0, 0, 0), new Vector2(0, 1), Vector4.One);
+			}
+
 			public static readonly float[] IdentityMatrix = new float[]
 			{
 				1f, 0f, 0f, 0f,

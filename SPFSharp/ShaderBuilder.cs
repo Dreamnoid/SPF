@@ -371,19 +371,7 @@ namespace SPFSharp
 
 			public Vec3 ApplyKernel(Vec3 color, float offset, float[] kernel)
 			{
-				var offsets = new Vector2[]
-				{
-					new Vector2(-offset, offset), // top-left
-					new Vector2(0.0f, offset), // top-center
-					new Vector2(offset, offset), // top-right
-					new Vector2(-offset, 0.0f),   // center-left
-					new Vector2(0.0f, 0.0f),   // center-center
-					new Vector2(offset, 0.0f),   // center-right
-					new Vector2(-offset, -offset), // bottom-left
-					new Vector2(0.0f, -offset), // bottom-center
-					new Vector2(offset, -offset)  // bottom-right    
-				};
-
+				var offsets = CreateOffsets(offset);
 				for (int i = 0; i < kernel.Length; ++i)
 				{
 					Set(color, color + Texture.Sample(UV + new Vec2(offsets[i].X, offsets[i].Y)).XYZ * kernel[i]);
@@ -392,6 +380,30 @@ namespace SPFSharp
 				return color;
 			}
 
+			public Vec4 ApplyKernel(Vec4 color, float offset, float[] kernel)
+			{
+				var offsets = CreateOffsets(offset);
+				for (int i = 0; i < kernel.Length; ++i)
+				{
+					Set(color, color + Texture.Sample(UV + new Vec2(offsets[i].X, offsets[i].Y)) * kernel[i]);
+				}
+
+				return color;
+			}
+
+			private static Vector2[] CreateOffsets(float offset) => new Vector2[]
+			{
+				new Vector2(-offset, offset), // top-left
+				new Vector2(0.0f, offset), // top-center
+				new Vector2(offset, offset), // top-right
+				new Vector2(-offset, 0.0f),   // center-left
+				new Vector2(0.0f, 0.0f),   // center-center
+				new Vector2(offset, 0.0f),   // center-right
+				new Vector2(-offset, -offset), // bottom-left
+				new Vector2(0.0f, -offset), // bottom-center
+				new Vector2(offset, -offset)  // bottom-right    
+			};
+
 			private static readonly float[] _blurKernel = new float[]
 			{
 				1.0f / 16f, 2.0f / 16f, 1.0f / 16f,
@@ -399,8 +411,40 @@ namespace SPFSharp
 				1.0f / 16f, 2.0f / 16f, 1.0f / 16f
 			};
 
+			public static float[] CreateBlurKernel(float dist)
+				=> new float[]
+				{
+					1.0f / dist, 2.0f / dist, 1.0f / dist,
+					2.0f / dist, 4.0f / dist, 2.0f / dist,
+					1.0f / dist, 2.0f / dist, 1.0f / dist
+				};
+
 			public Vec3 Blur(Vec3 color, float offset) => ApplyKernel(color, offset, _blurKernel);
 
+			public Vec4 Blur(Vec4 color, float offset) => ApplyKernel(color, offset, _blurKernel);
+
+			public Vec4 Blur5(Sampler2D image, Vec2 uv, Vec2 resolution, Vec2 direction)
+			{
+				var color = new Vec4(0.0f, 0.0f, 0.0f, 0.0f);
+				var off1 = new Vec2(1.3333333333333333f) * direction;
+				color += image.Sample(uv) * 0.29411764705882354f;
+				color += image.Sample(uv + (off1 / resolution)) * 0.35294117647058826f;
+				color += image.Sample(uv - (off1 / resolution)) * 0.35294117647058826f;
+				return color;
+			}
+
+			public Vec4 Blur9(Sampler2D image, Vec2 uv, Vec2 resolution, Vec2 direction)
+			{
+				var color = new Vec4(0.0f, 0.0f, 0.0f, 0.0f);
+				var off1 = new Vec2(1.3846153846f) * direction;
+				var off2 = new Vec2(3.2307692308f) * direction;
+				color += image.Sample(uv) * 0.2270270270f;
+				color += image.Sample(uv + (off1 / resolution)) * 0.3162162162f;
+				color += image.Sample(uv - (off1 / resolution)) * 0.3162162162f;
+				color += image.Sample(uv + (off2 / resolution)) * 0.0702702703f;
+				color += image.Sample(uv - (off2 / resolution)) * 0.0702702703f;
+				return color;
+			}
 
 			public override string ToString()
 			{
