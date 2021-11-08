@@ -54,6 +54,7 @@
   <ItemGroup>
     <ClCompile Include="src\Audio.cpp" />
     <ClCompile Include="src\Core.cpp" />
+    <ClCompile Include="src\Font.cpp" />
     <ClCompile Include="src\GL4.cpp" />
     <ClCompile Include="src\Images.cpp" />
     <ClCompile Include="src\Input.cpp" />
@@ -84,6 +85,7 @@
     <ClInclude Include="src\Resources.h" />
     <ClInclude Include="src\GL4.h" />
     <ClInclude Include="src\stb_image.h" />
+    <ClInclude Include="src\stb_truetype.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

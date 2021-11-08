@@ -39,6 +39,7 @@
     <Compile Include="Input.cs" />
     <Compile Include="IO.cs" />
     <Compile Include="Native\Audio.cs" />
+    <Compile Include="Native\Font.cs" />
     <Compile Include="Native\Images.cs" />
     <Compile Include="Native\Input.cs" />
     <Compile Include="Native\Native.cs" />

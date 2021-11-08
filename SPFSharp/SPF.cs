@@ -5,8 +5,8 @@ using System.Runtime.InteropServices;
 namespace SPFSharp
 {
 	public static partial class SPF
-    {
-        private static int _windowWidth, _windowHeight;
+	{
+		private static int _windowWidth, _windowHeight;
 
 		public const Int32 InvalidResource = -1;
 
@@ -32,7 +32,7 @@ namespace SPFSharp
 			public Instance(string title, int w, int h)
 			{
 				Native.Window.SPF_Open(title, w, h);
-                RefreshWindowSize();
+				RefreshWindowSize();
 			}
 
 			public void Dispose()
@@ -43,17 +43,17 @@ namespace SPFSharp
 		}
 
 		public static Instance Open(string title, int w, int h)
-        {
-            return new Instance(title, w, h);
+		{
+			return new Instance(title, w, h);
 		}
 
 		public static bool BeginLoop(out float dt)
-        {
+		{
 			var doesContinue = Native.Window.SPF_BeginLoop(out dt);
-            Input.Update();
-            RefreshWindowSize();
-            return doesContinue;
-        }
+			Input.Update();
+			RefreshWindowSize();
+			return doesContinue;
+		}
 
 		public static void EndLoop() => Native.Window.SPF_EndLoop();
 
@@ -94,7 +94,7 @@ namespace SPFSharp
 		public static void SetFullscreen(bool fullscreen)
 		{
 			Native.Window.SPF_SetFullscreen(fullscreen);
-            RefreshWindowSize();
+			RefreshWindowSize();
 		}
 
 		public static int GetWindowWidth() => _windowWidth;
@@ -106,14 +106,14 @@ namespace SPFSharp
 		public static void SetWindowSize(int w, int h)
 		{
 			Native.Window.SPF_SetWindowSize(w, h);
-            RefreshWindowSize();
+			RefreshWindowSize();
 		}
 
-        private static void RefreshWindowSize()
-        {
-            _windowWidth = Native.Window.SPF_GetWindowWidth();
-            _windowHeight = Native.Window.SPF_GetWindowHeight();
-        }
+		private static void RefreshWindowSize()
+		{
+			_windowWidth = Native.Window.SPF_GetWindowWidth();
+			_windowHeight = Native.Window.SPF_GetWindowHeight();
+		}
 
 		public static void SetWindowTitle(string title) => Native.Window.SPF_SetWindowTitle(title);
 
@@ -188,6 +188,50 @@ namespace SPFSharp
 					OverlayB = overlay.Z,
 					OverlayA = overlay.W
 				};
+			}
+		}
+
+		public class Font
+		{
+			public readonly Texture Texture;
+			public readonly Glyph[] Glyphes;
+			public readonly int FontHeight;
+			public readonly int FirstCharacter;
+			public readonly int LastCharacter;
+
+			internal Font(Texture texture, Glyph[] glyphes, int fontHeight, int firstCharacter, int lastCharacter)
+            {
+                Texture = texture;
+                Glyphes = glyphes;
+				FontHeight = fontHeight;
+				FirstCharacter = firstCharacter;
+				LastCharacter = lastCharacter;
+            }
+        }
+
+		[StructLayout(LayoutKind.Sequential)]
+		public struct Glyph
+		{
+			public int X, Y, Width, Height;
+			public int Advance, OffsetX, OffsetY;
+		}
+
+		public static Font LoadFont(byte[] buffer, int width, int height, int fontHeight, int firstCharacter = 32, int lastCharacter = 256)
+		{
+			int charactersCount = lastCharacter - firstCharacter;
+			using (var cbuffer = new CBuffer(buffer))
+			{
+                var glyphes = new Glyph[charactersCount];
+                GCHandle gcGlyphes = GCHandle.Alloc(glyphes, GCHandleType.Pinned);
+				var ptr = Marshal.UnsafeAddrOfPinnedArrayElement(glyphes, 0);
+                var texID = Native.Font.SPF_LoadFont(cbuffer.Pointer, width, height, fontHeight, firstCharacter, lastCharacter, gcGlyphes.AddrOfPinnedObject());
+                gcGlyphes.Free();
+
+				if (texID < 0)
+					throw new Exception("Could not render font");
+
+                var texture = new Texture(texID, width, height);
+                return new Font(texture, glyphes, fontHeight, firstCharacter, lastCharacter);
 			}
 		}
 
