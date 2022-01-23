@@ -222,29 +222,25 @@ namespace SPFSharp
 				SetPrimitiveType(PrimitiveType.Quad);
 			}
 
-			public static void FillSurface() => FillSurface(Vector4.Zero);
+			public static void FillSurface() => FillSurface(Vector4.One);
 
 			public static void FillSurface(in Vector4 color)
+			{
+				SetMaterial(null);
+				DrawFullScreenQuad(color);
+			}
+
+			public static void DrawFullScreenQuad() => DrawFullScreenQuad(Vector4.One);
+
+			public static void DrawFullScreenQuad(in Vector4 color)
 			{
 				var width = _currentSurface?.Width ?? GetWindowWidth();
 				var height = _currentSurface?.Height ?? GetWindowHeight();
 
-				SetMaterial(null);
 				PushVertex(new Vector3(0, height, 0), new Vector2(0, 0), color);
 				PushVertex(new Vector3(width, height, 0), new Vector2(1, 0), color);
 				PushVertex(new Vector3(width, 0, 0), new Vector2(1, 1), color);
 				PushVertex(new Vector3(0, 0, 0), new Vector2(0, 1), color);
-			}
-
-			public static void DrawFullScreenQuad()
-			{
-				var width = _currentSurface?.Width ?? GetWindowWidth();
-				var height = _currentSurface?.Height ?? GetWindowHeight();
-
-				PushVertex(new Vector3(0, height, 0), new Vector2(0, 0), Vector4.One);
-				PushVertex(new Vector3(width, height, 0), new Vector2(1, 0), Vector4.One);
-				PushVertex(new Vector3(width, 0, 0), new Vector2(1, 1), Vector4.One);
-				PushVertex(new Vector3(0, 0, 0), new Vector2(0, 1), Vector4.One);
 			}
 
 			public static readonly float[] IdentityMatrix = new float[]
