@@ -24,6 +24,7 @@ namespace SPF
 				int lgt;
 				glGetShaderInfoLog(shader, 4096, &lgt, log);
 				printf(log);
+				FatalError(log);
 			}
 			return shader;
 		}
@@ -42,6 +43,7 @@ namespace SPF
 				int lgt;
 				glGetProgramInfoLog(program, 4096, &lgt, log);
 				printf(log);
+				FatalError(log);
 			}
 			return program;
 		}
@@ -84,9 +86,14 @@ namespace SPF
 			glDeleteShader(pixelShader);
 
 			glUseProgram(program);
-			glUniform1i(glGetUniformLocation(program, "Texture"), 0);
-			glUniform1i(glGetUniformLocation(program, "Texture1"), 1);
-			glUniform1i(glGetUniformLocation(program, "Texture2"), 2);
+			glUniform1i(glGetUniformLocation(program, "Texture1"), 0);
+			glUniform1i(glGetUniformLocation(program, "Texture2"), 1);
+			glUniform1i(glGetUniformLocation(program, "Texture3"), 2);
+			glUniform1i(glGetUniformLocation(program, "Texture4"), 3);
+			glUniform1i(glGetUniformLocation(program, "Texture5"), 4);
+			glUniform1i(glGetUniformLocation(program, "Texture6"), 5);
+			glUniform1i(glGetUniformLocation(program, "Texture7"), 6);
+			glUniform1i(glGetUniformLocation(program, "Texture8"), 7);
 
 			return CreateResource(Resources.Shaders, { true, program });
 		}

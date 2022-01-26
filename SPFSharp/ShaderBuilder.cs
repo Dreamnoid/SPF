@@ -1,4 +1,7 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -6,27 +9,27 @@ namespace SPFSharp
 {
     public static partial class SPF
     {
-        public abstract class ShaderBuilder
-        {
+		public abstract class ShaderBuilder
+		{
 			public const string Version = "#version 330 core";
 
-            public interface IVariable
-            {
-                string Name { get; }
-                string Type { get; }
+			public interface IVariable
+			{
+				string Name { get; }
+				string Type { get; }
 				string Write();
-            }
+			}
 
-            public class Vec2 : IVariable
-            {
-                public string Name { get; }
+			public class Vec2 : IVariable
+			{
+				public string Name { get; }
 
-                public string Type => "vec2";
+				public string Type => "vec2";
 
-                public Vec2(string name)
-                {
-                    Name = name;
-                }
+				public Vec2(string name)
+				{
+					Name = name;
+				}
 
 				public Vec2(Float x, Float y)
 				{
@@ -43,6 +46,8 @@ namespace SPFSharp
 				public Float X => new Float($"{Write()}.x");
 				public Float Y => new Float($"{Write()}.y");
 
+				public Vec3 ToVec3(Float z) => new Vec3($"vec3({Write()}, {z.Write()})");
+
 				public static Vec2 operator *(Vec2 a, Vec2 b) => new Vec2($"({a.Write()} * {b.Write()})");
 				public static Vec2 operator -(Vec2 a, Vec2 b) => new Vec2($"({a.Write()} - {b.Write()})");
 				public static Vec2 operator +(Vec2 a, Vec2 b) => new Vec2($"({a.Write()} + {b.Write()})");
@@ -54,31 +59,22 @@ namespace SPFSharp
 				public Vec2 ReverseV() => new Vec2($"vec2({Write()}.x, 1f - {Write()}.y)");
 			}
 
-            public class Vec3 : IVariable
+			public class Vec3 : IVariable
 			{
-                public string Name { get; }
+				public string Name { get; }
 
-                public string Type => "vec3";
+				public string Type => "vec3";
 
-                public Vec3(string name)
-                {
-                    Name = name;
-                }
+				public Vec3() => Name = "vec3()";
+
+				public Vec3(string name) => Name = name;
 
 				public Vec3(float x, float y, float z)
-				{
-					Name = $"vec3({x.ToString(CultureInfo.InvariantCulture)},{y.ToString(CultureInfo.InvariantCulture)},{z.ToString(CultureInfo.InvariantCulture)})";
-				}
+					=> Name = $"vec3({x.ToString(CultureInfo.InvariantCulture)},{y.ToString(CultureInfo.InvariantCulture)},{z.ToString(CultureInfo.InvariantCulture)})";
 
-				public Vec3(Float f)
-				{
-					Name = $"vec3({f.Write()},{f.Write()},{f.Write()})";
-				}
+				public Vec3(Float f) => Name = $"vec3({f.Write()},{f.Write()},{f.Write()})";
 
-				public Vec3(Float x, Float y, Float z)
-				{
-					Name = $"vec3({x.Write()},{y.Write()},{z.Write()})";
-				}
+				public Vec3(Float x, Float y, Float z) => Name = $"vec3({x.Write()},{y.Write()},{z.Write()})";
 
 				public string Write() => Name;
 
@@ -103,16 +99,16 @@ namespace SPFSharp
 				public Float Length() => new Float($"length({Write()})");
 			}
 
-            public class Vec4 : IVariable
+			public class Vec4 : IVariable
 			{
-                public string Name { get; }
+				public string Name { get; }
 
-                public string Type => "vec4";
+				public string Type => "vec4";
 
-                public Vec4(string name)
-                {
-                    Name = name;
-                }
+				public Vec4(string name)
+				{
+					Name = name;
+				}
 
 				public Vec4(float x, float y, float z, float w)
 				{
@@ -186,19 +182,23 @@ namespace SPFSharp
 			}
 
 			public class Float : IVariable
-            {
-                public string Name { get; }
+			{
+				public string Name { get; }
 
-                public string Type => "float";
+				public string Type => "float";
 
-                public Float(string name)
-                {
-                    Name = name;
-                }
+				public Float(string name)
+				{
+					Name = name;
+				}
+
+				public Float() : this(0.0f) { }
 
 				public Float(float value)
 				{
-					Name = value.ToString(CultureInfo.InvariantCulture);
+					Name = (value == (int)value)
+						? value.ToString("N1", CultureInfo.InvariantCulture) // Ensure it's written as a float and not an int
+						: value.ToString(CultureInfo.InvariantCulture);
 				}
 
 				public string Write() => Name;
@@ -245,19 +245,33 @@ namespace SPFSharp
 				public Vec2 Size() => new Vec2($"vec2(textureSize({Write()}, 0))");
 			}
 
-			protected readonly StringBuilder _shaderBuilder = new StringBuilder();
+			public class Function<TResult> where TResult : IVariable
+			{
+				public string Name { get; }
 
-            public void Set<TVariable>(TVariable variable, TVariable expression) where TVariable : IVariable
-            {
-                _shaderBuilder.Append(variable.Name).Append(" = ").Append(expression.Write()).AppendLine(";");
-            }
+				public Function(string name)
+				{
+					Name = name;
+				}
 
-            public TVariable Declare<TVariable>(TVariable variable, TVariable expression) where TVariable : IVariable
-            {
-                _shaderBuilder.Append(variable.Type).Append(" ");
-                Set(variable, expression);
+				public TResult Call(params IVariable[] parameters)
+					=> (TResult)Activator.CreateInstance(typeof(TResult), Name + "(" + string.Join(", ", parameters.Select(p => p.Write())) + ")");
+			}
+
+			protected StringBuilder _mainBlock = new StringBuilder();
+			protected readonly StringBuilder _globalDeclarations = new StringBuilder();
+
+			public void Set<TVariable>(TVariable variable, TVariable expression) where TVariable : IVariable
+			{
+				_mainBlock.Append(variable.Name).Append(" = ").Append(expression.Write()).AppendLine(";");
+			}
+
+			public TVariable Declare<TVariable>(TVariable variable, TVariable expression) where TVariable : IVariable
+			{
+				_mainBlock.Append(variable.Type).Append(" ");
+				Set(variable, expression);
 				return variable;
-            }
+			}
 
 			public Float Declare(string name, Float value) => Declare(new Float(name), value);
 			public Vec2 Declare(string name, Vec2 value) => Declare(new Vec2(name), value);
@@ -271,6 +285,8 @@ namespace SPFSharp
 			public Vec4 Lerp(Vec4 a, Vec4 b, Float t) => new Vec4($"mix({a.Write()}, {b.Write()}, {t.Write()})");
 
 			public Float Dot(Vec3 a, Vec3 b) => new Float($"dot({a.Write()}, {b.Write()})");
+
+			public Vec3 Reflect(Vec3 incident, Vec3 normal) => new Vec3($"reflect({incident.Write()}, {normal.Write()})");
 
 			public Vec3 Cross(Vec3 a, Vec3 b) => new Vec3($"cross({a.Write()}, {b.Write()})");
 
@@ -328,6 +344,29 @@ namespace SPFSharp
 					new Vec4(vector2.Z, vector3.Z, vector.Z, 0),
 					new Vec4(m41, m42, m43, 1));
 			}
+
+			public void For(int iterations, string iteratorName, Action<Float> block)
+			{
+				_mainBlock.AppendLine($"for(int {iteratorName} = 0; {iteratorName} < {iterations}; ++{iteratorName})");
+				_mainBlock.AppendLine("{");
+				block?.Invoke(new Float(iteratorName));
+				_mainBlock.AppendLine("}");
+			}
+
+			public Function<TResult> DeclareFunction<TResult>(string name, IReadOnlyList<IVariable> parameters, Func<TResult> block) where TResult : IVariable, new()
+			{
+				_globalDeclarations.Append(new TResult().Type).Append(' ').Append(name).Append('(');
+				_globalDeclarations.Append(string.Join(", ", parameters.Select(p => $"{p.Type} {p.Name}")));
+				_globalDeclarations.AppendLine(")");
+				_globalDeclarations.AppendLine("{");
+				var mainBlock = _mainBlock;
+				_mainBlock = _globalDeclarations;
+				var result = block.Invoke();
+				_mainBlock.Append("return ").Append(result.Write()).Append(';').AppendLine();
+				_mainBlock = mainBlock;
+				_globalDeclarations.AppendLine("}");
+				return new Function<TResult>(name);
+			}
 		}
 
 		public class PixelShaderBuilder : ShaderBuilder
@@ -348,9 +387,14 @@ namespace SPFSharp
 			public readonly Vec4 UserData = new Vec4("UserData");
 			public readonly Mat4 UserMatrix = new Mat4("UserMatrix");
 			public readonly Vec4 OutputColor = new Vec4("out_Color");
-			public readonly Sampler2D Texture = new Sampler2D("Texture");
-			public readonly Sampler2D Texture1 = new Sampler2D("Texture1");
-			public readonly Sampler2D Texture2 = new Sampler2D("Texture2");
+			public readonly Sampler2D Texture = new Sampler2D("Texture1");
+			public readonly Sampler2D Texture1 = new Sampler2D("Texture2");
+			public readonly Sampler2D Texture2 = new Sampler2D("Texture3");
+			public readonly Sampler2D Texture3 = new Sampler2D("Texture4");
+			public readonly Sampler2D Texture4 = new Sampler2D("Texture5");
+			public readonly Sampler2D Texture5 = new Sampler2D("Texture6");
+			public readonly Sampler2D Texture6 = new Sampler2D("Texture7");
+			public readonly Sampler2D Texture7 = new Sampler2D("Texture8");
 			public readonly Float CurrentDepth = new Float("gl_FragCoord.z");
 			public readonly Vec2 PixelCoordinates = new Vec2("gl_FragCoord.xy");
 			public readonly Float NearPlane = new Float("NearPlane");
@@ -361,12 +405,12 @@ namespace SPFSharp
 
 			public void AlphaTest(Vec4 color)
 			{
-				_shaderBuilder.AppendLine($"if ({color.Write()}.a <= 0) discard;");
+				_mainBlock.AppendLine($"if ({color.Write()}.a <= 0) discard;");
 			}
 
 			public void DiscardIfLTE(Float a, Float b)
 			{
-				_shaderBuilder.AppendLine($"if ({a.Write()} <= {b.Write()}) discard;");
+				_mainBlock.AppendLine($"if ({a.Write()} <= {b.Write()}) discard;");
 			}
 
 			public Vec3 ApplyKernel(Vec3 color, float offset, float[] kernel)
@@ -453,6 +497,11 @@ namespace SPFSharp
 				sb.AppendLine($"uniform sampler2D {Texture.Name};");
 				sb.AppendLine($"uniform sampler2D {Texture1.Name};");
 				sb.AppendLine($"uniform sampler2D {Texture2.Name};");
+				sb.AppendLine($"uniform sampler2D {Texture3.Name};");
+				sb.AppendLine($"uniform sampler2D {Texture4.Name};");
+				sb.AppendLine($"uniform sampler2D {Texture5.Name};");
+				sb.AppendLine($"uniform sampler2D {Texture6.Name};");
+				sb.AppendLine($"uniform sampler2D {Texture7.Name};");
 				sb.AppendLine($"uniform mat4 {WorldViewProjection.Name};");
 				sb.AppendLine($"uniform vec3 {CameraUp.Name};");
 				sb.AppendLine($"uniform vec3 {CameraSide.Name};");
@@ -471,9 +520,10 @@ namespace SPFSharp
 				sb.AppendLine($"in vec3 {Position.Name};");
                 sb.AppendLine($"in vec3 {Normal.Name};");
 				sb.AppendLine($"out vec4 {OutputColor.Name};");
+				sb.Append(_globalDeclarations);
 				sb.AppendLine("void main()");
 				sb.AppendLine("{");
-				sb.Append(_shaderBuilder);
+				sb.Append(_mainBlock);
 				sb.AppendLine("}");
 				return sb.ToString();
 			}

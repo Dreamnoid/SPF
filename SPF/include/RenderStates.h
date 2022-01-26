@@ -48,10 +48,31 @@ namespace SPF
 
 		struct Material
 		{
-			ResourceIndex Shader;
-			ResourceIndex Texture1;
-			ResourceIndex Texture2;
-			ResourceIndex Texture3;
+			ResourceIndex Shader = InvalidResource;
+			ResourceIndex Texture1 = InvalidResource;
+			ResourceIndex Texture2 = InvalidResource;
+			ResourceIndex Texture3 = InvalidResource;
+			ResourceIndex Texture4 = InvalidResource;
+			ResourceIndex Texture5 = InvalidResource;
+			ResourceIndex Texture6 = InvalidResource;
+			ResourceIndex Texture7 = InvalidResource;
+			ResourceIndex Texture8 = InvalidResource;
+
+			ResourceIndex GetTexture(int i) const
+			{
+				switch (i)
+				{
+				case 0: return Texture1;
+				case 1: return Texture2;
+				case 2: return Texture3;
+				case 3: return Texture4;
+				case 4: return Texture5;
+				case 5: return Texture6;
+				case 6: return Texture7;
+				case 7: return Texture8;
+				default: return InvalidResource;
+				}
+			}
 		};
 
 		struct Fog

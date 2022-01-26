@@ -310,8 +310,26 @@ namespace SPFSharp
 			public static void SetCamera(float[] viewProjectionMatrix, float nearPlane, float farPlane, in Vector3 cameraUp, in Vector3 cameraSide)
 				=> Native.Renderer.SPF_SetCamera(viewProjectionMatrix, nearPlane, farPlane, cameraUp.X, cameraUp.Y, cameraUp.Z, cameraSide.X, cameraSide.Y, cameraSide.Z);
 
-			public static void SetMaterial(Shader shader, Texture texture1 = null, Texture texture2 = null, Texture texture3 = null)
-				=> Native.Renderer.SPF_SetMaterial(Resolve(shader), Resolve(texture1), Resolve(texture2), Resolve(texture3));
+			public static void SetMaterial(
+				Shader shader,
+				Texture texture1 = null,
+				Texture texture2 = null, 
+				Texture texture3 = null,
+				Texture texture4 = null, 
+				Texture texture5 = null, 
+				Texture texture6 = null, 
+				Texture texture7 = null,
+				Texture texture8 = null)
+				=> Native.Renderer.SPF_SetMaterial(
+					Resolve(shader),
+					Resolve(texture1),
+					Resolve(texture2),
+					Resolve(texture3),
+					Resolve(texture4),
+					Resolve(texture5),
+					Resolve(texture6),
+					Resolve(texture7),
+					Resolve(texture8));
 
 			public static void SetRasterization(
 				BlendMode blendMode = BlendMode.Alpha,

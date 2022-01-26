@@ -19,7 +19,7 @@ namespace SPFSharp
 				float sideX, float sideY, float sideZ);
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern void SPF_SetMaterial(int shader, int texture1, int texture2, int texture3);
+			public static extern void SPF_SetMaterial(int shader, int texture1, int texture2, int texture3, int texture4, int texture5, int texture6, int texture7, int texture8);
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern void SPF_SetFog(float intensity, float r, float g, float b);

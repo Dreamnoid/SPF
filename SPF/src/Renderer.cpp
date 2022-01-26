@@ -74,14 +74,23 @@ namespace SPF
 			const RenderState::States& state = RendererData.CurrentState;
 			const RenderState::Material& current = state.Material;
 
-			bool shaderChanged = (material.Shader != current.Shader);
-			bool tex1Changed = (material.Texture1 != current.Texture1);
-			bool tex2Changed = (material.Texture2 != current.Texture2);
-			bool tex3Changed = (material.Texture3 != current.Texture3);
+			const int texturesCount = 8;
 
-			if (shaderChanged || tex1Changed || tex2Changed || tex3Changed)
+			bool shaderChanged = (material.Shader != current.Shader);
+			if (shaderChanged)
 			{
 				IssueVertices();
+			}
+			else
+			{
+				for (int i = 0; i < texturesCount; ++i)
+				{
+					if (material.GetTexture(i) != current.GetTexture(i))
+					{
+						IssueVertices();
+						break;
+					}
+				}
 			}
 
 			if (shaderChanged)
@@ -93,25 +102,15 @@ namespace SPF
 				RendererData.CurrentProgram = programID;
 			}
 
-			if (tex1Changed)
+			for (int i = 0; i < texturesCount; ++i)
 			{
-				glActiveTexture2(GL_TEXTURE0);
-				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D, (material.Texture1 < 0) ? RendererData.EmptyTexture : Resources.Textures[material.Texture1].GLID);
-			}
-
-			if (tex2Changed)
-			{
-				glActiveTexture2(GL_TEXTURE1);
-				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D, (material.Texture2 < 0) ? RendererData.EmptyTexture : Resources.Textures[material.Texture2].GLID);
-			}
-
-			if (tex3Changed)
-			{
-				glActiveTexture2(GL_TEXTURE2);
-				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D, (material.Texture3 < 0) ? RendererData.EmptyTexture : Resources.Textures[material.Texture3].GLID);
+				ResourceIndex textureId = material.GetTexture(i);
+				if (textureId != current.GetTexture(i))
+				{
+					glActiveTexture2(GL_TEXTURE0 + i);
+					glEnable(GL_TEXTURE_2D);
+					glBindTexture(GL_TEXTURE_2D, (textureId < 0) ? RendererData.EmptyTexture : Resources.Textures[textureId].GLID);
+				}
 			}
 
 			RendererData.CurrentState.Material = material;
@@ -347,9 +346,14 @@ namespace SPF
 
 			RendererData.DefaultShader = Shaders::Create(
 				"#version 330 core\n"
-				"uniform sampler2D Texture;\n"
 				"uniform sampler2D Texture1;\n"
 				"uniform sampler2D Texture2;\n"
+				"uniform sampler2D Texture3;\n"
+				"uniform sampler2D Texture4;\n"
+				"uniform sampler2D Texture5;\n"
+				"uniform sampler2D Texture6;\n"
+				"uniform sampler2D Texture7;\n"
+				"uniform sampler2D Texture8;\n"
 				"uniform float FogIntensity;\n"
 				"uniform vec3 FogColor;\n"
 				"uniform vec4 Overlay;\n"
@@ -366,7 +370,7 @@ namespace SPF
 				"out vec4 out_Color;\n"
 				"void main()\n"
 				"{\n"
-				"	vec4 texColor = texture2D(Texture, share_UV) * share_Color;\n"
+				"	vec4 texColor = texture2D(Texture1, share_UV) * share_Color;\n"
 				"	if (texColor.a <= 0) discard;\n"
 				"	out_Color = mix(texColor, vec4(share_Overlay.xyz, texColor.a), share_Overlay.a);\n"
 				"	float dist = smoothstep(NearPlane, FarPlane, gl_FragCoord.z / gl_FragCoord.w);\n"
@@ -399,7 +403,7 @@ namespace SPF
 
 			ResourceIndex texture = Surfaces::GetTexture(GetFinalSurface());
 
-			SetMaterial({ InvalidResource, texture, InvalidResource, InvalidResource });
+			SetMaterial({ InvalidResource, texture, InvalidResource, InvalidResource, InvalidResource, InvalidResource, InvalidResource, InvalidResource, InvalidResource });
 			PushVertex({ { 0.f, (float)h, 0.f }, Vector3::Zero, { 0.f, 0.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
 			PushVertex({ { (float)w, (float)h, 0.f }, Vector3::Zero, { 1.f, 0.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
 			PushVertex({ { (float)w, 0.f, 0.f }, Vector3::Zero, { 1.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
@@ -459,9 +463,20 @@ extern "C"
 		SPF::Renderer::SetCamera({ viewProjectionMatrix, nearPlane, farPlane, {upX, upY, upZ}, {sideX, sideY, sideZ} });
 	}
 
-	DLLExport void SPF_SetMaterial(int shader, int texture1, int texture2, int texture3)
+	DLLExport void SPF_SetMaterial(int shader, int texture1, int texture2, int texture3, int texture4, int texture5, int texture6, int texture7, int texture8)
 	{
-		SPF::Renderer::SetMaterial({ (SPF::ResourceIndex)shader, (SPF::ResourceIndex)texture1, (SPF::ResourceIndex)texture2, (SPF::ResourceIndex)texture3 });
+		SPF::Renderer::SetMaterial(
+			{
+				(SPF::ResourceIndex)shader,
+				(SPF::ResourceIndex)texture1,
+				(SPF::ResourceIndex)texture2,
+				(SPF::ResourceIndex)texture3,
+				(SPF::ResourceIndex)texture4,
+				(SPF::ResourceIndex)texture5,
+				(SPF::ResourceIndex)texture6,
+				(SPF::ResourceIndex)texture7,
+				(SPF::ResourceIndex)texture8
+			});
 	}
 
 	DLLExport void SPF_SetFog(float intensity, float r, float g, float b)
