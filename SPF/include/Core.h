@@ -12,6 +12,8 @@ namespace SPF
 	
 	constexpr ResourceIndex InvalidResource = -1;
 
+	constexpr ResourceIndex UnsetResource = -2;
+
 	DLLExport void FatalError(const char* msg);
 
 	struct Rect

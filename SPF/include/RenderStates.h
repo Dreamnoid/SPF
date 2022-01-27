@@ -48,15 +48,15 @@ namespace SPF
 
 		struct Material
 		{
-			ResourceIndex Shader = InvalidResource;
-			ResourceIndex Texture1 = InvalidResource;
-			ResourceIndex Texture2 = InvalidResource;
-			ResourceIndex Texture3 = InvalidResource;
-			ResourceIndex Texture4 = InvalidResource;
-			ResourceIndex Texture5 = InvalidResource;
-			ResourceIndex Texture6 = InvalidResource;
-			ResourceIndex Texture7 = InvalidResource;
-			ResourceIndex Texture8 = InvalidResource;
+			ResourceIndex Shader = UnsetResource;
+			ResourceIndex Texture1 = UnsetResource;
+			ResourceIndex Texture2 = UnsetResource;
+			ResourceIndex Texture3 = UnsetResource;
+			ResourceIndex Texture4 = UnsetResource;
+			ResourceIndex Texture5 = UnsetResource;
+			ResourceIndex Texture6 = UnsetResource;
+			ResourceIndex Texture7 = UnsetResource;
+			ResourceIndex Texture8 = UnsetResource;
 
 			ResourceIndex GetTexture(int i) const
 			{
