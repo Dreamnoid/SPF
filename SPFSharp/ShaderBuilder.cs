@@ -376,7 +376,8 @@ namespace SPFSharp
 			public readonly Vec4 Overlay = new Vec4("share_Overlay");
 			public readonly Vec3 Position = new Vec3("share_Position");
             public readonly Vec3 Normal = new Vec3("share_Normal");
-			public readonly Mat4 WorldViewProjection = new Mat4("MVP");
+			public readonly Mat4 World = new Mat4("WorldMatrix");
+			public readonly Mat4 ViewProjection = new Mat4("ViewProjectionMatrix");
 			public readonly Vec3 CameraUp = new Vec3("CameraUp");
 			public readonly Vec3 CameraSide = new Vec3("CameraSide");
 			public readonly Vec2 ViewportSize = new Vec2("ViewportSize");
@@ -502,7 +503,8 @@ namespace SPFSharp
 				sb.AppendLine($"uniform sampler2D {Texture5.Name};");
 				sb.AppendLine($"uniform sampler2D {Texture6.Name};");
 				sb.AppendLine($"uniform sampler2D {Texture7.Name};");
-				sb.AppendLine($"uniform mat4 {WorldViewProjection.Name};");
+				sb.AppendLine($"uniform mat4 {World.Name};");
+				sb.AppendLine($"uniform mat4 {ViewProjection.Name};");
 				sb.AppendLine($"uniform vec3 {CameraUp.Name};");
 				sb.AppendLine($"uniform vec3 {CameraSide.Name};");
 				sb.AppendLine($"uniform vec2 {ViewportSize.Name};");

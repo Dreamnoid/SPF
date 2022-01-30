@@ -254,7 +254,8 @@ namespace SPF
 			const RenderState::States& state = RendererData.CurrentState;
 
 			// Camera
-			Bind(RendererData.CurrentProgram, "MVP", glm::make_mat4x4(state.Camera.ViewProjectionMatrix.M) * glm::make_mat4x4(state.ModelData.WorldMatrix.M));
+			Bind(RendererData.CurrentProgram, "WorldMatrix", glm::make_mat4x4(state.ModelData.WorldMatrix.M));
+			Bind(RendererData.CurrentProgram, "ViewProjectionMatrix", glm::make_mat4x4(state.Camera.ViewProjectionMatrix.M));
 			Bind(RendererData.CurrentProgram, "CameraUp", state.Camera.Up);
 			Bind(RendererData.CurrentProgram, "CameraSide", state.Camera.Side);
 			Bind(RendererData.CurrentProgram, "NearPlane", state.Camera.NearPlane);

@@ -57,7 +57,8 @@ namespace SPF
 				"layout (location = 2) in vec4 in_UV;\n"
 				"layout (location = 3) in vec4 in_Color;\n"
 				"layout (location = 4) in vec4 in_Overlay;\n"
-				"uniform mat4 MVP;\n"
+				"uniform mat4 WorldMatrix;\n"
+				"uniform mat4 ViewProjectionMatrix;\n"
 				"uniform vec3 CameraUp;\n"
 				"uniform vec3 CameraSide;\n"
 				"uniform float FarPlane;\n"
@@ -70,12 +71,13 @@ namespace SPF
 				"void main()\n"
 				"{\n"
 				"	vec3 actualPosition = in_Position + (in_UV.z * CameraSide) + (in_UV.w * CameraUp);\n"
-				"	gl_Position = MVP * vec4(actualPosition,1.0);\n"
-				"	share_Normal = in_Normal;\n" // TODO: multiply by M only
+				"	vec4 worldPosition = WorldMatrix * vec4(actualPosition, 1.0);\n"
+				"	gl_Position = ViewProjectionMatrix * worldPosition;\n"
+				"	share_Normal = (WorldMatrix * vec4(in_Normal, 0.0)).xyz;\n"
 				"   share_UV = in_UV.xy;\n"
 				"	share_Color = in_Color;\n"
 				"	share_Overlay = in_Overlay;\n"
-				"	share_Position = actualPosition;\n"
+				"	share_Position = worldPosition.xyz;\n"
 				"}\n");
 		}
 
