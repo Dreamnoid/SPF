@@ -7,7 +7,8 @@ namespace SPF
 	struct Mesh
 	{
 		bool InUse = false;
-		HardwareID GLID;
+		HardwareID VertexArrayGLID;
+		HardwareID VertexBufferGLID;
 		int VerticesCount = 0;
 	};
 

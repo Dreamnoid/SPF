@@ -44,6 +44,21 @@ namespace SPF
 	}
 
 	Matrix Matrix::Identity = {};
+
+	inline bool operator!=(const Vector4& a, const Vector4& b)
+	{
+		return a.X != b.X || a.Y != b.Y || a.Z != b.Z;
+	}
+
+	inline bool operator!=(const Matrix& a, const Matrix& b)
+	{
+		for (int i = 0; i < 16; ++i)
+		{
+			if (a.M[i] != b.M[i])
+				return true;
+		}
+		return false;
+	}
 }
 
 extern "C"

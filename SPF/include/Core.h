@@ -78,4 +78,7 @@ namespace SPF
 
 		static Matrix Identity;
 	};
+
+	extern inline bool operator!=(const Vector4& a, const Vector4& b);
+	extern inline bool operator!=(const Matrix& a, const Matrix& b);
 }

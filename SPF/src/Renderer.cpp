@@ -17,15 +17,15 @@ namespace SPF
 {
 
 	constexpr uint32_t MaxSprites = 2000;
-	constexpr uint32_t VerticesPerSprite = 4;
+	constexpr uint32_t VerticesPerSprite = 6;
 	constexpr uint32_t MaxVerticesCount = MaxSprites * VerticesPerSprite;
 
 	struct
 	{
 		Vertex Vertices[MaxVerticesCount];
-		HardwareID BatchVBOID;
+		ResourceIndex BatchMesh;
 		int CurrentVertexCount = 0;
-		PrimitiveType CurrentPrimitiveType = PrimitiveType::Quad;
+		PrimitiveType CurrentPrimitiveType = PrimitiveType::Triangle;
 
 		HardwareID EmptyTexture;
 		HardwareID VertexShader;
@@ -46,11 +46,14 @@ namespace SPF
 
 			surface = (surface < 0) ? RendererData.FinalSurface : surface;
 
-			glBindFramebuffer(GL_FRAMEBUFFER, Resources.Surfaces[surface].GLID);
 			if (clear)
 			{
 				SetBuffers({ true, true, Comparison::Less }); // Depth Writing must not be deactivated for clear to work
 				Surfaces::Clear(surface);
+			}
+			else // Clear already binds it
+			{
+				glBindFramebuffer(GL_FRAMEBUFFER, Resources.Surfaces[surface].GLID);
 			}
 
 			ResourceIndex texture = Surfaces::GetTexture(surface);
@@ -128,7 +131,12 @@ namespace SPF
 
 		void SetUserData(const RenderState::UserData& userData)
 		{
-			IssueVertices();
+			const RenderState::UserData& current = RendererData.CurrentState.UserData;
+			if(userData.Animation != current.Animation || userData.UserData != current.UserData || userData.UserMatrix != current.UserMatrix)
+			{
+				IssueVertices();
+			}
+			
 			RendererData.CurrentState.UserData = userData;
 		}
 
@@ -240,7 +248,7 @@ namespace SPF
 
 			RendererData.CurrentState.Stencil = stencil;
 		}
-
+		
 		void SendDrawCall(GLenum mode, GLint first, GLsizei count)
 		{
 			const RenderState::States& state = RendererData.CurrentState;
@@ -269,19 +277,6 @@ namespace SPF
 			// Model Data
 			Bind(RendererData.CurrentProgram, "Overlay", state.ModelData.Overlay);
 
-			// Bind the vertex attributes
-			glEnableVertexAttribArray(0);
-			glEnableVertexAttribArray(1);
-			glEnableVertexAttribArray(2);
-			glEnableVertexAttribArray(3);
-			glEnableVertexAttribArray(4);
-
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0 * sizeof(float)));
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, sizeof(Vertex), BUFFER_OFFSET(3 * sizeof(float)));
-			glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(6 * sizeof(float)));
-			glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(10 * sizeof(float)));
-			glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(14 * sizeof(float)));
-
 			glDrawArrays(mode, first, count);
 		}
 
@@ -289,7 +284,7 @@ namespace SPF
 		{
 			IssueVertices();
 
-			glBindBuffer(GL_ARRAY_BUFFER, Resources.Meshes[mesh].GLID);
+			Meshes::Bind(mesh);
 
 			RendererData.CurrentState.ModelData = modelData;
 			SendDrawCall(GL_TRIANGLES, first, count);
@@ -298,17 +293,14 @@ namespace SPF
 
 		void IssueVertices()
 		{
-			if (RendererData.CurrentVertexCount == 0) return;
+			if (RendererData.CurrentVertexCount == 0)
+				return;
 
-			glBindBuffer(GL_ARRAY_BUFFER, RendererData.BatchVBOID);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, RendererData.CurrentVertexCount * sizeof(Vertex), &RendererData.Vertices);
+			Meshes::Bind(RendererData.BatchMesh);
+			Meshes::Update(RendererData.BatchMesh, RendererData.Vertices, RendererData.CurrentVertexCount);
 
-			GLenum primitiveType = GL_QUADS;
-			if (RendererData.CurrentPrimitiveType == PrimitiveType::Triangle)
-			{
-				primitiveType = GL_TRIANGLES;
-			}
-			else if (RendererData.CurrentPrimitiveType == PrimitiveType::Line)
+			GLenum primitiveType = GL_TRIANGLES;
+			if (RendererData.CurrentPrimitiveType == PrimitiveType::Line)
 			{
 				primitiveType = GL_LINES;
 			}
@@ -319,16 +311,9 @@ namespace SPF
 
 		void Init(int w, int h)
 		{
-			GLuint VAO;
-			glGenVertexArrays(1, &VAO);
-			glBindVertexArray(VAO);
+			RendererData.BatchMesh = Meshes::Load(nullptr, MaxVerticesCount, true);
 
 			GLuint ids[1];
-			glGenBuffers(1, ids);
-			RendererData.BatchVBOID = ids[0];
-			glBindBuffer(GL_ARRAY_BUFFER, RendererData.BatchVBOID);
-			glBufferData(GL_ARRAY_BUFFER, MaxVerticesCount * sizeof(Vertex), NULL, GL_STREAM_DRAW);
-
 			glGenTextures(1, ids);
 			RendererData.EmptyTexture = ids[0];
 			Resources.Textures.insert(Resources.Textures.begin(), { true,RendererData.EmptyTexture,1,1,false });
@@ -404,10 +389,15 @@ namespace SPF
 			ResourceIndex texture = Surfaces::GetTexture(GetFinalSurface());
 
 			SetMaterial({ InvalidResource, texture, InvalidResource, InvalidResource, InvalidResource, InvalidResource, InvalidResource, InvalidResource, InvalidResource });
+
 			PushVertex({ { 0.f, (float)h, 0.f }, Vector3::Zero, { 0.f, 0.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
 			PushVertex({ { (float)w, (float)h, 0.f }, Vector3::Zero, { 1.f, 0.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
 			PushVertex({ { (float)w, 0.f, 0.f }, Vector3::Zero, { 1.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
+
+			PushVertex({ { 0.f, (float)h, 0.f }, Vector3::Zero, { 0.f, 0.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
+			PushVertex({ { (float)w, 0.f, 0.f }, Vector3::Zero, { 1.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
 			PushVertex({ { 0.f, 0.f, 0.f }, Vector3::Zero, { 0.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
+
 			IssueVertices();
 		}
 
@@ -423,9 +413,9 @@ namespace SPF
 		void PushVertex(const Vertex& v)
 		{
 			int maxVerticesCount = MaxVerticesCount;
-			if (RendererData.CurrentPrimitiveType == PrimitiveType::Triangle)
+			if (RendererData.CurrentPrimitiveType == PrimitiveType::Line)
 			{
-				maxVerticesCount--; // Make it a multiple of 3
+				maxVerticesCount--; // Make it a multiple of 2
 			}
 			if (RendererData.CurrentVertexCount == maxVerticesCount)
 			{

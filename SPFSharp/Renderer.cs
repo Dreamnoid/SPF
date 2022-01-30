@@ -38,7 +38,6 @@ namespace SPFSharp
 
 		public enum PrimitiveType : int
 		{
-			Quad,
 			Triangle,
 			Line
 		}
@@ -62,6 +61,9 @@ namespace SPFSharp
 				SetMaterial(null);
 				PushVertex(new Vector3(x, y + h, 0), Vector2.Zero, color);
 				PushVertex(new Vector3(x + w, y + h, 0), Vector2.Zero, color);
+				PushVertex(new Vector3(x + w, y, 0), Vector2.Zero, color);
+
+				PushVertex(new Vector3(x, y + h, 0), Vector2.Zero, color);
 				PushVertex(new Vector3(x + w, y, 0), Vector2.Zero, color);
 				PushVertex(new Vector3(x, y, 0), Vector2.Zero, color);
 			}
@@ -209,17 +211,18 @@ namespace SPFSharp
 				PushVertex(d, Vector3.Zero, new Vector2(uv1.X, uv2.Y), Vector2.Zero, dColor, overlay);
 				PushVertex(c, Vector3.Zero, new Vector2(uv2.X, uv2.Y), Vector2.Zero, cColor, overlay);
 				PushVertex(b, Vector3.Zero, new Vector2(uv2.X, uv1.Y), Vector2.Zero, bColor, overlay);
+
+				PushVertex(d, Vector3.Zero, new Vector2(uv1.X, uv2.Y), Vector2.Zero, dColor, overlay);
+				PushVertex(b, Vector3.Zero, new Vector2(uv2.X, uv1.Y), Vector2.Zero, bColor, overlay);
 				PushVertex(a, Vector3.Zero, new Vector2(uv1.X, uv1.Y), Vector2.Zero, aColor, overlay);
 			}
 
 			public static void DrawTexturedTriangle(Texture tex, in Vertex a, in Vertex b, in Vertex c)
 			{
-				SetPrimitiveType(PrimitiveType.Triangle);
 				SetMaterial(null, tex);
 				PushVertex(a);
 				PushVertex(b);
 				PushVertex(c);
-				SetPrimitiveType(PrimitiveType.Quad);
 			}
 
 			public static void FillSurface() => FillSurface(Vector4.One);
@@ -239,6 +242,9 @@ namespace SPFSharp
 
 				PushVertex(new Vector3(0, height, 0), new Vector2(0, 0), color);
 				PushVertex(new Vector3(width, height, 0), new Vector2(1, 0), color);
+				PushVertex(new Vector3(width, 0, 0), new Vector2(1, 1), color);
+
+				PushVertex(new Vector3(0, height, 0), new Vector2(0, 0), color);
 				PushVertex(new Vector3(width, 0, 0), new Vector2(1, 1), color);
 				PushVertex(new Vector3(0, 0, 0), new Vector2(0, 1), color);
 			}
@@ -268,7 +274,7 @@ namespace SPFSharp
 				SetPrimitiveType(PrimitiveType.Line);
 				PushVertex(from, Vector2.Zero, color);
 				PushVertex(to, Vector2.Zero, color);
-				SetPrimitiveType(PrimitiveType.Quad);
+				SetPrimitiveType(PrimitiveType.Triangle);
 			}
 
 			public static void DrawBillboard(
@@ -292,7 +298,7 @@ namespace SPFSharp
 
 			public static void DrawBillboard(
 				Texture tex,
-				in Vector3 position, 
+				in Vector3 position,
 				in Vector2 size,
 				int srcx, int srcy, int srcw, int srch,
 				bool flipX, bool flipY,
@@ -302,9 +308,12 @@ namespace SPFSharp
 				tex.DetermineUV(srcx, srcy, srcw, srch, flipX, flipY, out var uv1, out var uv2);
 				float halfWidth = size.X * 0.5f;
 				PushVertex(position, Vector3.Zero, new Vector2(uv1.X, uv2.Y), new Vector2(-halfWidth, 0.0f), color, overlay);
-				PushVertex(position, Vector3.Zero, new Vector2(uv2.X, uv2.Y ), new Vector2( +halfWidth, 0.0f ), color, overlay);
-				PushVertex(position, Vector3.Zero, new Vector2(uv2.X, uv1.Y ), new Vector2( +halfWidth, size.Y ), color, overlay);
-				PushVertex(position, Vector3.Zero, new Vector2(uv1.X, uv1.Y ), new Vector2( -halfWidth, size.Y ), color, overlay);
+				PushVertex(position, Vector3.Zero, new Vector2(uv2.X, uv2.Y), new Vector2(+halfWidth, 0.0f), color, overlay);
+				PushVertex(position, Vector3.Zero, new Vector2(uv2.X, uv1.Y), new Vector2(+halfWidth, size.Y), color, overlay);
+
+				PushVertex(position, Vector3.Zero, new Vector2(uv1.X, uv2.Y), new Vector2(-halfWidth, 0.0f), color, overlay);
+				PushVertex(position, Vector3.Zero, new Vector2(uv2.X, uv1.Y), new Vector2(+halfWidth, size.Y), color, overlay);
+				PushVertex(position, Vector3.Zero, new Vector2(uv1.X, uv1.Y), new Vector2(-halfWidth, size.Y), color, overlay);
 			}
 
 			public static void SetCamera(float[] viewProjectionMatrix, float nearPlane, float farPlane, in Vector3 cameraUp, in Vector3 cameraSide)

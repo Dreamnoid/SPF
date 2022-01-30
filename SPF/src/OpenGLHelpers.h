@@ -4,8 +4,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#define BUFFER_OFFSET(i) ((char *)NULL + (i))
-
 namespace SPF
 {
 	void SetOpenGLCapability(GLenum cap, bool state)

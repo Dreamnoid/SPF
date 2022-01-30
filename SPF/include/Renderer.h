@@ -6,7 +6,6 @@ namespace SPF
 {
 	enum class PrimitiveType
 	{
-		Quad,
 		Triangle,
 		Line
 	};
@@ -32,8 +31,6 @@ namespace SPF
 		DLLExport void SetPrimitiveType(PrimitiveType type);
 
 		DLLExport void PushVertex(const Vertex& v);
-
-		DLLExport void DrawLine(const Vector3& from, const Vector3& to, const RGBA& color, float width);
 
 		DLLExport void DrawMesh(ResourceIndex mesh, int first, int count, const RenderState::ModelData& modelData);
 
