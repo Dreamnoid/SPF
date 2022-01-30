@@ -76,6 +76,9 @@ namespace SPFSharp
 				PushVertex(new Vector3(x, y + h, 0), Vector2.Zero, color2);
 				PushVertex(new Vector3(x + w, y + h, 0), Vector2.Zero, color2);
 				PushVertex(new Vector3(x + w, y, 0), Vector2.Zero, color1);
+
+				PushVertex(new Vector3(x, y + h, 0), Vector2.Zero, color2);
+				PushVertex(new Vector3(x + w, y, 0), Vector2.Zero, color1);
 				PushVertex(new Vector3(x, y, 0), Vector2.Zero, color1);
 			}
 
@@ -84,8 +87,12 @@ namespace SPFSharp
 				Vector4 color1, Vector4 color2)
 			{
 				SetMaterial(null);
+
 				PushVertex(new Vector3(x, y + h, 0), Vector2.Zero, color1);
 				PushVertex(new Vector3(x + w, y + h, 0), Vector2.Zero, color2);
+				PushVertex(new Vector3(x + w, y, 0), Vector2.Zero, color2);
+
+				PushVertex(new Vector3(x, y + h, 0), Vector2.Zero, color1);
 				PushVertex(new Vector3(x + w, y, 0), Vector2.Zero, color2);
 				PushVertex(new Vector3(x, y, 0), Vector2.Zero, color1);
 			}
