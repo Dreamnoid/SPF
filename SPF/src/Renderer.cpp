@@ -256,6 +256,7 @@ namespace SPF
 			// Camera
 			Bind(RendererData.CurrentProgram, "WorldMatrix", glm::make_mat4x4(state.ModelData.WorldMatrix.M));
 			Bind(RendererData.CurrentProgram, "ViewProjectionMatrix", glm::make_mat4x4(state.Camera.ViewProjectionMatrix.M));
+			Bind(RendererData.CurrentProgram, "NormalMatrix", glm::mat4(glm::transpose(glm::inverse(glm::mat3(glm::make_mat4x4(state.ModelData.WorldMatrix.M))))));
 			Bind(RendererData.CurrentProgram, "CameraUp", state.Camera.Up);
 			Bind(RendererData.CurrentProgram, "CameraSide", state.Camera.Side);
 			Bind(RendererData.CurrentProgram, "NearPlane", state.Camera.NearPlane);

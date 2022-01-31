@@ -179,6 +179,38 @@ namespace SPFSharp
 					Vec4 homogenousLocation = Inverse() * clipSpaceLocation;
 					return homogenousLocation.XYZ / homogenousLocation.W;
 				}
+
+				public Float M11 => new Float($"{Write()}[0][0]");
+
+				public Float M12 => new Float($"{Write()}[0][1]");
+
+				public Float M13 => new Float($"{Write()}[0][2]");
+
+				public Float M14 => new Float($"{Write()}[0][3]");
+
+				public Float M21 => new Float($"{Write()}[1][0]");
+
+				public Float M22 => new Float($"{Write()}[1][1]");
+
+				public Float M23 => new Float($"{Write()}[1][2]");
+
+				public Float M24 => new Float($"{Write()}[1][3]");
+
+				public Float M31 => new Float($"{Write()}[2][0]");
+
+				public Float M32 => new Float($"{Write()}[2][1]");
+
+				public Float M33 => new Float($"{Write()}[2][2]");
+
+				public Float M34 => new Float($"{Write()}[2][3]");
+
+				public Float M41 => new Float($"{Write()}[3][0]");
+
+				public Float M42 => new Float($"{Write()}[3][1]");
+
+				public Float M43 => new Float($"{Write()}[3][2]");
+
+				public Float M44 => new Float($"{Write()}[3][3]");
 			}
 
 			public class Float : IVariable
