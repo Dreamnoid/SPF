@@ -402,6 +402,14 @@ namespace SPF
 		{
 			return InputData.TextInput.c_str();
 		}
+
+		void Rumble(float duration, float lowIntensity, float highIntensity)
+		{
+			if (InputData.Controller)
+			{
+				SDL_GameControllerRumble(InputData.Controller, (uint16_t)(lowIntensity * 65535.0f), (uint16_t)(highIntensity * 65535.0f), (uint32_t)(duration * 1000.0f));
+			}
+		}
 	}
 }
 
@@ -520,5 +528,10 @@ extern "C"
 	DLLExport const char* SPF_GetTextInput()
 	{
 		return SPF::Input::GetTextInput();
+	}
+
+	DLLExport void SPF_Rumble(float duration, float lowIntensity, float highIntensity)
+	{
+		SPF::Input::Rumble(duration, lowIntensity, highIntensity);
 	}
 }

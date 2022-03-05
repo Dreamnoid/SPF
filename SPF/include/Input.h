@@ -122,5 +122,7 @@ namespace SPF
 		DLLExport void StartTextInput();
 		DLLExport void StopTextInput();
 		DLLExport const char* GetTextInput();
+
+		DLLExport void Rumble(float duration, float lowIntensity = 0.5f, float highIntensity = 0.5f);
 	}
 }

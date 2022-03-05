@@ -168,6 +168,9 @@ namespace SPFSharp
 			public static void StopTextInput() => Native.Input.SPF_StopTextInput();
 
 			public static string GetTextInput() => Marshal.PtrToStringAnsi(Native.Input.SPF_GetTextInput());
+
+			public static void Rumble(float duration, float lowIntensity = 0.5f, float highIntensity = 0.5f) 
+				=> Native.Input.SPF_Rumble(duration, lowIntensity, highIntensity);
 		}
 	}
 }
