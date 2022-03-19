@@ -109,6 +109,8 @@ namespace SPF
 			WindowData.Width = w;
 			WindowData.Height = h; 
 			Renderer::Resize(w, h);
+
+			SDL_SetWindowPosition(WindowData.Window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 		}
 
 		void SetWindowTitle(const char* title)
