@@ -15,5 +15,6 @@ namespace SPF
 		DLLExport inline int GetWidth();
 		DLLExport int GetHeight();
 		DLLExport bool HasFocus();
+		DLLExport void SaveScreenshot(const char* filename);
 	}
 }

@@ -36,6 +36,9 @@ namespace SPFSharp
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern bool SPF_HasFocus();
+
+			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+			public static extern void SPF_SaveScreenshot(string filename);
 		}
 	}
 }

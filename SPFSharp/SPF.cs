@@ -57,6 +57,8 @@ namespace SPFSharp
 
 		public static void EndLoop() => Native.Window.SPF_EndLoop();
 
+		public static void SaveScreenshot(string filename) => Native.Window.SPF_SaveScreenshot(filename);
+
 		public class Surface : IResource
 		{
 			public Int32 ID { get; }

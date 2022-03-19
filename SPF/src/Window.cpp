@@ -130,6 +130,41 @@ namespace SPF
 		{
 			return (SDL_GetWindowFlags(WindowData.Window) & SDL_WINDOW_INPUT_FOCUS) == SDL_WINDOW_INPUT_FOCUS;
 		}
+
+		void FlipSurfaceVertical(SDL_Surface* surface)
+		{
+			register Uint16 pitch = surface->pitch; // Allocates memory to store temp lines
+			Uint8* t = (Uint8*)malloc(pitch);
+			if (t == nullptr) 
+				return;
+
+			memcpy(t, surface->pixels, pitch); // Save the first line
+
+			register Uint8* a = (Uint8*)surface->pixels;
+			Uint8* last = a + pitch * (surface->h - 1);
+			register Uint8* b = last;
+			while (a < b)
+			{
+				memcpy(a, b, pitch);
+				a += pitch;
+				memcpy(b, a, pitch);
+				b -= pitch;
+			}
+			
+			memmove(b, b + pitch, last - b); // In this shuffled state, the bottom slice is too far down
+			memcpy(last, t, pitch); // Put back the first row in the last place
+
+			free(t);
+		}
+
+		void SaveScreenshot(const char* filename)
+		{
+			SDL_Surface* image = SDL_CreateRGBSurface(SDL_SWSURFACE, WindowData.Width, WindowData.Height, 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
+			glReadPixels(0, 0, WindowData.Width, WindowData.Height, GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+			FlipSurfaceVertical(image);
+			SDL_SaveBMP(image, filename);
+			SDL_FreeSurface(image);
+		}
 	}
 }
 
@@ -183,5 +218,10 @@ extern "C"
 	DLLExport int SPF_HasFocus()
 	{
 		return SPF::Window::HasFocus();
+	}
+
+	DLLExport void SPF_SaveScreenshot(const char* filename)
+	{
+		SPF::Window::SaveScreenshot(filename);
 	}
 }
