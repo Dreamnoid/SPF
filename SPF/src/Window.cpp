@@ -135,16 +135,16 @@ namespace SPF
 
 		void FlipSurfaceVertical(SDL_Surface* surface)
 		{
-			register Uint16 pitch = surface->pitch; // Allocates memory to store temp lines
+			Uint16 pitch = surface->pitch; // Allocates memory to store temp lines
 			Uint8* t = (Uint8*)malloc(pitch);
 			if (t == nullptr) 
 				return;
 
 			memcpy(t, surface->pixels, pitch); // Save the first line
 
-			register Uint8* a = (Uint8*)surface->pixels;
+			Uint8* a = (Uint8*)surface->pixels;
 			Uint8* last = a + pitch * (surface->h - 1);
-			register Uint8* b = last;
+			Uint8* b = last;
 			while (a < b)
 			{
 				memcpy(a, b, pitch);

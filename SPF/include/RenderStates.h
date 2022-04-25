@@ -113,7 +113,7 @@ namespace SPF
 		{
 			bool Write;
 			Comparison Test;
-			float Reference;
+			int Reference;
 			StencilAction StencilFail;
 			StencilAction DepthFail;
 			StencilAction DepthPass;
@@ -121,14 +121,14 @@ namespace SPF
 
 		struct States
 		{
-			Camera Camera;
-			Material Material;
-			Fog Fog;
-			UserData UserData;
-			Rasterization Rasterization;
-			Buffers Buffers;
-			Stencil Stencil;
-			ModelData ModelData;
+			Camera CurrentCamera;
+			Material CurrentMaterial;
+			Fog CurrentFog;
+			UserData CurrentUserData;
+			Rasterization CurrentRasterization;
+			Buffers CurrentBuffers;
+			Stencil CurrentStencil;
+			ModelData CurrentModelData;
 		};
 	}
 }

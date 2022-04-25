@@ -1,7 +1,7 @@
 #include <Renderer.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
-#include "gl4.h"
+#include "GL4.h"
 #include <cstdio>
 #include <Surfaces.h>
 #include <Textures.h>
@@ -57,7 +57,7 @@ namespace SPF
 			}
 
 			ResourceIndex texture = Surfaces::GetTexture(surface);
-			Vector2 size = { Textures::GetWidth(texture), Textures::GetHeight(texture) };
+			Vector2 size = { (float)Textures::GetWidth(texture), (float)Textures::GetHeight(texture) };
 
 			glViewport(0, 0, (GLsizei)size.X, (GLsizei)size.Y);
 
@@ -69,13 +69,13 @@ namespace SPF
 		void SetCamera(const RenderState::Camera& camera)
 		{
 			IssueVertices();
-			RendererData.CurrentState.Camera = camera;
+			RendererData.CurrentState.CurrentCamera = camera;
 		}
 
 		void SetMaterial(const RenderState::Material& material)
 		{
 			const RenderState::States& state = RendererData.CurrentState;
-			const RenderState::Material& current = state.Material;
+			const RenderState::Material& current = state.CurrentMaterial;
 
 			const int texturesCount = 8;
 
@@ -116,33 +116,33 @@ namespace SPF
 				}
 			}
 
-			RendererData.CurrentState.Material = material;
+			RendererData.CurrentState.CurrentMaterial = material;
 		}
 
 		void SetFog(const RenderState::Fog& fog)
 		{
-			const RenderState::Fog& current = RendererData.CurrentState.Fog;
+			const RenderState::Fog& current = RendererData.CurrentState.CurrentFog;
 			if (fog.Intensity != current.Intensity || fog.Color.R != current.Color.R || fog.Color.G != current.Color.G || fog.Color.B != current.Color.B)
 			{
 				IssueVertices();
-				RendererData.CurrentState.Fog = fog;
+				RendererData.CurrentState.CurrentFog = fog;
 			}
 		}
 
 		void SetUserData(const RenderState::UserData& userData)
 		{
-			const RenderState::UserData& current = RendererData.CurrentState.UserData;
+			const RenderState::UserData& current = RendererData.CurrentState.CurrentUserData;
 			if(userData.Animation != current.Animation || userData.UserData != current.UserData || userData.UserMatrix != current.UserMatrix)
 			{
 				IssueVertices();
 			}
 			
-			RendererData.CurrentState.UserData = userData;
+			RendererData.CurrentState.CurrentUserData = userData;
 		}
 
 		void SetRasterization(const RenderState::Rasterization& rasterization)
 		{
-			const RenderState::Rasterization& current = RendererData.CurrentState.Rasterization;
+			const RenderState::Rasterization& current = RendererData.CurrentState.CurrentRasterization;
 
 			if (rasterization.Blending != current.Blending)
 			{
@@ -184,12 +184,12 @@ namespace SPF
 				glLineWidth(rasterization.LineWidth);
 			}
 
-			RendererData.CurrentState.Rasterization = rasterization;
+			RendererData.CurrentState.CurrentRasterization = rasterization;
 		}
 
 		void SetBuffers(const RenderState::Buffers& buffers)
 		{
-			const RenderState::Buffers& current = RendererData.CurrentState.Buffers;
+			const RenderState::Buffers& current = RendererData.CurrentState.CurrentBuffers;
 
 			if (buffers.ColorWrite != current.ColorWrite)
 			{
@@ -211,12 +211,12 @@ namespace SPF
 				glDepthFunc(TranslateComparison(buffers.DepthTest));
 			}
 
-			RendererData.CurrentState.Buffers = buffers;
+			RendererData.CurrentState.CurrentBuffers = buffers;
 		}
 
 		void SetStencil(const RenderState::Stencil& stencil)
 		{
-			const RenderState::Stencil& current = RendererData.CurrentState.Stencil;
+			const RenderState::Stencil& current = RendererData.CurrentState.CurrentStencil;
 
 			if (stencil.Write != current.Write || stencil.Test != current.Test)
 			{
@@ -246,7 +246,7 @@ namespace SPF
 					TranslateStencilAction(stencil.DepthPass));
 			}
 
-			RendererData.CurrentState.Stencil = stencil;
+			RendererData.CurrentState.CurrentStencil = stencil;
 		}
 		
 		void SendDrawCall(GLenum mode, GLint first, GLsizei count)
@@ -254,13 +254,13 @@ namespace SPF
 			const RenderState::States& state = RendererData.CurrentState;
 
 			// Camera
-			Bind(RendererData.CurrentProgram, "WorldMatrix", glm::make_mat4x4(state.ModelData.WorldMatrix.M));
-			Bind(RendererData.CurrentProgram, "ViewProjectionMatrix", glm::make_mat4x4(state.Camera.ViewProjectionMatrix.M));
-			Bind(RendererData.CurrentProgram, "NormalMatrix", glm::mat4(glm::transpose(glm::inverse(glm::mat3(glm::make_mat4x4(state.ModelData.WorldMatrix.M))))));
-			Bind(RendererData.CurrentProgram, "CameraUp", state.Camera.Up);
-			Bind(RendererData.CurrentProgram, "CameraSide", state.Camera.Side);
-			Bind(RendererData.CurrentProgram, "NearPlane", state.Camera.NearPlane);
-			Bind(RendererData.CurrentProgram, "FarPlane", state.Camera.FarPlane);
+			Bind(RendererData.CurrentProgram, "WorldMatrix", glm::make_mat4x4(state.CurrentModelData.WorldMatrix.M));
+			Bind(RendererData.CurrentProgram, "ViewProjectionMatrix", glm::make_mat4x4(state.CurrentCamera.ViewProjectionMatrix.M));
+			Bind(RendererData.CurrentProgram, "NormalMatrix", glm::mat4(glm::transpose(glm::inverse(glm::mat3(glm::make_mat4x4(state.CurrentModelData.WorldMatrix.M))))));
+			Bind(RendererData.CurrentProgram, "CameraUp", state.CurrentCamera.Up);
+			Bind(RendererData.CurrentProgram, "CameraSide", state.CurrentCamera.Side);
+			Bind(RendererData.CurrentProgram, "NearPlane", state.CurrentCamera.NearPlane);
+			Bind(RendererData.CurrentProgram, "FarPlane", state.CurrentCamera.FarPlane);
 
 			// Viewport
 			static GLint viewport[4];
@@ -268,16 +268,16 @@ namespace SPF
 			Bind(RendererData.CurrentProgram, "ViewportSize", Vector2{ (float)viewport[2], (float)viewport[3] });
 
 			// Fog
-			Bind(RendererData.CurrentProgram, "FogIntensity", state.Fog.Intensity);
-			Bind(RendererData.CurrentProgram, "FogColor", state.Fog.Color);
+			Bind(RendererData.CurrentProgram, "FogIntensity", state.CurrentFog.Intensity);
+			Bind(RendererData.CurrentProgram, "FogColor", state.CurrentFog.Color);
 
 			// User Data
-			Bind(RendererData.CurrentProgram, "Animation", state.UserData.Animation);
-			Bind(RendererData.CurrentProgram, "UserData", state.UserData.UserData);
-			Bind(RendererData.CurrentProgram, "UserMatrix", glm::make_mat4x4(state.UserData.UserMatrix.M));
+			Bind(RendererData.CurrentProgram, "Animation", state.CurrentUserData.Animation);
+			Bind(RendererData.CurrentProgram, "UserData", state.CurrentUserData.UserData);
+			Bind(RendererData.CurrentProgram, "UserMatrix", glm::make_mat4x4(state.CurrentUserData.UserMatrix.M));
 
 			// Model Data
-			Bind(RendererData.CurrentProgram, "Overlay", state.ModelData.Overlay);
+			Bind(RendererData.CurrentProgram, "Overlay", state.CurrentModelData.Overlay);
 
 			glDrawArrays(mode, first, count);
 		}
@@ -288,9 +288,9 @@ namespace SPF
 
 			Meshes::Bind(mesh);
 
-			RendererData.CurrentState.ModelData = modelData;
+			RendererData.CurrentState.CurrentModelData = modelData;
 			SendDrawCall(GL_TRIANGLES, first, count);
-			RendererData.CurrentState.ModelData = { Matrix::Identity, RGBA::TransparentBlack };
+			RendererData.CurrentState.CurrentModelData = { Matrix::Identity, RGBA::TransparentBlack };
 		}
 
 		void IssueVertices()
@@ -491,7 +491,7 @@ extern "C"
 		SPF::Renderer::SetBuffers({ (bool)colorWrite, (bool)depthWrite, (SPF::Comparison)depthTest });
 	}
 
-	DLLExport void SPF_SetStencil(bool write, int test, float reference, int stencilFail, int depthFail, int depthPass)
+	DLLExport void SPF_SetStencil(bool write, int test, int reference, int stencilFail, int depthFail, int depthPass)
 	{
 		SPF::Renderer::SetStencil({ (bool)write, (SPF::Comparison)test, reference, (SPF::StencilAction)stencilFail, (SPF::StencilAction)depthFail, (SPF::StencilAction)depthPass });
 	}

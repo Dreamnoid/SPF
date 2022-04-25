@@ -1,7 +1,13 @@
 #pragma once
 #include <cstdint>
 
-#define DLLExport __declspec(dllexport)
+#if defined(_MSC_VER)
+	#define DLLExport __declspec(dllexport)
+#elif defined(__GNUC__)
+	#define DLLExport __attribute__((visibility("default")))
+#else
+	#define DLLExport
+#endif
 
 namespace SPF
 {
@@ -79,6 +85,18 @@ namespace SPF
 		static Matrix Identity;
 	};
 
-	extern inline bool operator!=(const Vector4& a, const Vector4& b);
-	extern inline bool operator!=(const Matrix& a, const Matrix& b);
+	inline bool operator!=(const Vector4& a, const Vector4& b)
+	{
+		return a.X != b.X || a.Y != b.Y || a.Z != b.Z;
+	}
+
+	inline bool operator!=(const Matrix& a, const Matrix& b)
+	{
+		for (int i = 0; i < 16; ++i)
+		{
+			if (a.M[i] != b.M[i])
+				return true;
+		}
+		return false;
+	}
 }

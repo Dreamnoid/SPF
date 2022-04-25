@@ -1,5 +1,5 @@
 #include <Surfaces.h>
-#include "gl4.h"
+#include "GL4.h"
 #include <cstdio>
 #include <vector>
 #include <Textures.h>

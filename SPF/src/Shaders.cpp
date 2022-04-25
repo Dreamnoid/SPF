@@ -1,6 +1,8 @@
+#include <cstring>
+#include <cstdio>
 #include <Shaders.h>
 #include <vector>
-#include "gl4.h"
+#include "GL4.h"
 #include "Resources.h"
 
 namespace SPF
@@ -23,7 +25,7 @@ namespace SPF
 				char log[4096];
 				int lgt;
 				glGetShaderInfoLog(shader, 4096, &lgt, log);
-				printf(log);
+				printf("%s", log);
 				FatalError(log);
 			}
 			return shader;
@@ -42,13 +44,13 @@ namespace SPF
 				char log[4096];
 				int lgt;
 				glGetProgramInfoLog(program, 4096, &lgt, log);
-				printf(log);
+				printf("%s", log);
 				FatalError(log);
 			}
 			return program;
 		}
 
-		void Shaders::Init()
+		void Init()
 		{
 			VertexShaderID = CompileShader(GL_VERTEX_SHADER,
 				"#version 330 core\n"
@@ -82,7 +84,7 @@ namespace SPF
 				"}\n");
 		}
 
-		ResourceIndex Shaders::Create(const char* sourceCode)
+		ResourceIndex Create(const char* sourceCode)
 		{
 			GLuint pixelShader = CompileShader(GL_FRAGMENT_SHADER, sourceCode);
 			GLuint program = LinkProgram(VertexShaderID, pixelShader);
@@ -101,7 +103,7 @@ namespace SPF
 			return CreateResource(Resources.Shaders, { true, program });
 		}
 
-		void Shaders::Delete(ResourceIndex shader)
+		void Delete(ResourceIndex shader)
 		{
 			glDeleteProgram(Resources.Shaders[shader].GLID);
 			DeleteResource(Resources.Shaders, shader);

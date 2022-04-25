@@ -1,6 +1,6 @@
 #include <Meshes.h>
 #include <vector>
-#include "gl4.h"
+#include "GL4.h"
 #include "Resources.h"
 
 namespace SPF
@@ -12,7 +12,7 @@ namespace SPF
 			return ((char*)NULL + (i));
 		}
 
-		ResourceIndex Meshes::Load(Vertex* vertices, int count, bool dynamic)
+		ResourceIndex Load(Vertex* vertices, int count, bool dynamic)
 		{
 			GLuint vao;
 			glGenVertexArrays(1, &vao);
@@ -43,19 +43,19 @@ namespace SPF
 			return CreateResource(Resources.Meshes, { true, vao, vbo, count });
 		}
 
-		void Meshes::Update(ResourceIndex mesh, Vertex* vertices, int count)
+		void Update(ResourceIndex mesh, Vertex* vertices, int count)
 		{
 			const Mesh& meshDef = Resources.Meshes[mesh];
 			glBindBuffer(GL_ARRAY_BUFFER, meshDef.VertexBufferGLID);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, count * sizeof(Vertex), vertices);
 		}
 
-		void Meshes::Bind(ResourceIndex mesh)
+		void Bind(ResourceIndex mesh)
 		{
 			glBindVertexArray(Resources.Meshes[mesh].VertexArrayGLID);
 		}
 
-		void Meshes::Delete(ResourceIndex mesh)
+		void Delete(ResourceIndex mesh)
 		{
 			const Mesh& meshDef = Resources.Meshes[mesh];
 			glDeleteVertexArrays(1, &meshDef.VertexArrayGLID);

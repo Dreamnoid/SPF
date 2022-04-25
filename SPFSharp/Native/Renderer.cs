@@ -37,7 +37,7 @@ namespace SPFSharp
 			public static extern void SPF_SetBuffers(bool colorWrite, bool depthWrite, int depthTest);
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern void SPF_SetStencil(bool write, int test, float reference, int stencilFail, int depthFail, int depthPass);
+			public static extern void SPF_SetStencil(bool write, int test, int reference, int stencilFail, int depthFail, int depthPass);
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern int SPF_GetFinalSurface();
