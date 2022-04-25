@@ -1,6 +1,6 @@
 #include <Window.h>
 #include <SDL.h>
-#include "gl4.h"
+#include "GL4.h"
 #include <Audio.h>
 #include <Renderer.h>
 #include <Input.h>
