@@ -1,35 +1,35 @@
 ﻿<Project>
-  <PropertyGroup>
-    <BaseIntermediateOutputPath>obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
-  </PropertyGroup>
-  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+	<PropertyGroup>
+		<BaseIntermediateOutputPath>obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
+	</PropertyGroup>
+	<Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
-  <PropertyGroup>
-    <TargetFrameworks>net5.0;</TargetFrameworks>
-	<LangVersion>8.0</LangVersion>
-    <ApplicationIcon />
-    <OutputType>Library</OutputType>
-    <StartupObject></StartupObject>
-    <Configurations>Release</Configurations>
-	<DebugType>embedded</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>../bin/</OutputPath>
-	<DefaultItemExcludes>$(DefaultItemExcludes);obj\**</DefaultItemExcludes>
-	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-	<PlatformTarget>x64</PlatformTarget>
-    <DefineConstants>LINUX</DefineConstants>
-    <Optimize>true</Optimize>
-    <RootNamespace>SPFSharp</RootNamespace>
-    <AssemblyName>SPFSharp_linux</AssemblyName>
-  </PropertyGroup>
-  
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net5.0;</TargetFrameworks>
+		<LangVersion>8.0</LangVersion>
+		<ApplicationIcon />
+		<OutputType>Library</OutputType>
+		<StartupObject></StartupObject>
+		<Configurations>Release</Configurations>
+		<DebugType>embedded</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+		<OutputPath>../bin/</OutputPath>
+		<DefaultItemExcludes>$(DefaultItemExcludes);obj\**</DefaultItemExcludes>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<PlatformTarget>x64</PlatformTarget>
+		<DefineConstants>LINUX</DefineConstants>
+		<Optimize>true</Optimize>
+		<RootNamespace>SPFSharp</RootNamespace>
+		<AssemblyName>SPFSharp_linux</AssemblyName>
+	</PropertyGroup>
 
-  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+	<ItemGroup>
+		<Reference Include="System" />
+		<Reference Include="System.Core" />
+		<Reference Include="System.IO.Compression" />
+		<Reference Include="System.Numerics" />
+		<Reference Include="Microsoft.CSharp" />
+	</ItemGroup>
+
+	<Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>
