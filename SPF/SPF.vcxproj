@@ -118,6 +118,7 @@
     <ClInclude Include="include\Textures.h" />
     <ClInclude Include="include\Window.h" />
     <ClInclude Include="src\OpenGLHelpers.h" />
+    <ClInclude Include="src\portable-file-dialogs.h" />
     <ClInclude Include="src\Resources.h" />
     <ClInclude Include="src\GL4.h" />
     <ClInclude Include="src\stb_image.h" />

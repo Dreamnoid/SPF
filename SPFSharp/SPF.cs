@@ -119,6 +119,14 @@ namespace SPFSharp
 
 		public static void SetWindowTitle(string title) => Native.Window.SPF_SetWindowTitle(title);
 
+		public static void GetDesktopSize(out int w, out int h) => Native.Window.SPF_GetDesktopSize(out w, out h);
+
+		public static void ShowMessageBox(string title, string message, bool isError = false) => Native.Window.SPF_ShowMessageBox(title, message, isError);
+
+		public static string OpenFileDialog(string defaultFolder, string filter) => Native.Window.SPF_OpenFileDialog(defaultFolder, filter).MarshalToString();
+
+		public static string SaveFileDialog(string defaultFolder, string filter) => Native.Window.SPF_SaveFileDialog(defaultFolder, filter).MarshalToString();
+
 		public class Image : IDisposable
 		{
 			public Int32 ID { get; private set; }

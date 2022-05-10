@@ -29,6 +29,11 @@ namespace SPF
 		static Rect Unit;
 	};
 
+	struct Size
+	{
+		int Width, Height;
+	};
+
 	struct Vector3
 	{
 		float X, Y, Z;

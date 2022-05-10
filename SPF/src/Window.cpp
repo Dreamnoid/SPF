@@ -6,16 +6,18 @@
 #include <Input.h>
 #include <Shaders.h>
 #include <Surfaces.h>
+#include "portable-file-dialogs.h";
 
 namespace SPF
 {
 	struct
 	{
-		int Width;
-		int Height;
+		int Width = 0;
+		int Height = 0;
 		SDL_GLContext OpenGLContext;
-		SDL_Window* Window;
-		unsigned int LastTick;
+		SDL_Window* Window = nullptr;
+		unsigned int LastTick = 0;
+		char* LastClipboardData = nullptr;
 	} WindowData;
 
 	namespace Window
@@ -107,7 +109,7 @@ namespace SPF
 		{
 			SDL_SetWindowSize(WindowData.Window, w, h);
 			WindowData.Width = w;
-			WindowData.Height = h; 
+			WindowData.Height = h;
 			Renderer::Resize(w, h);
 
 			SDL_SetWindowPosition(WindowData.Window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
@@ -137,7 +139,7 @@ namespace SPF
 		{
 			Uint16 pitch = surface->pitch; // Allocates memory to store temp lines
 			Uint8* t = (Uint8*)malloc(pitch);
-			if (t == nullptr) 
+			if (t == nullptr)
 				return;
 
 			memcpy(t, surface->pixels, pitch); // Save the first line
@@ -152,7 +154,7 @@ namespace SPF
 				memcpy(b, a, pitch);
 				b -= pitch;
 			}
-			
+
 			memmove(b, b + pitch, last - b); // In this shuffled state, the bottom slice is too far down
 			memcpy(last, t, pitch); // Put back the first row in the last place
 
@@ -166,6 +168,80 @@ namespace SPF
 			FlipSurfaceVertical(image);
 			SDL_SaveBMP(image, filename);
 			SDL_FreeSurface(image);
+		}
+
+		void SetClipboard(const char* text)
+		{
+			SDL_SetClipboardText(text);
+		}
+
+		char* GetClipboard()
+		{
+			if (WindowData.LastClipboardData != nullptr)
+			{
+				SDL_free(WindowData.LastClipboardData);
+				WindowData.LastClipboardData = nullptr;
+			}
+			if (SDL_HasClipboardText())
+			{
+				WindowData.LastClipboardData = SDL_GetClipboardText();
+			}
+			return WindowData.LastClipboardData;
+		}
+
+		Size GetDesktopSize()
+		{
+			SDL_DisplayMode mode;
+			if (SDL_GetDesktopDisplayMode(0, &mode) == 0)
+			{
+				return { mode.w, mode.h };
+			}
+			return { 0, 0 };
+		}
+
+		void ShowMessageBox(const char* title, const char* message, bool isError)
+		{
+			SDL_ShowSimpleMessageBox(isError ? SDL_MESSAGEBOX_ERROR : SDL_MESSAGEBOX_INFORMATION, title, message, NULL);
+		}
+
+		std::vector<std::string> ParseFilter(const char* filter)
+		{
+			std::string s(filter);
+			const std::string delimiter = "|";
+			std::vector<std::string> results;
+
+			size_t pos = 0;
+			while ((pos = s.find(delimiter)) != std::string::npos)
+			{
+				results.push_back(s.substr(0, pos));
+				s.erase(0, pos + delimiter.length());
+			}
+			results.push_back(s);
+
+			return results;
+		}
+
+		char* StringToCharArray(const std::string& str)
+		{
+			char* c = new char[str.length() + 1];
+			strcpy_s(c, str.length() + 1, str.c_str());
+			return c;
+		}
+
+		char* OpenFileDialog(const char* defaultFolder, const char* filter)
+		{
+			auto selection = pfd::open_file("Select a file", defaultFolder, ParseFilter(filter), pfd::opt::none).result();
+			if (!selection.empty())
+			{
+				return StringToCharArray(selection[0]);
+			}
+			return nullptr;
+		}
+
+		char* SaveFileDialog(const char* defaultFolder, const char* filter)
+		{
+			auto destination = pfd::save_file("Select a file", defaultFolder, ParseFilter(filter), pfd::opt::none).result();
+			return StringToCharArray(destination);
 		}
 	}
 }
@@ -225,5 +301,37 @@ extern "C"
 	DLLExport void SPF_SaveScreenshot(const char* filename)
 	{
 		SPF::Window::SaveScreenshot(filename);
+	}
+
+	DLLExport void SPF_SetClipboard(const char* text)
+	{
+		SPF::Window::SetClipboard(text);
+	}
+
+	DLLExport char* SPF_GetClipboard()
+	{
+		return SPF::Window::GetClipboard();
+	}
+
+	DLLExport void SPF_GetDesktopSize(int* w, int* h)
+	{
+		SPF::Size size = SPF::Window::GetDesktopSize();
+		*w = size.Width;
+		*h = size.Height;
+	}
+
+	DLLExport void SPF_ShowMessageBox(const char* title, const char* message, bool isError)
+	{
+		SPF::Window::ShowMessageBox(title, message, isError);
+	}
+
+	DLLExport char* SPF_OpenFileDialog(const char* defaultFolder, const char* filter)
+	{
+		return SPF::Window::OpenFileDialog(defaultFolder, filter);
+	}
+
+	DLLExport char* SPF_SaveFileDialog(const char* defaultFolder, const char* filter)
+	{
+		return SPF::Window::SaveFileDialog(defaultFolder, filter);
 	}
 }

@@ -16,5 +16,11 @@ namespace SPF
 		DLLExport int GetHeight();
 		DLLExport bool HasFocus();
 		DLLExport void SaveScreenshot(const char* filename);
+		DLLExport void SetClipboard(const char* text);
+		DLLExport char* GetClipboard();
+		DLLExport Size GetDesktopSize();
+		DLLExport void ShowMessageBox(const char* title, const char* message, bool isError);
+		DLLExport char* OpenFileDialog(const char* defaultFolder, const char* filter);
+		DLLExport char* SaveFileDialog(const char* defaultFolder, const char* filter);
 	}
 }

@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace SPFSharp
 {
@@ -43,5 +45,7 @@ namespace SPFSharp
 			bw.Write(v.OverlayB);
 			bw.Write(v.OverlayA);
 		}
+
+		internal static string MarshalToString(this IntPtr ptr) => ptr != IntPtr.Zero ? Marshal.PtrToStringAnsi(ptr) : null;
 	}
 }
