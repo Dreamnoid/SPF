@@ -66,7 +66,7 @@ namespace SPF
 			WindowData.LastTick = currentTick;
 			*dt = timeElapsed / 1000.0f;
 
-			Input::Update();
+			Input::Update({ WindowData.Width, WindowData.Height });
 
 			SDL_Event evt;
 			while (SDL_PollEvent(&evt))

@@ -155,7 +155,7 @@ namespace SPF
 			SearchGamepad();
 		}
 
-		void Update()
+		void Update(const Size& windowSize)
 		{
 			memcpy(InputData.KeysDownPreviousFrame, InputData.KeysDown, sizeof(InputData.KeysDownPreviousFrame));
 			memcpy(InputData.ButtonsDownPreviousFrame, InputData.ButtonsDown, sizeof(InputData.ButtonsDownPreviousFrame));
@@ -164,6 +164,15 @@ namespace SPF
 			int previousMouseY = InputData.MouseY;
 			InputData.PreviousMouseState = InputData.CurrentMouseState;
 			InputData.CurrentMouseState = SDL_GetMouseState(&InputData.MouseX, &InputData.MouseY);
+
+			// Scale mouse position with fullscreen desktop mode
+			{
+				int hardwareWindowWidth, hardwareWindowHeight;
+				SDL_GetWindowSize(InputData.Window, &hardwareWindowWidth, &hardwareWindowHeight);
+				InputData.MouseX = (int)((InputData.MouseX / (float)hardwareWindowWidth) * windowSize.Width);
+				InputData.MouseY = (int)((InputData.MouseY / (float)hardwareWindowHeight) * windowSize.Height);
+			}
+
 			if (InputData.RelativeMode)
 			{
 				SDL_GetRelativeMouseState(&InputData.MouseDeltaX, &InputData.MouseDeltaY);
