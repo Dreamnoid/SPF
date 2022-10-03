@@ -97,6 +97,8 @@ namespace SPF
 			case Key::F10: return SDL_SCANCODE_F10;
 			case Key::F11: return SDL_SCANCODE_F11;
 			case Key::F12: return SDL_SCANCODE_F12;
+			case Key::Tab: return SDL_SCANCODE_TAB;
+			case Key::PrintScreen: return SDL_SCANCODE_PRINTSCREEN;
 			default: return SDL_SCANCODE_RETURN;
 			}
 		}
