@@ -97,12 +97,12 @@ namespace SPFSharp
 				PushVertex(new Vector3(x, y, 0), Vector2.Zero, color1);
 			}
 
-			public static void DrawRectangle(int x, int y, int w, int h, Vector4 color)
+			public static void DrawRectangle(int x, int y, int w, int h, Vector4 color, int lineWidth = 1)
 			{
-				FillRectangle(x, y, w, 1, color);
-				FillRectangle(x, y + h - 1, w, 1, color);
-				FillRectangle(x, y + 1, 1, h - 2, color);
-				FillRectangle(x + w - 1, y + 1, 1, h - 2, color);
+				FillRectangle(x, y, w, lineWidth, color);
+				FillRectangle(x, y + h - lineWidth, w, lineWidth, color);
+				FillRectangle(x, y + lineWidth, lineWidth, h - (lineWidth * 2), color);
+				FillRectangle(x + w - lineWidth, y + lineWidth, lineWidth, h - (lineWidth * 2), color);
 			}
 
 			public static void DrawTexture(Texture tex, int x, int y)
