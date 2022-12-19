@@ -1,12 +1,12 @@
-﻿using System;
-using System.Runtime.InteropServices;
-
-namespace SPFSharp
+﻿namespace SPFSharp
 {
-    public static class Clipboard
+    public static partial class SPF
     {
-        public static void SetText(string text) => Native.Window.SPF_SetClipboard(text);
+        public static class Clipboard
+        {
+            public static void SetText(string text) => Native.Window.SPF_SetClipboard(text);
 
-        public static string GetText() => Native.Window.SPF_GetClipboard().MarshalToString();
+            public static string GetText() => Native.Window.SPF_GetClipboard().MarshalToString();
+        }
     }
 }
