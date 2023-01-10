@@ -65,7 +65,8 @@ namespace SPF
 		F11,
 		F12,
 		Tab,
-		PrintScreen
+		PrintScreen,
+		Backspace
 	};
 
 	enum class Button : int
