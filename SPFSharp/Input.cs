@@ -68,7 +68,9 @@ namespace SPFSharp
 			F12,
 			Tab,
 			PrintScreen,
-			Backspace
+			Backspace,
+			Home,
+			End
 		}
 
 		public enum Button : int

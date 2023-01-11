@@ -26,7 +26,7 @@ namespace SPF
 		unsigned int PreviousMouseState;
 		bool RelativeMode = false;
 
-		std::string TextInput;
+		std::string LastTextInput;
 		bool TextInputEnabled = false;
 
 	} InputData;
@@ -100,6 +100,8 @@ namespace SPF
 			case Key::Tab: return SDL_SCANCODE_TAB;
 			case Key::PrintScreen: return SDL_SCANCODE_PRINTSCREEN;
 			case Key::Backspace: return SDL_SCANCODE_BACKSPACE;
+			case Key::Home: return SDL_SCANCODE_HOME;
+			case Key::End: return SDL_SCANCODE_END;
 			default: return SDL_SCANCODE_RETURN;
 			}
 		}
@@ -221,13 +223,9 @@ namespace SPF
 					memset(&InputData.ButtonsDown, 0, sizeof(InputData.ButtonsDown)); // All buttons released
 				}
 			}
-			if (InputData.TextInputEnabled && (evt.type == SDL_KEYDOWN) && (evt.key.keysym.sym == SDLK_BACKSPACE) && InputData.TextInput.size())
-			{
-				InputData.TextInput.pop_back();
-			}
 			if (evt.type == SDL_TEXTINPUT)
 			{
-				InputData.TextInput.append(evt.text.text);
+				InputData.LastTextInput = evt.text.text;
 			}
 			if (evt.type == SDL_MOUSEWHEEL)
 			{
@@ -399,7 +397,7 @@ namespace SPF
 
 		void StartTextInput()
 		{
-			InputData.TextInput.clear();
+			InputData.LastTextInput.clear();
 			SDL_StartTextInput();
 			InputData.TextInputEnabled = true;
 		}
@@ -412,7 +410,7 @@ namespace SPF
 
 		const char* GetTextInput()
 		{
-			return InputData.TextInput.c_str();
+			return InputData.LastTextInput.c_str();
 		}
 
 		void Rumble(float duration, float lowIntensity, float highIntensity)
