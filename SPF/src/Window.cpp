@@ -7,6 +7,7 @@
 #include <Shaders.h>
 #include <Surfaces.h>
 #include "portable-file-dialogs.h";
+#include <filesystem>
 
 namespace SPF
 {
@@ -240,8 +241,21 @@ namespace SPF
 
 		char* SaveFileDialog(const char* defaultFolder, const char* filter)
 		{
-			auto destination = pfd::save_file("Select a file", defaultFolder, ParseFilter(filter), pfd::opt::none).result();
-			return StringToCharArray(destination);
+			std::vector<std::string> filterParts = ParseFilter(filter);
+			std::string destination = pfd::save_file("Select a file", defaultFolder, filterParts, pfd::opt::none).result();
+			std::filesystem::path path(destination);
+			if (!path.has_extension())
+			{
+				for (const std::string& filterPart : filterParts)
+				{
+					if(filterPart.rfind("*.", 0) == 0) // Skip the display names, keep only the masks
+					{
+						path.replace_extension(filterPart.substr(1)); // Skip the *
+						break;
+					}
+				}
+			}
+			return StringToCharArray(path.string());
 		}
 	}
 }
