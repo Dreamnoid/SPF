@@ -17,7 +17,11 @@ namespace SPFSharp
 
         [SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern Int32 SPF_LoadMesh([In] SPF.Vertex[] vertices, int count);
+		public static extern Int32 SPF_LoadMesh([In] SPF.Vertex[] vertices, int count, bool dynamic);
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void SPF_UpdateMesh(int mesh, [In] SPF.Vertex[] vertices, int count);
 
 		[SuppressUnmanagedCodeSecurity]
 		[DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]

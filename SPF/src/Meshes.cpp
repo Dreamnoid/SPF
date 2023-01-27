@@ -67,9 +67,15 @@ namespace SPF
 
 extern "C"
 {
-	DLLExport int SPF_LoadMesh(SPF::Vertex* vertices, int count)
+	DLLExport int SPF_LoadMesh(SPF::Vertex* vertices, int count, bool dynamic)
 	{
-		return SPF::Meshes::Load(vertices, count);
+		return SPF::Meshes::Load(vertices, count, dynamic);
+	}
+
+	DLLExport void SPF_UpdateMesh(int mesh, SPF::Vertex* vertices, int count)
+	{
+		SPF::Meshes::Bind(mesh);
+		SPF::Meshes::Update(mesh, vertices, count);
 	}
 
 	DLLExport void SPF_DeleteMesh(int mesh)

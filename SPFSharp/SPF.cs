@@ -247,18 +247,35 @@ namespace SPFSharp
 
 		public class Mesh : IDisposable
 		{
-			public Int32 ID { get; private set; }
-			public int VerticesCount { get; private set; }
+			public Int32 ID { get; }
+			public int VerticesCount { get; }
 
-			public Mesh(Vertex[] vertices)
+			public Mesh(Vertex[] vertices) : this(vertices, false) { }
+
+			protected Mesh(Vertex[] vertices, bool dynamic)
 			{
-				ID = Native.SPF_LoadMesh(vertices, vertices.Length);
+				ID = Native.SPF_LoadMesh(vertices, vertices.Length, dynamic);
 				VerticesCount = vertices.Length;
 			}
 
 			public void Dispose()
 			{
 				Native.SPF_DeleteMesh(ID);
+			}
+		}
+
+		public class DynamicMesh : Mesh
+		{
+			public Vertex[] Vertices { get; }
+
+			public DynamicMesh(Vertex[] vertices) : base(vertices, true)
+			{
+				Vertices = vertices;
+			}
+
+			public void Update()
+			{
+				Native.SPF_UpdateMesh(ID, Vertices, VerticesCount);
 			}
 		}
 
