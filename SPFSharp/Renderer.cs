@@ -58,7 +58,9 @@ namespace SPFSharp
 
 			public static void FillRectangle(int x, int y, int w, int h, Vector4 color)
 			{
+				SetPrimitiveType(PrimitiveType.Triangle);
 				SetMaterial(null);
+
 				PushVertex(new Vector3(x, y + h, 0), Vector2.Zero, color);
 				PushVertex(new Vector3(x + w, y + h, 0), Vector2.Zero, color);
 				PushVertex(new Vector3(x + w, y, 0), Vector2.Zero, color);
@@ -72,7 +74,9 @@ namespace SPFSharp
 				int x, int y, int w, int h, 
 				Vector4 color1, Vector4 color2)
 			{
+				SetPrimitiveType(PrimitiveType.Triangle);
 				SetMaterial(null);
+
 				PushVertex(new Vector3(x, y + h, 0), Vector2.Zero, color2);
 				PushVertex(new Vector3(x + w, y + h, 0), Vector2.Zero, color2);
 				PushVertex(new Vector3(x + w, y, 0), Vector2.Zero, color1);
@@ -86,6 +90,7 @@ namespace SPFSharp
 				int x, int y, int w, int h,
 				Vector4 color1, Vector4 color2)
 			{
+				SetPrimitiveType(PrimitiveType.Triangle);
 				SetMaterial(null);
 
 				PushVertex(new Vector3(x, y + h, 0), Vector2.Zero, color1);
@@ -213,6 +218,7 @@ namespace SPFSharp
 				in Vector4 aColor, in Vector4 bColor, in Vector4 cColor, in Vector4 dColor,
 				in Vector4 overlay)
 			{
+				SetPrimitiveType(PrimitiveType.Triangle);
 				tex.DetermineUV(srcx, srcy, srcw, srch, flipX, flipY, out var uv1, out var uv2);
 				SetMaterial(null, tex);
 				PushVertex(d, Vector3.Zero, new Vector2(uv1.X, uv2.Y), Vector2.Zero, dColor, overlay);
@@ -226,6 +232,7 @@ namespace SPFSharp
 
 			public static void DrawTexturedTriangle(Texture tex, in Vertex a, in Vertex b, in Vertex c)
 			{
+				SetPrimitiveType(PrimitiveType.Triangle);
 				SetMaterial(null, tex);
 				PushVertex(a);
 				PushVertex(b);
@@ -244,6 +251,7 @@ namespace SPFSharp
 
 			public static void DrawFullScreenQuad(in Vector4 color)
 			{
+				SetPrimitiveType(PrimitiveType.Triangle);
 				var width = _currentSurface?.Width ?? GetWindowWidth();
 				var height = _currentSurface?.Height ?? GetWindowHeight();
 
@@ -264,11 +272,14 @@ namespace SPFSharp
 				0f, 0f, 0f, 1f
 			};
 
-			public static void DrawMesh(Mesh mesh, int first, int count,  float[] world, in Vector4 overlay)
-				=> Native.Renderer.SPF_DrawMesh(
-					mesh.ID, first, count, 
+			public static void DrawMesh(Mesh mesh, int first, int count, float[] world, in Vector4 overlay)
+			{
+				SetPrimitiveType(PrimitiveType.Triangle);
+				Native.Renderer.SPF_DrawMesh(
+					mesh.ID, first, count,
 					world,
 					overlay.X, overlay.Y, overlay.Z, overlay.W);
+			}
 
 			public static void DrawMesh(Mesh mesh, float[] world) => DrawMesh(mesh, 0, mesh.VerticesCount, world, Vector4.Zero);
 
@@ -281,7 +292,6 @@ namespace SPFSharp
 				SetPrimitiveType(PrimitiveType.Line);
 				PushVertex(from, Vector2.Zero, color);
 				PushVertex(to, Vector2.Zero, color);
-				SetPrimitiveType(PrimitiveType.Triangle);
 			}
 
 			public static void DrawBillboard(
@@ -312,6 +322,7 @@ namespace SPFSharp
 				in Vector4 color,
 				in Vector4 overlay)
 			{
+				SetPrimitiveType(PrimitiveType.Triangle);
 				tex.DetermineUV(srcx, srcy, srcw, srch, flipX, flipY, out var uv1, out var uv2);
 				float halfWidth = size.X * 0.5f;
 				PushVertex(position, Vector3.Zero, new Vector2(uv1.X, uv2.Y), new Vector2(-halfWidth, 0.0f), color, overlay);
