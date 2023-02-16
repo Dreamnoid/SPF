@@ -155,6 +155,10 @@ namespace SPF
 				{
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 				}
+				else if (rasterization.Blending == BlendMode::Multiply)
+				{
+					glBlendFunc(GL_DST_COLOR, GL_ZERO);
+				}
 			}
 
 			if (rasterization.BackfaceCulling != current.BackfaceCulling)

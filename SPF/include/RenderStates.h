@@ -6,7 +6,8 @@ namespace SPF
 	enum class BlendMode : int
 	{
 		Alpha,
-		Additive
+		Additive,
+		Multiply
 	};
 
 	enum class Comparison : int
