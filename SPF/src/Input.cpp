@@ -106,6 +106,80 @@ namespace SPF
 			}
 		}
 
+		Key LocalizeKey(Key key)
+		{
+			int pseudoScanCode = TranslateKey(key);
+			if (pseudoScanCode >= SDL_NUM_SCANCODES)
+				return key;
+
+			SDL_Keycode keyCode = SDL_GetKeyFromScancode((SDL_Scancode)pseudoScanCode);
+			switch (keyCode)
+			{
+			case SDLK_UP: return Key::Up;
+			case SDLK_DOWN: return Key::Down;
+			case SDLK_LEFT: return Key::Left;
+			case SDLK_RIGHT: return Key::Right;
+			case SDLK_SPACE: return Key::Space;
+			case SDLK_ESCAPE: return Key::Escape;
+			case SDLK_DELETE: return Key::Delete;
+			case SDLK_a: return Key::A;
+			case SDLK_b: return Key::B;
+			case SDLK_c: return Key::C;
+			case SDLK_d: return Key::D;
+			case SDLK_e: return Key::E;
+			case SDLK_f: return Key::F;
+			case SDLK_g: return Key::G;
+			case SDLK_h: return Key::H;
+			case SDLK_i: return Key::I;
+			case SDLK_j: return Key::J;
+			case SDLK_k: return Key::K;
+			case SDLK_l: return Key::L;
+			case SDLK_m: return Key::M;
+			case SDLK_n: return Key::N;
+			case SDLK_o: return Key::O;
+			case SDLK_p: return Key::P;
+			case SDLK_q: return Key::Q;
+			case SDLK_r: return Key::R;
+			case SDLK_s: return Key::S;
+			case SDLK_t: return Key::T;
+			case SDLK_u: return Key::U;
+			case SDLK_v: return Key::V;
+			case SDLK_w: return Key::W;
+			case SDLK_x: return Key::X;
+			case SDLK_y: return Key::Y;
+			case SDLK_z: return Key::Z;
+			case SDLK_KP_0: return Key::Num0;
+			case SDLK_KP_1: return Key::Num1;
+			case SDLK_KP_2: return Key::Num2;
+			case SDLK_KP_3: return Key::Num3;
+			case SDLK_KP_4: return Key::Num4;
+			case SDLK_KP_5: return Key::Num5;
+			case SDLK_KP_6: return Key::Num6;
+			case SDLK_KP_7: return Key::Num7;
+			case SDLK_KP_8: return Key::Num8;
+			case SDLK_KP_9: return Key::Num9;
+			case SDLK_RETURN: return Key::Return;
+			case SDLK_F1: return Key::F1;
+			case SDLK_F2: return Key::F2;
+			case SDLK_F3: return Key::F3;
+			case SDLK_F4: return Key::F4;
+			case SDLK_F5: return Key::F5;
+			case SDLK_F6: return Key::F6;
+			case SDLK_F7: return Key::F7;
+			case SDLK_F8: return Key::F8;
+			case SDLK_F9: return Key::F9;
+			case SDLK_F10: return Key::F10;
+			case SDLK_F11: return Key::F11;
+			case SDLK_F12: return Key::F12;
+			case SDLK_TAB: return Key::Tab;
+			case SDLK_PRINTSCREEN: return Key::PrintScreen;
+			case SDLK_BACKSPACE: return Key::Backspace;
+			case SDLK_HOME: return Key::Home;
+			case SDLK_END: return Key::End;
+			default: return Key::Return;
+			}
+		}
+
 		SDL_GameControllerButton TranslateButton(Button button)
 		{
 			switch (button)
@@ -543,5 +617,10 @@ extern "C"
 	DLLExport void SPF_Rumble(float duration, float lowIntensity, float highIntensity)
 	{
 		SPF::Input::Rumble(duration, lowIntensity, highIntensity);
+	}
+
+	DLLExport int SPF_LocalizeKey(int key)
+	{
+		return (int)SPF::Input::LocalizeKey((SPF::Key)key);
 	}
 }

@@ -79,6 +79,9 @@ namespace SPFSharp
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern void SPF_Rumble(float duration, float lowIntensity, float highIntensity);
+
+			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+			public static extern int SPF_LocalizeKey(int key);
 		}
 	}
 }

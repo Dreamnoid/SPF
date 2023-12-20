@@ -176,6 +176,8 @@ namespace SPFSharp
 
 			public static void Rumble(float duration, float lowIntensity = 0.5f, float highIntensity = 0.5f) 
 				=> Native.Input.SPF_Rumble(duration, lowIntensity, highIntensity);
+
+			public static Key Localize(Key key) => (Key)Native.Input.SPF_LocalizeKey((int)key);
 		}
 	}
 }
