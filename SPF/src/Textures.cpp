@@ -146,4 +146,9 @@ extern "C"
 	{
 		return SPF::Textures::IsFlipped(texture);
 	}
+
+	DLLExport void SPF_GenerateMipmap(int texture)
+	{
+		SPF::Textures::GenerateMipmap(texture);
+	}
 }

@@ -12,5 +12,6 @@ namespace SPF
 		DLLExport int GetHeight(ResourceIndex texture);
 		DLLExport void SetFiltering(ResourceIndex texture, bool filtering);
 		DLLExport bool IsFlipped(ResourceIndex texture);
+		DLLExport void GenerateMipmap(ResourceIndex texture);
 	}
 }

@@ -40,6 +40,8 @@ namespace SPFSharp
 
 			public void SetFiltering(bool filtering) => Native.Textures.SPF_SetTextureFiltering(ID, filtering);
 
+			public void GenerateMipmap() => Native.Textures.SPF_GenerateMipmap(ID);
+
 			public void DetermineUV(int x, int y, int width, int height, bool flipX, bool flipY, out Vector2 uv1, out Vector2 uv2)
 			{
 				uv1.X = x / (float)Width;
