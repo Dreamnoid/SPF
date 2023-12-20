@@ -29,6 +29,7 @@ namespace SPF
 		unsigned int Height;
 		bool Flipped;
 		bool Depth;
+		bool HasMipmap;
 	};
 
 	struct Shader

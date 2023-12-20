@@ -40,7 +40,24 @@ namespace SPF
 
 			glBindTexture(GL_TEXTURE_2D, previousId);
 
-			return CreateResource(Resources.Textures, { true,id,w,h,flipped });
+			return CreateResource(Resources.Textures, { true, id, w, h, flipped, depth, false });
+		}
+
+		void GenerateMipmap(ResourceIndex texture)
+		{
+			Texture& textureData = Resources.Textures[texture];
+			if (!textureData.HasMipmap)
+			{
+				GLint previousId;
+				glGetIntegerv(GL_TEXTURE_BINDING_2D, &previousId);
+
+				glBindTexture(GL_TEXTURE_2D, textureData.GLID);
+				glGenerateMipmap(GL_TEXTURE_2D);
+
+				glBindTexture(GL_TEXTURE_2D, previousId);
+
+				textureData.HasMipmap = true;
+			}
 		}
 
 		void SetFiltering(ResourceIndex texture, bool filtering)
@@ -48,15 +65,16 @@ namespace SPF
 			GLint previousId;
 			glGetIntegerv(GL_TEXTURE_BINDING_2D, &previousId);
 
-			glBindTexture(GL_TEXTURE_2D, Resources.Textures[texture].GLID);
+			Texture& textureData = Resources.Textures[texture];
+			glBindTexture(GL_TEXTURE_2D, textureData.GLID);
 			if (filtering)
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, textureData.HasMipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			}
 			else
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, textureData.HasMipmap ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			}
 
