@@ -225,7 +225,11 @@ namespace SPF
 		char* StringToCharArray(const std::string& str)
 		{
 			char* c = new char[str.length() + 1];
+#if _MSC_VER
 			strcpy_s(c, str.length() + 1, str.c_str());
+#else
+			strcpy(c, str.c_str());
+#endif
 			return c;
 		}
 
