@@ -6,7 +6,7 @@
 #include <Input.h>
 #include <Shaders.h>
 #include <Surfaces.h>
-#include "portable-file-dialogs.h";
+#include "portable-file-dialogs.h"
 #include <filesystem>
 
 namespace SPF
@@ -15,7 +15,7 @@ namespace SPF
 	{
 		int Width = 0;
 		int Height = 0;
-		SDL_GLContext OpenGLContext;
+		SDL_GLContext OpenGLContext = nullptr;
 		SDL_Window* Window = nullptr;
 		unsigned int LastTick = 0;
 		char* LastClipboardData = nullptr;
