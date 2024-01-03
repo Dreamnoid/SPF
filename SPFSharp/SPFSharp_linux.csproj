@@ -1,11 +1,6 @@
-﻿<Project>
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<BaseIntermediateOutputPath>obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
-	</PropertyGroup>
-	<Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
-
-	<PropertyGroup>
-		<TargetFrameworks>net5.0;</TargetFrameworks>
+		<TargetFrameworks>net7.0;</TargetFrameworks>
 		<LangVersion>8.0</LangVersion>
 		<ApplicationIcon />
 		<OutputType>Library</OutputType>
@@ -22,14 +17,4 @@
 		<RootNamespace>SPFSharp</RootNamespace>
 		<AssemblyName>SPFSharp_linux</AssemblyName>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<Reference Include="System" />
-		<Reference Include="System.Core" />
-		<Reference Include="System.IO.Compression" />
-		<Reference Include="System.Numerics" />
-		<Reference Include="Microsoft.CSharp" />
-	</ItemGroup>
-
-	<Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>
