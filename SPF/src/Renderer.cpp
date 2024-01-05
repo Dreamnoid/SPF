@@ -393,16 +393,23 @@ namespace SPF
 			SetBuffers({ true, false, Comparison::Always });
 
 			ResourceIndex texture = Surfaces::GetTexture(GetFinalSurface());
+			int texWidth = Textures::GetWidth(texture);
+			int texHeight = Textures::GetHeight(texture);
+			float ratio = (float)w / (float)texWidth;
+
+			int scaledH = (int)(texHeight * ratio);
+			float y = ((h - scaledH) / 2.0f);
+			h = scaledH;
 
 			SetMaterial({ InvalidResource, texture, InvalidResource, InvalidResource, InvalidResource, InvalidResource, InvalidResource, InvalidResource, InvalidResource });
 
 			PushVertex({ { 0.f, (float)h, 0.f }, Vector3::Zero, { 0.f, 0.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
 			PushVertex({ { (float)w, (float)h, 0.f }, Vector3::Zero, { 1.f, 0.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
-			PushVertex({ { (float)w, 0.f, 0.f }, Vector3::Zero, { 1.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
+			PushVertex({ { (float)w, y, 0.f }, Vector3::Zero, { 1.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
 
 			PushVertex({ { 0.f, (float)h, 0.f }, Vector3::Zero, { 0.f, 0.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
-			PushVertex({ { (float)w, 0.f, 0.f }, Vector3::Zero, { 1.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
-			PushVertex({ { 0.f, 0.f, 0.f }, Vector3::Zero, { 0.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
+			PushVertex({ { (float)w, y, 0.f }, Vector3::Zero, { 1.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
+			PushVertex({ { 0.f, y, 0.f }, Vector3::Zero, { 0.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
 
 			IssueVertices();
 		}
