@@ -220,8 +220,18 @@ namespace SPFSharp
 				in Vector4 overlay)
 			{
 				SetPrimitiveType(PrimitiveType.Triangle);
-				tex.DetermineUV(srcx, srcy, srcw, srch, flipX, flipY, out var uv1, out var uv2);
-				SetMaterial(null, tex);
+
+				var uv1 = Vector2.Zero;
+				var uv2 = Vector2.One;
+				if (tex != null)
+				{
+					tex.DetermineUV(srcx, srcy, srcw, srch, flipX, flipY, out uv1, out uv2);
+					SetMaterial(null, tex);
+				}
+				else
+				{
+					SetMaterial(null, null);
+				}
 				PushVertex(d, Vector3.Zero, new Vector2(uv1.X, uv2.Y), Vector2.Zero, dColor, overlay);
 				PushVertex(c, Vector3.Zero, new Vector2(uv2.X, uv2.Y), Vector2.Zero, cColor, overlay);
 				PushVertex(b, Vector3.Zero, new Vector2(uv2.X, uv1.Y), Vector2.Zero, bColor, overlay);
