@@ -408,8 +408,10 @@ namespace SPFSharp
 			public readonly Vec4 Overlay = new Vec4("share_Overlay");
 			public readonly Vec3 Position = new Vec3("share_Position");
             public readonly Vec3 Normal = new Vec3("share_Normal");
+			public readonly Float Distance = new Float("share_Distance");
 			public readonly Mat4 World = new Mat4("WorldMatrix");
-			public readonly Mat4 ViewProjection = new Mat4("ViewProjectionMatrix");
+			public readonly Mat4 View = new Mat4("ViewMatrix");
+			public readonly Mat4 Projection = new Mat4("ProjectionMatrix");
 			public readonly Vec3 CameraUp = new Vec3("CameraUp");
 			public readonly Vec3 CameraSide = new Vec3("CameraSide");
 			public readonly Vec2 ViewportSize = new Vec2("ViewportSize");
@@ -432,7 +434,6 @@ namespace SPFSharp
 			public readonly Vec2 PixelCoordinates = new Vec2("gl_FragCoord.xy");
 			public readonly Float NearPlane = new Float("NearPlane");
 			public readonly Float FarPlane = new Float("FarPlane");
-			public readonly Float Distance = new Float("(smoothstep(NearPlane, FarPlane, gl_FragCoord.z / gl_FragCoord.w))");
 
 			public Vec2 NormalizedCoordinates => PixelCoordinates / ViewportSize;
 
@@ -536,7 +537,8 @@ namespace SPFSharp
 				sb.AppendLine($"uniform sampler2D {Texture6.Name};");
 				sb.AppendLine($"uniform sampler2D {Texture7.Name};");
 				sb.AppendLine($"uniform mat4 {World.Name};");
-				sb.AppendLine($"uniform mat4 {ViewProjection.Name};");
+				sb.AppendLine($"uniform mat4 {View.Name};");
+				sb.AppendLine($"uniform mat4 {Projection.Name};");
 				sb.AppendLine($"uniform vec3 {CameraUp.Name};");
 				sb.AppendLine($"uniform vec3 {CameraSide.Name};");
 				sb.AppendLine($"uniform vec2 {ViewportSize.Name};");
@@ -553,6 +555,7 @@ namespace SPFSharp
 				sb.AppendLine($"in vec4 {Overlay.Name};");
 				sb.AppendLine($"in vec3 {Position.Name};");
                 sb.AppendLine($"in vec3 {Normal.Name};");
+				sb.AppendLine($"in float {Distance.Name};");
 				sb.AppendLine($"out vec4 {OutputColor.Name};");
 				sb.Append(_globalDeclarations);
 				sb.AppendLine("void main()");

@@ -61,7 +61,7 @@ namespace SPF
 
 			glViewport(0, 0, (GLsizei)size.X, (GLsizei)size.Y);
 
-			SetCamera({ glm::value_ptr(glm::ortho(0.f, (float)size.X, (float)size.Y, 0.f, -1.0f, 1.0f)), -1.0f, 1.0f , Vector3::Up, Vector3::Zero });
+			SetCamera({ Matrix(), glm::value_ptr(glm::ortho(0.f, (float)size.X, (float)size.Y, 0.f, -1.0f, 1.0f)), -1.0f, 1.0f , Vector3::Up, Vector3::Zero });
 			SetBuffers({ true, false, Comparison::Always });
 			SetFog({ 0, RGB::Black });
 		}
@@ -259,7 +259,8 @@ namespace SPF
 
 			// Camera
 			Bind(RendererData.CurrentProgram, "WorldMatrix", glm::make_mat4x4(state.CurrentModelData.WorldMatrix.M));
-			Bind(RendererData.CurrentProgram, "ViewProjectionMatrix", glm::make_mat4x4(state.CurrentCamera.ViewProjectionMatrix.M));
+			Bind(RendererData.CurrentProgram, "ViewMatrix", glm::make_mat4x4(state.CurrentCamera.ViewMatrix.M));
+			Bind(RendererData.CurrentProgram, "ProjectionMatrix", glm::make_mat4x4(state.CurrentCamera.ProjectionMatrix.M));
 			Bind(RendererData.CurrentProgram, "NormalMatrix", glm::mat4(glm::transpose(glm::inverse(glm::mat3(glm::make_mat4x4(state.CurrentModelData.WorldMatrix.M))))));
 			Bind(RendererData.CurrentProgram, "CameraUp", state.CurrentCamera.Up);
 			Bind(RendererData.CurrentProgram, "CameraSide", state.CurrentCamera.Side);
@@ -358,6 +359,7 @@ namespace SPF
 				"in vec4 share_Overlay;\n"
 				"in vec3 share_Position;\n"
 				"in vec3 share_Normal;\n"
+				"in float share_Distance;\n"
 				"out vec4 out_Color;\n"
 				"void main()\n"
 				"{\n"
@@ -389,7 +391,7 @@ namespace SPF
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 			glViewport(0, 0, (GLsizei)w, (GLsizei)h);
 
-			SetCamera({ Matrix(glm::value_ptr(glm::ortho(0.f, (float)w, (float)h, 0.f, -1.f, 1.f))), -1, 1, Vector3::Zero, Vector3::Zero });
+			SetCamera({ Matrix(), Matrix(glm::value_ptr(glm::ortho(0.f, (float)w, (float)h, 0.f, -1.f, 1.f))), -1, 1, Vector3::Zero, Vector3::Zero });
 			SetBuffers({ true, false, Comparison::Always });
 
 			ResourceIndex texture = Surfaces::GetTexture(GetFinalSurface());
@@ -458,12 +460,13 @@ extern "C"
 	}
 
 	DLLExport void SPF_SetCamera(
-		float* viewProjectionMatrix,
+		float* viewMatrix,
+		float* projectionMatrix,
 		float nearPlane, float farPlane,
 		float upX, float upY, float upZ,
 		float sideX, float sideY, float sideZ)
 	{
-		SPF::Renderer::SetCamera({ viewProjectionMatrix, nearPlane, farPlane, {upX, upY, upZ}, {sideX, sideY, sideZ} });
+		SPF::Renderer::SetCamera({ viewMatrix, projectionMatrix, nearPlane, farPlane, {upX, upY, upZ}, {sideX, sideY, sideZ} });
 	}
 
 	DLLExport void SPF_SetMaterial(int shader, int texture1, int texture2, int texture3, int texture4, int texture5, int texture6, int texture7, int texture8)

@@ -40,7 +40,8 @@ namespace SPF
 	{
 		struct Camera
 		{
-			Matrix ViewProjectionMatrix;
+			Matrix ViewMatrix;
+			Matrix ProjectionMatrix;
 			float NearPlane;
 			float FarPlane;
 			Vector3 Up;

@@ -345,8 +345,8 @@ namespace SPFSharp
 				PushVertex(position, Vector3.Zero, new Vector2(uv1.X, uv1.Y), new Vector2(-halfWidth, size.Y), color, overlay);
 			}
 
-			public static void SetCamera(float[] viewProjectionMatrix, float nearPlane, float farPlane, in Vector3 cameraUp, in Vector3 cameraSide)
-				=> Native.Renderer.SPF_SetCamera(viewProjectionMatrix, nearPlane, farPlane, cameraUp.X, cameraUp.Y, cameraUp.Z, cameraSide.X, cameraSide.Y, cameraSide.Z);
+			public static void SetCamera(float[] viewMatrix, float[] projectionMatrix, float nearPlane, float farPlane, in Vector3 cameraUp, in Vector3 cameraSide)
+				=> Native.Renderer.SPF_SetCamera(viewMatrix, projectionMatrix, nearPlane, farPlane, cameraUp.X, cameraUp.Y, cameraUp.Z, cameraSide.X, cameraSide.Y, cameraSide.Z);
 
 			public static void SetMaterial(
 				Shader shader,

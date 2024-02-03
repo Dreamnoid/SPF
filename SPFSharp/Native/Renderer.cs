@@ -13,7 +13,8 @@ namespace SPFSharp
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern void SPF_SetCamera(
-				[MarshalAs(UnmanagedType.LPArray, SizeConst = 16)] float[] viewProjectionMatrix,
+				[MarshalAs(UnmanagedType.LPArray, SizeConst = 16)] float[] viewMatrix,
+				[MarshalAs(UnmanagedType.LPArray, SizeConst = 16)] float[] projectionMatrix,
 				float nearPlane, float farPlane,
 				float upX, float upY, float upZ,
 				float sideX, float sideY, float sideZ);
