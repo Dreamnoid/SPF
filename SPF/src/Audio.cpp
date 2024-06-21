@@ -1,49 +1,179 @@
 #include <vector>
+#include <array>
 #include <cstdio>
+#include <string>
 #include <Audio.h>
 #include <SDL.h>
-#include <SDL_mixer.h>
+
+#include "stb_vorbis.h"
 
 namespace SPF
 {
 	constexpr int Frequency = 44100;
-	constexpr int Channels = 2;
+	constexpr int Channels = 2; // Stereo
+
+	struct SoundChunk
+	{
+		SDL_AudioSpec Specs;
+		uint8_t* Samples = nullptr;
+		uint32_t Length = 0;
+		uint32_t SamplesCount = 0;
+	};
+
+	struct AudioChannel
+	{
+		float Volume = 1.0f;
+		const SoundChunk* Sound = nullptr;
+		int Position = 0;
+		bool Looping = false;
+	};
 
 	struct
 	{
 		float SoundVolume = 1.0f;
-		float MusicVolume = 1.0f;
 
-		std::vector<Mix_Chunk*> Sounds;
-		std::vector<Mix_Music*> Musics;
+		SDL_AudioDeviceID DeviceID = 0;
+		std::vector<SoundChunk*> Sounds;
+		std::vector<SoundChunk*> Musics;
+		std::array<AudioChannel, 16> Channels;
+		AudioChannel MusicChannel;
 	} AudioData;
 
 	namespace Audio
 	{
+		void Resample(const SoundChunk* sound, int& position, float& sampleL, float& sampleR)
+		{
+			const int format = SDL_AUDIO_BITSIZE(sound->Specs.format);
+			const bool stereo = sound->Specs.channels == 2;
+			switch (format)
+			{
+			case 16:
+			{
+				const int16_t sample = ((int16_t*)sound->Samples)[position++];
+				sampleL = ((float)sample) / INT16_MAX;
+				sampleR = sampleL;
+
+				if (stereo)
+				{
+					const int16_t sample2 = ((int16_t*)sound->Samples)[position++];
+					sampleR = ((float)sample2) / INT16_MAX;
+				}
+			}
+			break;
+
+			case 32:
+			{
+				const int32_t sample = ((int32_t*)sound->Samples)[position++];
+				sampleL = ((float)sample) / INT32_MAX;
+				sampleR = sampleL;
+
+				if (stereo)
+				{
+					const int32_t sample2 = ((int32_t*)sound->Samples)[position++];
+					sampleR = ((float)sample2) / INT32_MAX;
+				}
+			}
+			break;
+			}
+		}
+
+		void AudioCallback(void* userdata, Uint8* stream, int requestedLength)
+		{
+			int16_t* samples = (int16_t*)(stream);
+			const int requestedSamplesCount = requestedLength / sizeof(int16_t) / Channels;
+
+			for (int i = 0; i < requestedSamplesCount; ++i)
+			{
+				float mixedSampleL = 0;
+				float mixedSampleR = 0;
+
+				for (int c = 0; c < AudioData.Channels.size(); ++c)
+				{
+					AudioChannel& channel = AudioData.Channels[c];
+					const SoundChunk* sound = channel.Sound; // Capture current value to avoid threading issues
+					if (sound == nullptr)
+						continue;
+
+					float sampleL, sampleR;
+					Resample(sound, channel.Position, sampleL, sampleR);
+
+					mixedSampleL += sampleL * channel.Volume;
+					mixedSampleR += sampleR * channel.Volume;
+
+					if (channel.Position >= sound->SamplesCount)
+					{
+						if (!channel.Looping)
+						{
+							channel.Sound = nullptr;
+						}
+						channel.Position = 0;
+					}
+				}
+
+				const SoundChunk* musicSound = AudioData.MusicChannel.Sound; // Capture current value to avoid threading issues
+				if (musicSound != nullptr)
+				{
+					AudioChannel& channel = AudioData.MusicChannel;
+
+					float sampleL, sampleR;
+					Resample(musicSound, channel.Position, sampleL, sampleR);
+
+					mixedSampleL += sampleL * channel.Volume;
+					mixedSampleR += sampleR * channel.Volume;
+
+					if (channel.Position >= musicSound->SamplesCount)
+					{
+						channel.Position = 0;
+					}
+				}
+
+				mixedSampleL = std::min(std::max(mixedSampleL, -1.f), 1.f);
+				mixedSampleR = std::min(std::max(mixedSampleR, -1.f), 1.f);
+
+				samples[(i * Channels) + 0] = mixedSampleL * INT16_MAX;
+				samples[(i * Channels) + 1] = mixedSampleR * INT16_MAX;
+			}
+		}
+
 		void Init()
 		{
-			if (Mix_Init(MIX_INIT_OGG) == 0)
+			SDL_AudioSpec desiredSpec;
+			SDL_zero(desiredSpec);
+			desiredSpec.freq = Frequency;
+			desiredSpec.format = AUDIO_S16SYS;
+			desiredSpec.channels = Channels;
+			desiredSpec.samples = 1024;
+			desiredSpec.callback = AudioCallback;
+			desiredSpec.userdata = nullptr;
+
+			SDL_AudioSpec obtainedSpec;
+
+			AudioData.DeviceID = SDL_OpenAudioDevice(NULL, SDL_FALSE, &desiredSpec, &obtainedSpec, 0);
+			if (AudioData.DeviceID < 2)
 			{
-				FatalError(Mix_GetError());
+				FatalError(SDL_GetError());
 			}
 
-			if (Mix_OpenAudio(Frequency, MIX_DEFAULT_FORMAT, Channels, 1024) == -1)
+			for (int i = 0; i < AudioData.Channels.size(); ++i)
 			{
-				FatalError(Mix_GetError());
+				AudioData.Channels[i].Sound = nullptr;
 			}
 
-			Mix_AllocateChannels(16);
+			SDL_PauseAudioDevice(AudioData.DeviceID, SDL_FALSE);
 		}
 
 		void Dispose()
 		{
-			Mix_CloseAudio();
-			Mix_Quit();
+			SDL_CloseAudioDevice(AudioData.DeviceID);
 		}
 
 		ResourceIndex LoadSound(unsigned char* buffer, int length)
 		{
-			Mix_Chunk* sample = Mix_LoadWAV_RW(SDL_RWFromMem(buffer, length), SDL_TRUE);
+			SoundChunk* sample = new SoundChunk();
+			SDL_LoadWAV_RW(SDL_RWFromMem(buffer, length), SDL_TRUE, &sample->Specs, &sample->Samples, &sample->Length);
+
+			sample->SamplesCount = sample->Length / (SDL_AUDIO_BITSIZE(sample->Specs.format) / 8);
+
 			for (ResourceIndex i = 0; i < AudioData.Sounds.size(); ++i)
 			{
 				if (!AudioData.Sounds[i])
@@ -58,27 +188,46 @@ namespace SPF
 
 		int PlaySound(ResourceIndex sound, float volume, bool looping)
 		{
-			Mix_Chunk* sample = AudioData.Sounds[sound];
-			int channel = Mix_PlayChannel(-1, sample, looping ? -1 : 0);
-			Mix_Volume(channel, (int)(AudioData.SoundVolume * volume * MIX_MAX_VOLUME));
+			if (sound >= AudioData.Sounds.size())
+				return -1;
+
+			SoundChunk* sample = AudioData.Sounds[sound];
+			int channel = -1;
+			for (int i = 0; i < AudioData.Channels.size(); ++i)
+			{
+				AudioChannel& channelData = AudioData.Channels[i];
+				if (channelData.Sound == nullptr)
+				{
+					channel = i;
+					channelData.Position = 0;
+					channelData.Volume = AudioData.SoundVolume * volume;
+					channelData.Looping = looping;
+					channelData.Sound = sample;
+					break;
+				}
+			}
 			return channel;
 		}
 
 		void StopChannel(int channel)
 		{
-			Mix_HaltChannel(channel);
+			if (channel >= 0 && channel < AudioData.Channels.size())
+			{
+				AudioData.Channels[channel].Sound = nullptr;
+			}
 		}
 
 		void DeleteSound(ResourceIndex sound)
 		{
-			Mix_FreeChunk(AudioData.Sounds[sound]);
+			SDL_FreeWAV(AudioData.Sounds[sound]->Samples);
+			delete AudioData.Sounds[sound];
 			AudioData.Sounds[sound] = nullptr;
 		}
 
 		float GetSoundDuration(ResourceIndex sound)
 		{
-			Mix_Chunk* sample = AudioData.Sounds[sound];
-			return sample->alen / (float)((Frequency * 2 * Channels));
+			SoundChunk* sample = AudioData.Sounds[sound];
+			return sample->Length / (float)((Frequency * 2 * Channels));
 		}
 
 		float GetSoundVolume()
@@ -88,24 +237,40 @@ namespace SPF
 
 		float GetMusicVolume()
 		{
-			return AudioData.MusicVolume;
+			return AudioData.MusicChannel.Volume;
 		}
 
 		void SetVolume(float soundVolume, float musicVolume)
 		{
 			AudioData.SoundVolume = soundVolume;
-			AudioData.MusicVolume = musicVolume;
-			Mix_Volume(-1, (int)(soundVolume*MIX_MAX_VOLUME));
-			Mix_VolumeMusic((int)(musicVolume*MIX_MAX_VOLUME));
+			AudioData.MusicChannel.Volume = musicVolume;
 		}
 
 		ResourceIndex LoadMusic(unsigned char* buffer, int length)
 		{
-			Mix_Music* music = Mix_LoadMUS_RW(SDL_RWFromMem(buffer, length), SDL_TRUE);
-			if (!music)
-			{
-				FatalError(Mix_GetError());
-			}
+			// TODO: use stb_vorbis_open_memory to enable streaming instead of reading the whole file
+
+			//int error = 0;
+			//stb_vorbis* vorbis = stb_vorbis_open_memory(buffer, length, &error, NULL);
+			//if (!vorbis)
+			//{
+			//	FatalError(std::to_string(error).c_str());
+			//}
+
+			int channels = 0;
+			int sampleRate = 0;
+			int16_t* samples;
+			int sampleCount = stb_vorbis_decode_memory(buffer, length, &channels, &sampleRate, &samples);
+			int bufferLen = sampleCount * sizeof(int16_t) * channels;
+			 
+			SoundChunk* music = new SoundChunk();
+			music->Samples = (uint8_t*)samples;
+			music->SamplesCount = sampleCount;
+			music->Length = bufferLen;
+			music->Specs.freq = sampleRate;
+			music->Specs.channels = channels;
+			music->Specs.format = AUDIO_S16;
+
 			for (ResourceIndex i = 0; i < AudioData.Musics.size(); ++i)
 			{
 				if (!AudioData.Musics[i])
@@ -122,7 +287,8 @@ namespace SPF
 		{
 			if (AudioData.Musics[music])
 			{
-				Mix_FreeMusic(AudioData.Musics[music]);
+				free(AudioData.Musics[music]->Samples);
+				delete AudioData.Musics[music];
 				AudioData.Musics[music] = nullptr;
 			}
 		}
@@ -131,21 +297,19 @@ namespace SPF
 		{
 			if (AudioData.Musics[music])
 			{
-				if (Mix_PlayMusic(AudioData.Musics[music], -1) == -1)
-				{
-					FatalError(Mix_GetError());
-				}
+				AudioData.MusicChannel.Sound = AudioData.Musics[music];
+				AudioData.MusicChannel.Position = 0;
 			}
 		}
 
 		void StopMusic()
 		{
-			Mix_HaltMusic();
+			AudioData.MusicChannel.Sound = nullptr;
 		}
 
 		bool IsMusicPlaying()
 		{
-			return (Mix_PlayingMusic() != 0);
+			return AudioData.MusicChannel.Sound != nullptr;
 		}
 	}
 }

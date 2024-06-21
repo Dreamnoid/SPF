@@ -28,7 +28,10 @@ namespace SPF
 			WindowData.Width = w;
 			WindowData.Height = h;
 
-			SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
+			if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0)
+			{
+				FatalError(SDL_GetError());
+			}
 
 			SDL_GL_LoadLibrary(NULL);
 			SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
