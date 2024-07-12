@@ -366,8 +366,7 @@ namespace SPF
 				"	vec4 texColor = texture2D(Texture1, share_UV) * share_Color;\n"
 				"	if (texColor.a <= 0) discard;\n"
 				"	out_Color = mix(texColor, vec4(share_Overlay.xyz, texColor.a), share_Overlay.a);\n"
-				"	float dist = smoothstep(NearPlane, FarPlane, gl_FragCoord.z / gl_FragCoord.w);\n"
-				"	out_Color = mix(out_Color, vec4(FogColor,texColor.a), FogIntensity * dist);\n"
+				"	out_Color = mix(out_Color, vec4(FogColor,texColor.a), clamp(FogIntensity * share_Distance, 0.0, 1.0));\n"
 				"	out_Color = mix(out_Color, vec4(Overlay.xyz, 1.0), Overlay.a);\n"
 				"}\n");
 
