@@ -12,6 +12,9 @@ namespace SPFSharp
 			public static extern Int32 SPF_LoadImage(IntPtr buffer, int length);
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+			public static extern Int32 SPF_SaveImage(string filename, int width, int height, IntPtr pixels);
+
+			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern void SPF_DeleteImage(Int32 image);
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]

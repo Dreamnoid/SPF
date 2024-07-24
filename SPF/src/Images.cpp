@@ -3,7 +3,13 @@
 
 #define STBI_ONLY_JPEG
 #define STBI_ONLY_PNG
+#define STBI_NO_STDIO
 #include "stb_image.h"
+
+#define STBI_MSC_SECURE_CRT
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#define __STDC_LIB_EXT1__
+#include "stb_image_write.h"
 
 namespace SPF
 {
@@ -37,6 +43,11 @@ namespace SPF
 			}
 			ImagesData.Images.push_back({ true, pixels,(unsigned int)w,(unsigned int)h });
 			return ImagesData.Images.size() - 1;
+		}
+
+		void Save(const char* filename, int width, int height, unsigned char* pixels)
+		{
+			stbi_write_png(filename, width, height, 4, (const void*)pixels, width * 4);
 		}
 
 		void Delete(ResourceIndex image)
@@ -73,6 +84,11 @@ extern "C"
 	DLLExport SPF::ResourceIndex SPF_LoadImage(unsigned char* buffer, int length)
 	{
 		return SPF::Images::Load(buffer, length);
+	}
+
+	DLLExport void SPF_SaveImage(const char* filename, int width, int height, unsigned char* pixels)
+	{
+		SPF::Images::Save(filename, width, height, pixels);
 	}
 
 	DLLExport void SPF_DeleteImage(SPF::ResourceIndex image)

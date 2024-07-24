@@ -8,6 +8,7 @@
 #include <Surfaces.h>
 #include "portable-file-dialogs.h"
 #include <filesystem>
+#include <Images.h>
 
 namespace SPF
 {
@@ -167,10 +168,11 @@ namespace SPF
 
 		void SaveScreenshot(const char* filename)
 		{
-			SDL_Surface* image = SDL_CreateRGBSurface(SDL_SWSURFACE, WindowData.Width, WindowData.Height, 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
-			glReadPixels(0, 0, WindowData.Width, WindowData.Height, GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+			SDL_Surface* image = SDL_CreateRGBSurface(SDL_SWSURFACE, WindowData.Width, WindowData.Height, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+			glReadPixels(0, 0, WindowData.Width, WindowData.Height, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels);
 			FlipSurfaceVertical(image);
-			SDL_SaveBMP(image, filename);
+
+			Images::Save(filename, WindowData.Width, WindowData.Height, (unsigned char*)image->pixels);
 			SDL_FreeSurface(image);
 		}
 

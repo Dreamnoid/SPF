@@ -160,6 +160,14 @@ namespace SPFSharp
 			}
 
 			public void Dispose() => Native.Images.SPF_DeleteImage(ID);
+
+			public static void Save(string filename, int width, int height, byte[] pixels)
+			{
+				using (var cbuffer = new CBuffer(pixels))
+				{
+					Native.Images.SPF_SaveImage(filename, width, height, cbuffer.Pointer);
+				}
+			}
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
