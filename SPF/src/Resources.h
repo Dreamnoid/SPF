@@ -16,9 +16,9 @@ namespace SPF
 	{
 		bool InUse;
 		HardwareID GLID;
-		ResourceIndex Texture;
+		ResourceIndex ColorTexture;
 		ResourceIndex DepthTexture;
-		bool HasDepth;
+		SurfaceFlags Flags;
 	};
 
 	struct Texture
@@ -27,9 +27,7 @@ namespace SPF
 		HardwareID GLID;
 		unsigned int Width;
 		unsigned int Height;
-		bool Flipped;
-		bool Depth;
-		bool HasMipmap;
+		TextureFlags Flags;
 	};
 
 	struct Shader

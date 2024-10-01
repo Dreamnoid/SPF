@@ -25,9 +25,6 @@ namespace SPFSharp
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern bool SPF_IsTextureFlipped(Int32 texture);
-
-			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern void SPF_GenerateMipmap(Int32 texture);
 		}
 	}
 }

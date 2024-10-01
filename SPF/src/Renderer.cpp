@@ -323,7 +323,7 @@ namespace SPF
 			GLuint ids[1];
 			glGenTextures(1, ids);
 			RendererData.EmptyTexture = ids[0];
-			Resources.Textures.insert(Resources.Textures.begin(), { true,RendererData.EmptyTexture,1,1,false });
+			Resources.Textures.insert(Resources.Textures.begin(), { true, RendererData.EmptyTexture, 1, 1, TextureFlags::None });
 
 			glBindTexture(GL_TEXTURE_2D, RendererData.EmptyTexture);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -370,7 +370,7 @@ namespace SPF
 				"	out_Color = mix(out_Color, vec4(Overlay.xyz, 1.0), Overlay.a);\n"
 				"}\n");
 
-			RendererData.FinalSurface = Surfaces::Create(w, h, true);
+			RendererData.FinalSurface = Surfaces::Create(w, h, SurfaceFlags::All);
 
 			glEnable(GL_POLYGON_OFFSET_LINE);
 			glPolygonOffset(-1.0f, -1.0f);
@@ -379,7 +379,7 @@ namespace SPF
 		void Resize(int w, int h)
 		{
 			Surfaces::Delete(RendererData.FinalSurface);
-			RendererData.FinalSurface = Surfaces::Create(w, h, true);
+			RendererData.FinalSurface = Surfaces::Create(w, h, SurfaceFlags::All);
 		}
 
 		void DrawFinalSurface(int w, int h)

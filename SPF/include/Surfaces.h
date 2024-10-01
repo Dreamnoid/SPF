@@ -5,7 +5,7 @@ namespace SPF
 {
 	namespace Surfaces
 	{
-		DLLExport ResourceIndex Create(int w, int h, bool depth);
+		DLLExport ResourceIndex Create(int w, int h, SurfaceFlags flags);
 		DLLExport void Delete(ResourceIndex surface);
 		DLLExport ResourceIndex GetTexture(ResourceIndex surface);
 		DLLExport ResourceIndex GetDepthTexture(ResourceIndex surface);

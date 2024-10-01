@@ -48,15 +48,20 @@ namespace SPF
 		unsigned char* dest = rgbaChannel;
 		for (int i = 0; i < (width*height); ++i)
 		{
+			unsigned char alpha = *src++;
+			if (fontSize <= 16)
+			{
+				alpha = std::min(alpha + (alpha / 3), 255);
+			}
 			*dest++ = 0xFF; // R
 			*dest++ = 0xFF; // G
 			*dest++ = 0xFF; // B
-			*dest++ = *src++; // A
+			*dest++ = alpha; // A
 		}
 
 		free(alphaChannel);
 
-		ResourceIndex textureID = Textures::Create(width, height, (void*)rgbaChannel, false, false);
+		ResourceIndex textureID = Textures::Create(width, height, (void*)rgbaChannel);
 		free(rgbaChannel);
 
 		return textureID;
