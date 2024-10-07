@@ -18,6 +18,7 @@ namespace SPF
 		uint8_t* Samples = nullptr;
 		uint32_t Length = 0;
 		uint32_t SamplesCount = 0;
+		stb_vorbis* VorbisStream = nullptr;
 	};
 
 	struct AudioChannel
@@ -37,6 +38,7 @@ namespace SPF
 		std::vector<SoundChunk*> Musics;
 		std::array<AudioChannel, 16> Channels;
 		AudioChannel MusicChannel;
+		float MusicSamplesBuffer[4096 * 2];
 	} AudioData;
 
 	namespace Audio
@@ -82,6 +84,15 @@ namespace SPF
 			int16_t* samples = (int16_t*)(stream);
 			const int requestedSamplesCount = requestedLength / sizeof(int16_t) / Channels;
 
+			int musicSamplesRead = 0;
+			int musicRightChannelOffset = 1;
+			const SoundChunk* musicSound = AudioData.MusicChannel.Sound; // Capture current value to avoid threading issues
+			if (musicSound != nullptr)
+			{
+				musicSamplesRead = stb_vorbis_get_samples_float_interleaved(musicSound->VorbisStream, Channels, AudioData.MusicSamplesBuffer, requestedSamplesCount * Channels);
+				musicRightChannelOffset = musicSound->Specs.channels > 1 ? 1 : 0;
+			}
+
 			for (int i = 0; i < requestedSamplesCount; ++i)
 			{
 				float mixedSampleL = 0;
@@ -110,20 +121,17 @@ namespace SPF
 					}
 				}
 
-				const SoundChunk* musicSound = AudioData.MusicChannel.Sound; // Capture current value to avoid threading issues
 				if (musicSound != nullptr)
 				{
-					AudioChannel& channel = AudioData.MusicChannel;
-
-					float sampleL, sampleR;
-					Resample(musicSound, channel.Position, sampleL, sampleR);
-
-					mixedSampleL += sampleL * channel.Volume;
-					mixedSampleR += sampleR * channel.Volume;
-
-					if (channel.Position >= musicSound->SamplesCount)
+					if (i < musicSamplesRead)
 					{
-						channel.Position = 0;
+						const AudioChannel& channel = AudioData.MusicChannel;
+						mixedSampleL += AudioData.MusicSamplesBuffer[i * Channels + 0] * channel.Volume;
+						mixedSampleR += AudioData.MusicSamplesBuffer[i * Channels + musicRightChannelOffset] * channel.Volume;
+					}
+					else
+					{
+						stb_vorbis_seek_start(musicSound->VorbisStream);
 					}
 				}
 
@@ -248,27 +256,19 @@ namespace SPF
 
 		ResourceIndex LoadMusic(unsigned char* buffer, int length)
 		{
-			// TODO: use stb_vorbis_open_memory to enable streaming instead of reading the whole file
+			int error = 0;
+			stb_vorbis* vorbis = stb_vorbis_open_memory(buffer, length, &error, nullptr);
+			if (!vorbis)
+			{
+				FatalError(std::to_string(error).c_str());
+			}
 
-			//int error = 0;
-			//stb_vorbis* vorbis = stb_vorbis_open_memory(buffer, length, &error, NULL);
-			//if (!vorbis)
-			//{
-			//	FatalError(std::to_string(error).c_str());
-			//}
-
-			int channels = 0;
-			int sampleRate = 0;
-			int16_t* samples;
-			int sampleCount = stb_vorbis_decode_memory(buffer, length, &channels, &sampleRate, &samples);
-			int bufferLen = sampleCount * sizeof(int16_t) * channels;
-			 
+			stb_vorbis_info info = stb_vorbis_get_info(vorbis);
+			
 			SoundChunk* music = new SoundChunk();
-			music->Samples = (uint8_t*)samples;
-			music->SamplesCount = sampleCount;
-			music->Length = bufferLen;
-			music->Specs.freq = sampleRate;
-			music->Specs.channels = channels;
+			music->VorbisStream = vorbis;
+			music->Specs.freq = info.sample_rate;
+			music->Specs.channels = info.channels;
 			music->Specs.format = AUDIO_S16;
 
 			for (ResourceIndex i = 0; i < AudioData.Musics.size(); ++i)
@@ -287,6 +287,7 @@ namespace SPF
 		{
 			if (AudioData.Musics[music])
 			{
+				stb_vorbis_close(AudioData.Musics[music]->VorbisStream);
 				free(AudioData.Musics[music]->Samples);
 				delete AudioData.Musics[music];
 				AudioData.Musics[music] = nullptr;
