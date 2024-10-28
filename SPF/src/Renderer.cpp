@@ -398,19 +398,22 @@ namespace SPF
 			int texHeight = Textures::GetHeight(texture);
 			float ratio = (float)w / (float)texWidth;
 
+			int scaledW = (int)(texWidth * ratio);
 			int scaledH = (int)(texHeight * ratio);
-			float y = ((h - scaledH) / 2.0f);
+			float x = ((w - scaledW) * 0.5f);
+			float y = ((h - scaledH) * 0.5f);
+			w = scaledW;
 			h = scaledH;
 
 			SetMaterial({ InvalidResource, texture, InvalidResource, InvalidResource, InvalidResource, InvalidResource, InvalidResource, InvalidResource, InvalidResource });
 
-			PushVertex({ { 0.f, (float)h, 0.f }, Vector3::Zero, { 0.f, 0.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
-			PushVertex({ { (float)w, (float)h, 0.f }, Vector3::Zero, { 1.f, 0.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
-			PushVertex({ { (float)w, y, 0.f }, Vector3::Zero, { 1.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
+			PushVertex({ { x, y + (float)h, 0.f }, Vector3::Zero, { 0.f, 0.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
+			PushVertex({ { x + (float)w, y + (float)h, 0.f }, Vector3::Zero, { 1.f, 0.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
+			PushVertex({ { x + (float)w, y, 0.f }, Vector3::Zero, { 1.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
 
-			PushVertex({ { 0.f, (float)h, 0.f }, Vector3::Zero, { 0.f, 0.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
-			PushVertex({ { (float)w, y, 0.f }, Vector3::Zero, { 1.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
-			PushVertex({ { 0.f, y, 0.f }, Vector3::Zero, { 0.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
+			PushVertex({ { x, y + (float)h, 0.f }, Vector3::Zero, { 0.f, 0.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
+			PushVertex({ { x + (float)w, y, 0.f }, Vector3::Zero, { 1.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
+			PushVertex({ { x, y, 0.f }, Vector3::Zero, { 0.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
 
 			IssueVertices();
 		}
