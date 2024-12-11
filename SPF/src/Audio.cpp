@@ -235,7 +235,7 @@ namespace SPF
 		float GetSoundDuration(ResourceIndex sound)
 		{
 			SoundChunk* sample = AudioData.Sounds[sound];
-			return sample->Length / (float)((Frequency * 2 * Channels));
+			return sample->Length / (float)((Frequency * sample->Specs.channels * Channels));
 		}
 
 		float GetSoundVolume()
