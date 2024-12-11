@@ -66,6 +66,21 @@ namespace SPF
 			return CreateResource(Resources.Textures, { true, id, w, h, (TextureFlags)flags });
 		}
 
+		void GenerateMipmaps(ResourceIndex texture)
+		{
+			GLint previousId;
+			glGetIntegerv(GL_TEXTURE_BINDING_2D, &previousId);
+
+			Texture& textureData = Resources.Textures[texture];
+			glBindTexture(GL_TEXTURE_2D, textureData.GLID);
+
+			textureData.Flags = (textureData.Flags | TextureFlags::MipMap);
+			glGenerateMipmap(GL_TEXTURE_2D);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+			glBindTexture(GL_TEXTURE_2D, previousId);
+		}
+
 		void SetFiltering(ResourceIndex texture, bool filtering)
 		{
 			GLint previousId;
@@ -126,6 +141,11 @@ extern "C"
 	DLLExport void SPF_SetTextureFiltering(int texture, int filtering)
 	{
 		return SPF::Textures::SetFiltering(texture, filtering);
+	}
+
+	DLLExport void SPF_GenerateTextureMipmaps(int texture)
+	{
+		return SPF::Textures::GenerateMipmaps(texture);
 	}
 
 	DLLExport int SPF_LoadTexture(unsigned char* buffer, int length)
