@@ -45,8 +45,16 @@ namespace SPF
 	{
 		void Resample(const SoundChunk* sound, int& position, float& sampleL, float& sampleR)
 		{
-			const int format = SDL_AUDIO_BITSIZE(sound->Specs.format);
 			const bool stereo = sound->Specs.channels == 2;
+
+			if (SDL_AUDIO_ISFLOAT(sound->Specs.format))
+			{
+				sampleL = ((float*)sound->Samples)[position++];
+				sampleR = stereo ? ((float*)sound->Samples)[position++] : sampleL;
+				return;
+			}
+
+			const int format = SDL_AUDIO_BITSIZE(sound->Specs.format);
 			switch (format)
 			{
 			case 16:
