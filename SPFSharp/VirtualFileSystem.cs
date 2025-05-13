@@ -1,20 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.IO.Compression;
 
 namespace SPFSharp
 {
-	internal static class VirtualFileSystem
+    internal static class VirtualFileSystem
 	{
 		private static List<ZipArchive> _archives = new List<ZipArchive>();
 
 		public static void AddArchive(string filename)
 		{
 			_archives.Add(new ZipArchive(File.OpenRead(filename), ZipArchiveMode.Read, false));
+		}
+
+		public static void AddArchive(byte[] buffer)
+		{
+			_archives.Add(new ZipArchive(new MemoryStream(buffer), ZipArchiveMode.Read, false));
 		}
 
 		public static string[] ListArchivedFiles()

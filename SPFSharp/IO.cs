@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace SPFSharp
 {
-	public static partial class SPF
+    public static partial class SPF
 	{
 		public static class IO
 		{
@@ -24,6 +19,11 @@ namespace SPFSharp
 					return true;
 				}
 				return false;
+			}
+
+			public static void AddArchive(byte[] buffer)
+			{
+				VirtualFileSystem.AddArchive(buffer);
 			}
 
 			public static byte[] ReadFile(string filename)
