@@ -22,5 +22,6 @@ namespace SPF
 		DLLExport void ShowMessageBox(const char* title, const char* message, bool isError);
 		DLLExport char* OpenFileDialog(const char* defaultFolder, const char* filter);
 		DLLExport char* SaveFileDialog(const char* defaultFolder, const char* filter);
+		DLLExport char* GetSavePath(const char* org, const char* app, const char* fileName);
 	}
 }

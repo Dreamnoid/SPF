@@ -266,6 +266,14 @@ namespace SPF
 			}
 			return StringToCharArray(path.string());
 		}
+	
+		char* GetSavePath(const char* org, const char* app, const char* fileName)
+		{
+			char* basePath = SDL_GetPrefPath(org, app);
+			char* result = StringToCharArray(std::string(basePath) + std::string(fileName));
+			SDL_free(basePath);
+			return result;
+		}
 	}
 }
 
@@ -356,5 +364,10 @@ extern "C"
 	DLLExport char* SPF_SaveFileDialog(const char* defaultFolder, const char* filter)
 	{
 		return SPF::Window::SaveFileDialog(defaultFolder, filter);
+	}
+
+	DLLExport char* SPF_GetSavePath(const char* org, const char* app, const char* fileName)
+	{
+		return SPF::Window::GetSavePath(org, app, fileName);
 	}
 }
