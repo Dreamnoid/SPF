@@ -196,6 +196,7 @@ namespace SPF
 			case Button::DPadLeft: return SDL_CONTROLLER_BUTTON_DPAD_LEFT;
 			case Button::LeftShoulder: return SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
 			case Button::RightShoulder: return SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
+			case Button::Home: return SDL_CONTROLLER_BUTTON_GUIDE;
 			default: return SDL_CONTROLLER_BUTTON_A;
 			}
 		}

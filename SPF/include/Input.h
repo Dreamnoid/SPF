@@ -85,6 +85,7 @@ namespace SPF
 		DPadLeft = 9,
 		LeftShoulder = 10,
 		RightShoulder = 11,
+		Home = 12,
 	};
 
 	enum class MouseButton : int
