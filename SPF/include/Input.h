@@ -95,6 +95,13 @@ namespace SPF
 		Middle = 2
 	};
 
+	enum class ControllerModel
+	{
+		None = 0,
+		XBox = 1,
+		Playstation = 2,
+	};
+
 	namespace Input
 	{
 		void Init(const OpaquePointer window);
@@ -114,6 +121,7 @@ namespace SPF
 		DLLExport float GetLeftThumbstickY();
 		DLLExport float GetRightThumbstickX();
 		DLLExport float GetRightThumbstickY();
+		DLLExport ControllerModel GetControllerModel();
 
 		DLLExport int GetMousePositionX();
 		DLLExport int GetMousePositionY();

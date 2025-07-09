@@ -96,6 +96,13 @@ namespace SPFSharp
 			Middle = 2
 		}
 
+		public enum ControllerModel : int
+		{
+			None = 0,
+			XBox = 1,
+			Playstation = 2,
+		}
+
 		public static class Input
 		{
             private static int _mousePositionX, _mousePositionY;
@@ -135,6 +142,8 @@ namespace SPFSharp
             public static int GetMouseWheel() => Native.Input.SPF_GetMouseWheel();
 
 			public static bool IsControllerConnected() => Native.Input.SPF_IsControllerConnected();
+
+			public static ControllerModel GetControllerModel() => (ControllerModel)Native.Input.SPF_GetControllerModel();
 
 			public static float Deadzone = 0.05f;
 

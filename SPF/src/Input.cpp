@@ -355,6 +355,28 @@ namespace SPF
 			return InputData.ButtonsDownPreviousFrame[code] && !InputData.ButtonsDown[code];
 		}
 
+		ControllerModel GetControllerModel()
+		{
+			if (InputData.Controller != nullptr)
+			{
+				switch (SDL_GameControllerGetType(InputData.Controller))
+				{
+				case SDL_CONTROLLER_TYPE_XBOX360:
+				case SDL_CONTROLLER_TYPE_XBOXONE:
+					return ControllerModel::XBox;
+
+				case SDL_CONTROLLER_TYPE_PS3:
+				case SDL_CONTROLLER_TYPE_PS4:
+				case SDL_CONTROLLER_TYPE_PS5:
+					return ControllerModel::Playstation;
+
+				default:
+					return ControllerModel::XBox;
+				}
+			}
+			return ControllerModel::None;
+		}
+
 		int GetMousePositionX()
 		{
 			return InputData.MouseX;
@@ -533,6 +555,11 @@ extern "C"
 	DLLExport int SPF_IsButtonReleased(int button)
 	{
 		return SPF::Input::IsButtonReleased((SPF::Button)button) ? 1 : 0;
+	}
+
+	DLLExport int SPF_GetControllerModel()
+	{
+		return (int)SPF::Input::GetControllerModel();
 	}
 
 	DLLExport int SPF_GetMousePositionX()
