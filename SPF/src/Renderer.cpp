@@ -157,7 +157,8 @@ namespace SPF
 				}
 				else if (rasterization.Blending == BlendMode::Multiply)
 				{
-					glBlendFunc(GL_DST_COLOR, GL_ZERO);
+					// (sFactor * S + dFactor * D) = > D * S + 0 * D = > D * S
+					glBlendFuncSeparate(GL_DST_COLOR, GL_ZERO, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 				}
 			}
 
