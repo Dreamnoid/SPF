@@ -81,16 +81,17 @@ namespace SPFSharp
 				}
 			}
 
-			public void Clear()
-			{
-				Native.Surfaces.SPF_ClearSurface(ID);
-			}
+			public void Clear() => Native.Surfaces.SPF_ClearSurface(ID);
 
 			public void Dispose()
 			{
 				Native.Textures.SPF_DeleteTexture(Native.Surfaces.SPF_GetSurfaceTexture(ID));
 				Native.Surfaces.SPF_DeleteSurface(ID);
 			}
+
+			public void Attach(Texture texture) => Native.Surfaces.SPF_AttachToSurface(ID, texture.ID);
+
+			public void CopyDepthFrom(Surface source) => Native.Surfaces.SPF_CopySurfaceDepth(ID, source.ID);
 		}
 
 		public static void SetFullscreen(bool fullscreen)

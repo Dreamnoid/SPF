@@ -24,6 +24,12 @@ namespace SPFSharp
 				Flipped = flipped;
 			}
 
+			public static Texture CreateHighPrecision(int w, int h)
+			{
+				int id = Native.Textures.SPF_CreateEmptyTexture((uint)w, (uint)h, 1 << 4);
+				return new Texture(id, w, h, true);
+			}
+
 			public Texture(byte[] buffer)
 			{
 				using (var cbuffer = new CBuffer(buffer))

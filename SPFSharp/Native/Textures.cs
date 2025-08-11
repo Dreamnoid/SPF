@@ -12,6 +12,9 @@ namespace SPFSharp
 			public static extern Int32 SPF_LoadTexture(IntPtr buffer, int length);
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+			public static extern int SPF_CreateEmptyTexture(uint w, uint h, int flags);
+
+			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern void SPF_DeleteTexture(Int32 texture);
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]

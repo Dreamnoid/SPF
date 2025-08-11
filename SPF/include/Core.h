@@ -112,6 +112,7 @@ namespace SPF
 		Flipped = (1 << 1),
 		Stencil = (1 << 2),
 		MipMap = (1 << 3),
+		HighPrecision = (1 << 4),
 	};
 
 	inline constexpr TextureFlags operator|(TextureFlags x, TextureFlags y)

@@ -25,6 +25,12 @@ namespace SPFSharp
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern Int32 SPF_GetFinalSurface();
+
+			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+			public static extern void SPF_CopySurfaceDepth(int target, int source);
+
+			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+			public static extern void SPF_AttachToSurface(int surface, int texture);
 		}
 	}
 }

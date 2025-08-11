@@ -6,9 +6,10 @@ namespace SPFSharp
 	{
 		public enum BlendMode : int
 		{
-			Alpha = 0,
-			Additive = 1,
-			Multiply = 2
+			None = 0,
+			Alpha = 1,
+			Additive = 2,
+			Multiply = 3
 		}
 
 		public enum Culling : int

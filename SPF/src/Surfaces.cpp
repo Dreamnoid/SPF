@@ -42,7 +42,24 @@ namespace SPF
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-			return CreateResource(Resources.Surfaces, { true, fboID, colorTexture, depthTexture, flags });
+			return CreateResource(Resources.Surfaces, { true, fboID, colorTexture, depthTexture, flags, 0 });
+		}
+
+		void Attach(ResourceIndex surface, ResourceIndex texture)
+		{
+			Surface& surfaceData = Resources.Surfaces[surface];
+			HardwareID textureID = Resources.Textures[texture].GLID;
+			glBindTexture(GL_TEXTURE_2D, textureID);
+			glBindFramebuffer(GL_FRAMEBUFFER, surfaceData.GLID);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1 + surfaceData.AdditionalColorTextures++, GL_TEXTURE_2D, textureID, 0);
+
+			int colorAttachmentsCount = 1 + surfaceData.AdditionalColorTextures;
+			static unsigned int attachments[32]; // 32 is the max offered by OpenGL
+			for (int i = 0; i < colorAttachmentsCount; ++i)
+			{
+				attachments[i] = GL_COLOR_ATTACHMENT0 + i;
+			}
+			glDrawBuffers(colorAttachmentsCount, attachments);
 		}
 
 		void Delete(ResourceIndex surface)
@@ -78,6 +95,21 @@ namespace SPF
 				mask |= GL_STENCIL_BUFFER_BIT;
 			}
 			glClear(mask);
+		}
+
+		void CopyDepth(ResourceIndex target, ResourceIndex source)
+		{
+			const SPF::Surface& src = Resources.Surfaces[source];
+			const SPF::Surface& tgt = Resources.Surfaces[target];
+			const SPF::Texture& srcTex = Resources.Textures[src.DepthTexture];
+			const SPF::Texture& tgtTex = Resources.Textures[tgt.DepthTexture];
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, src.GLID);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, tgt.GLID);
+			glBlitFramebuffer(
+				0, 0, srcTex.Width, srcTex.Height,
+				0, 0, tgtTex.Width, tgtTex.Height,
+				GL_DEPTH_BUFFER_BIT, GL_NEAREST
+			);
 		}
 
 		ResourceIndex GetTexture(ResourceIndex surface)
@@ -117,5 +149,15 @@ extern "C"
 	DLLExport int SPF_GetSurfaceDepthTexture(int surface)
 	{
 		return SPF::Surfaces::GetDepthTexture(surface);
+	}
+
+	DLLExport void SPF_CopySurfaceDepth(int target, int source)
+	{
+		SPF::Surfaces::CopyDepth(target, source);
+	}
+
+	DLLExport void SPF_AttachToSurface(int surface, int texture)
+	{
+		SPF::Surfaces::Attach(surface, texture);
 	}
 }

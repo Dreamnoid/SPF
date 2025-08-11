@@ -19,6 +19,7 @@ namespace SPF
 		ResourceIndex ColorTexture;
 		ResourceIndex DepthTexture;
 		SurfaceFlags Flags;
+		int AdditionalColorTextures;
 	};
 
 	struct Texture

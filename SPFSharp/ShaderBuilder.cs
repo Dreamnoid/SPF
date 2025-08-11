@@ -148,6 +148,49 @@ namespace SPFSharp
 				public static Vec4 operator /(Vec4 a, Float b) => new Vec4($"({a.Write()} / {b.Write()})");
 			}
 
+			public class Mat3 : IVariable
+			{
+				public string Name { get; }
+
+				public string Type => "mat3";
+
+				public Mat3(string name)
+				{
+					Name = name;
+				}
+
+				public Mat3(Vec3 a, Vec3 b, Vec3 c)
+				{
+					Name = $"mat3({a.Write()},{b.Write()},{c.Write()})";
+				}
+
+				public string Write() => Name;
+
+				public static Vec3 operator *(Mat3 a, Vec3 b) => new Vec3($"({a.Write()} * {b.Write()})");
+
+				public static Mat3 operator *(Mat3 a, Mat3 b) => new Mat3($"({a.Write()} * {b.Write()})");
+
+				public Mat3 Inverse() => new Mat3($"inverse({Write()})");
+
+				public Float M11 => new Float($"{Write()}[0][0]");
+
+				public Float M12 => new Float($"{Write()}[0][1]");
+
+				public Float M13 => new Float($"{Write()}[0][2]");
+
+				public Float M21 => new Float($"{Write()}[1][0]");
+
+				public Float M22 => new Float($"{Write()}[1][1]");
+
+				public Float M23 => new Float($"{Write()}[1][2]");
+
+				public Float M31 => new Float($"{Write()}[2][0]");
+
+				public Float M32 => new Float($"{Write()}[2][1]");
+
+				public Float M33 => new Float($"{Write()}[2][2]");
+			}
+
 			public class Mat4 : IVariable
 			{
 				public string Name { get; }
@@ -179,6 +222,8 @@ namespace SPFSharp
 					Vec4 homogenousLocation = Inverse() * clipSpaceLocation;
 					return homogenousLocation.XYZ / homogenousLocation.W;
 				}
+
+				public Mat3 ToMat3() => new Mat3($"mat3({Write()})");
 
 				public Float M11 => new Float($"{Write()}[0][0]");
 
@@ -309,6 +354,7 @@ namespace SPFSharp
 			public Vec2 Declare(string name, Vec2 value) => Declare(new Vec2(name), value);
 			public Vec3 Declare(string name, Vec3 value) => Declare(new Vec3(name), value);
 			public Vec4 Declare(string name, Vec4 value) => Declare(new Vec4(name), value);
+			public Mat3 Declare(string name, Mat3 value) => Declare(new Mat3(name), value);
 			public Mat4 Declare(string name, Mat4 value) => Declare(new Mat4(name), value);
 
 			public Float Lerp(Float a, Float b, Float t) => new Float($"mix({a.Write()}, {b.Write()}, {t.Write()})");
@@ -399,6 +445,12 @@ namespace SPFSharp
 				_globalDeclarations.AppendLine("}");
 				return new Function<TResult>(name);
 			}
+
+			public Vec4 DeclareAdditionalOutput(int location, string name)
+			{
+				_globalDeclarations.AppendLine($"layout (location = {location}) out vec4 {name};");
+				return new Vec4(name);
+			}
 		}
 
 		public class PixelShaderBuilder : ShaderBuilder
@@ -417,7 +469,7 @@ namespace SPFSharp
 			public readonly Vec2 ViewportSize = new Vec2("ViewportSize");
 			public readonly Float FogIntensity = new Float("FogIntensity");
 			public readonly Vec3 FogColor = new Vec3("FogColor");
-			public readonly Vec4 GlobalOverlay = new Vec4("Overlay");
+			public readonly Vec4 GlobalOverlay = new Vec4("share_ModelOverlay");
 			public readonly Float Animation = new Float("Animation");
 			public readonly Vec4 UserData = new Vec4("UserData");
 			public readonly Mat4 UserMatrix = new Mat4("UserMatrix");
@@ -445,6 +497,16 @@ namespace SPFSharp
 			public void DiscardIfLTE(Float a, Float b)
 			{
 				_mainBlock.AppendLine($"if ({a.Write()} <= {b.Write()}) discard;");
+			}
+
+			public void DiscardIfGTE(Float a, Float b)
+			{
+				_mainBlock.AppendLine($"if ({a.Write()} >= {b.Write()}) discard;");
+			}
+
+			public void Custom(string customCode)
+			{
+				_mainBlock.AppendLine(customCode);
 			}
 
 			public Vec3 ApplyKernel(Vec3 color, float offset, float[] kernel)
@@ -544,7 +606,7 @@ namespace SPFSharp
 				sb.AppendLine($"uniform vec2 {ViewportSize.Name};");
 				sb.AppendLine($"uniform float {FogIntensity.Name};");
 				sb.AppendLine($"uniform vec3 {FogColor.Name};");
-				sb.AppendLine($"uniform vec4 {GlobalOverlay.Name};");
+				sb.AppendLine($"in vec4 {GlobalOverlay.Name};");
 				sb.AppendLine($"uniform float {Animation.Name};");
 				sb.AppendLine($"uniform vec4 {UserData.Name};");
 				sb.AppendLine($"uniform mat4 {UserMatrix.Name};");
@@ -556,7 +618,7 @@ namespace SPFSharp
 				sb.AppendLine($"in vec3 {Position.Name};");
                 sb.AppendLine($"in vec3 {Normal.Name};");
 				sb.AppendLine($"in float {Distance.Name};");
-				sb.AppendLine($"out vec4 {OutputColor.Name};");
+				sb.AppendLine($"layout (location = 0) out vec4 {OutputColor.Name};");
 				sb.Append(_globalDeclarations);
 				sb.AppendLine("void main()");
 				sb.AppendLine("{");

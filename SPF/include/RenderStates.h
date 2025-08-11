@@ -5,9 +5,10 @@ namespace SPF
 {
 	enum class BlendMode : int
 	{
+		None,
 		Alpha,
 		Additive,
-		Multiply
+		Multiply,
 	};
 
 	enum class Comparison : int
@@ -130,7 +131,6 @@ namespace SPF
 			Rasterization CurrentRasterization;
 			Buffers CurrentBuffers;
 			Stencil CurrentStencil;
-			ModelData CurrentModelData;
 		};
 	}
 }

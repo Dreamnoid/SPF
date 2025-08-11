@@ -50,6 +50,10 @@ PFNGLBINDRENDERBUFFERPROC glBindRenderbuffer;
 PFNGLRENDERBUFFERSTORAGEPROC glRenderbufferStorage;
 PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer;
 PFNGLDELETERENDERBUFFERSPROC glDeleteRenderBuffers;
+PFNGLDRAWARRAYSINSTANCEDPROC glDrawArraysInstanced;
+PFNGLBINDBUFFERBASEEXTPROC glBindBufferBase;
+PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer;
+PFNGLDRAWBUFFERSPROC glDrawBuffers;
 
 void InitOpenGL4()
 {
@@ -102,4 +106,8 @@ void InitOpenGL4()
 	glRenderbufferStorage = (PFNGLRENDERBUFFERSTORAGEPROC)SDL_GL_GetProcAddress("glRenderbufferStorage");
 	glFramebufferRenderbuffer = (PFNGLFRAMEBUFFERRENDERBUFFERPROC)SDL_GL_GetProcAddress("glFramebufferRenderbuffer");
 	glDeleteRenderBuffers = (PFNGLDELETERENDERBUFFERSPROC)SDL_GL_GetProcAddress("glDeleteRenderBuffers");
+	glDrawArraysInstanced = (PFNGLDRAWARRAYSINSTANCEDPROC)SDL_GL_GetProcAddress("glDrawArraysInstanced");
+	glBindBufferBase = (PFNGLBINDBUFFERBASEEXTPROC)SDL_GL_GetProcAddress("glBindBufferBase");
+	glBlitFramebuffer = (PFNGLBLITFRAMEBUFFERPROC)SDL_GL_GetProcAddress("glBlitFramebuffer");
+	glDrawBuffers = (PFNGLDRAWBUFFERSPROC)SDL_GL_GetProcAddress("glDrawBuffers");
 }

@@ -10,5 +10,7 @@ namespace SPF
 		DLLExport ResourceIndex GetTexture(ResourceIndex surface);
 		DLLExport ResourceIndex GetDepthTexture(ResourceIndex surface);
 		DLLExport void Clear(ResourceIndex surface);
+		DLLExport void CopyDepth(ResourceIndex target, ResourceIndex source);
+		DLLExport void Attach(ResourceIndex surface, ResourceIndex texture);
 	};
 }

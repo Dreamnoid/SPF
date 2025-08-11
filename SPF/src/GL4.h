@@ -49,5 +49,9 @@ extern PFNGLBINDRENDERBUFFERPROC glBindRenderbuffer;
 extern PFNGLRENDERBUFFERSTORAGEPROC glRenderbufferStorage;
 extern PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer;
 extern PFNGLDELETERENDERBUFFERSPROC glDeleteRenderBuffers;
+extern PFNGLDRAWARRAYSINSTANCEDPROC glDrawArraysInstanced;
+extern PFNGLBINDBUFFERBASEEXTPROC glBindBufferBase;
+extern PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer;
+extern PFNGLDRAWBUFFERSPROC glDrawBuffers;
 
 void InitOpenGL4();

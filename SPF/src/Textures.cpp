@@ -46,7 +46,8 @@ namespace SPF
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+				const bool isHighPrecision = HasFlag(flags, TextureFlags::HighPrecision);
+				glTexImage2D(GL_TEXTURE_2D, 0, isHighPrecision ? GL_RGBA32F : GL_RGBA, w, h, 0, GL_RGBA, isHighPrecision ? GL_FLOAT : GL_UNSIGNED_BYTE, pixels);
 			}
 
 			if (HasFlag(flags, TextureFlags::MipMap))
@@ -151,6 +152,11 @@ extern "C"
 	DLLExport int SPF_LoadTexture(unsigned char* buffer, int length)
 	{
 		return SPF::Textures::Load(buffer, length);
+	}
+
+	DLLExport int SPF_CreateEmptyTexture(unsigned int w, unsigned int h, int flags)
+	{
+		return SPF::Textures::Create(w, h, nullptr, (SPF::TextureFlags)flags);
 	}
 
 	DLLExport void SPF_DeleteTexture(int texture)

@@ -15,10 +15,13 @@
 
 namespace SPF
 {
-
 	constexpr uint32_t MaxSprites = 2000;
 	constexpr uint32_t VerticesPerSprite = 6;
 	constexpr uint32_t MaxVerticesCount = MaxSprites * VerticesPerSprite;
+
+	constexpr uint32_t MaxInstances = 5000;
+	constexpr uint32_t FloatsPerTransform = 16;
+	constexpr uint32_t FloatsPerOverlay = 4;
 
 	struct
 	{
@@ -27,9 +30,19 @@ namespace SPF
 		int CurrentVertexCount = 0;
 		PrimitiveType CurrentPrimitiveType = PrimitiveType::Triangle;
 
+		float TransformsSSBO[FloatsPerTransform * MaxInstances];
+		float OverlaysSSBO[FloatsPerOverlay * MaxInstances];
+
+		RenderState::ModelData Instances[MaxInstances];
+		int CurrentInstanceCount = 0;
+		ResourceIndex CurrentInstanceMesh = InvalidResource;
+		int CurrentInstanceMeshFirst = 0;
+		int CurrentInstanceMeshCount = 0;
+
 		HardwareID EmptyTexture;
 		HardwareID VertexShader;
 		HardwareID CurrentProgram;
+		HardwareID WorldMatrixSSBO;
 		ResourceIndex DefaultShader;
 		ResourceIndex FinalSurface;
 
@@ -38,11 +51,26 @@ namespace SPF
 
 	namespace Renderer
 	{
-		void IssueVertices();
+		void FlushDrawCalls();
+
+		void CopyModelData(int index, const RenderState::ModelData& modelData)
+		{
+			int start = index * FloatsPerTransform;
+			for (int j = 0; j < FloatsPerTransform; ++j)
+			{
+				RendererData.TransformsSSBO[start + j] = modelData.WorldMatrix.M[j];
+			}
+
+			start = index * FloatsPerOverlay;
+			RendererData.OverlaysSSBO[start + 0] = modelData.Overlay.R;
+			RendererData.OverlaysSSBO[start + 1] = modelData.Overlay.G;
+			RendererData.OverlaysSSBO[start + 2] = modelData.Overlay.B;
+			RendererData.OverlaysSSBO[start + 3] = modelData.Overlay.A;
+		}
 
 		void Begin(ResourceIndex surface, bool clear)
 		{
-			IssueVertices();
+			FlushDrawCalls();
 
 			surface = (surface < 0) ? RendererData.FinalSurface : surface;
 
@@ -68,7 +96,7 @@ namespace SPF
 
 		void SetCamera(const RenderState::Camera& camera)
 		{
-			IssueVertices();
+			FlushDrawCalls();
 			RendererData.CurrentState.CurrentCamera = camera;
 		}
 
@@ -82,7 +110,7 @@ namespace SPF
 			bool shaderChanged = (material.Shader != current.Shader);
 			if (shaderChanged)
 			{
-				IssueVertices();
+				FlushDrawCalls();
 			}
 			else
 			{
@@ -90,7 +118,7 @@ namespace SPF
 				{
 					if (material.GetTexture(i) != current.GetTexture(i))
 					{
-						IssueVertices();
+						FlushDrawCalls();
 						break;
 					}
 				}
@@ -124,7 +152,7 @@ namespace SPF
 			const RenderState::Fog& current = RendererData.CurrentState.CurrentFog;
 			if (fog.Intensity != current.Intensity || fog.Color.R != current.Color.R || fog.Color.G != current.Color.G || fog.Color.B != current.Color.B)
 			{
-				IssueVertices();
+				FlushDrawCalls();
 				RendererData.CurrentState.CurrentFog = fog;
 			}
 		}
@@ -132,11 +160,11 @@ namespace SPF
 		void SetUserData(const RenderState::UserData& userData)
 		{
 			const RenderState::UserData& current = RendererData.CurrentState.CurrentUserData;
-			if(userData.Animation != current.Animation || userData.UserData != current.UserData || userData.UserMatrix != current.UserMatrix)
+			if (userData.Animation != current.Animation || userData.UserData != current.UserData || userData.UserMatrix != current.UserMatrix)
 			{
-				IssueVertices();
+				FlushDrawCalls();
 			}
-			
+
 			RendererData.CurrentState.CurrentUserData = userData;
 		}
 
@@ -146,25 +174,33 @@ namespace SPF
 
 			if (rasterization.Blending != current.Blending)
 			{
-				IssueVertices();
-				if (rasterization.Blending == BlendMode::Alpha)
+				FlushDrawCalls();
+				if (rasterization.Blending == BlendMode::None)
 				{
-					glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+					glDisable(GL_BLEND);
 				}
-				else if (rasterization.Blending == BlendMode::Additive)
+				else
 				{
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-				}
-				else if (rasterization.Blending == BlendMode::Multiply)
-				{
-					// (sFactor * S + dFactor * D) = > D * S + 0 * D = > D * S
-					glBlendFuncSeparate(GL_DST_COLOR, GL_ZERO, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+					glEnable(GL_BLEND);
+					if (rasterization.Blending == BlendMode::Alpha)
+					{
+						glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+					}
+					else if (rasterization.Blending == BlendMode::Additive)
+					{
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+					}
+					else if (rasterization.Blending == BlendMode::Multiply)
+					{
+						// (sFactor * S + dFactor * D) = > D * S + 0 * D = > D * S
+						glBlendFuncSeparate(GL_DST_COLOR, GL_ZERO, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+					}
 				}
 			}
 
 			if (rasterization.BackfaceCulling != current.BackfaceCulling)
 			{
-				IssueVertices();
+				FlushDrawCalls();
 				glCullFace(GL_BACK);
 				SetOpenGLCapability(GL_CULL_FACE, (rasterization.BackfaceCulling != BackfaceCulling::Disabled));
 				if (rasterization.BackfaceCulling == BackfaceCulling::CW)
@@ -179,13 +215,13 @@ namespace SPF
 
 			if (rasterization.Wireframe != current.Wireframe)
 			{
-				IssueVertices();
+				FlushDrawCalls();
 				glPolygonMode(GL_FRONT_AND_BACK, rasterization.Wireframe ? GL_LINE : GL_FILL);
 			}
 
 			if (rasterization.LineWidth != current.LineWidth)
 			{
-				IssueVertices();
+				FlushDrawCalls();
 				glLineWidth(rasterization.LineWidth);
 			}
 
@@ -198,20 +234,20 @@ namespace SPF
 
 			if (buffers.ColorWrite != current.ColorWrite)
 			{
-				IssueVertices();
+				FlushDrawCalls();
 				GLboolean colorWriting = buffers.ColorWrite ? GL_TRUE : GL_FALSE;
 				glColorMask(colorWriting, colorWriting, colorWriting, colorWriting);
 			}
 
 			if (buffers.DepthWrite != current.DepthWrite)
 			{
-				IssueVertices();
+				FlushDrawCalls();
 				glDepthMask(buffers.DepthWrite ? GL_TRUE : GL_FALSE);
 			}
 
 			if (buffers.DepthTest != current.DepthTest)
 			{
-				IssueVertices();
+				FlushDrawCalls();
 				SetOpenGLCapability(GL_DEPTH_TEST, (buffers.DepthTest != Comparison::Always));
 				glDepthFunc(TranslateComparison(buffers.DepthTest));
 			}
@@ -225,7 +261,7 @@ namespace SPF
 
 			if (stencil.Write != current.Write || stencil.Test != current.Test)
 			{
-				IssueVertices();
+				FlushDrawCalls();
 				if (!stencil.Write && (stencil.Test == Comparison::Always))
 				{
 					glStencilMask(0xFF);
@@ -238,13 +274,13 @@ namespace SPF
 
 			if (stencil.Test != current.Test || stencil.Reference != current.Reference)
 			{
-				IssueVertices();
+				FlushDrawCalls();
 				glStencilFunc(TranslateComparison(stencil.Test), stencil.Reference, 0xFF);
 			}
 
 			if (stencil.StencilFail != current.StencilFail || stencil.DepthFail != current.DepthFail || stencil.DepthPass != current.DepthPass)
 			{
-				IssueVertices();
+				FlushDrawCalls();
 				glStencilOp(
 					TranslateStencilAction(stencil.StencilFail),
 					TranslateStencilAction(stencil.DepthFail),
@@ -253,16 +289,14 @@ namespace SPF
 
 			RendererData.CurrentState.CurrentStencil = stencil;
 		}
-		
-		void SendDrawCall(GLenum mode, GLint first, GLsizei count)
+
+		void SetupDrawCall()
 		{
 			const RenderState::States& state = RendererData.CurrentState;
 
 			// Camera
-			Bind(RendererData.CurrentProgram, "WorldMatrix", glm::make_mat4x4(state.CurrentModelData.WorldMatrix.M));
 			Bind(RendererData.CurrentProgram, "ViewMatrix", glm::make_mat4x4(state.CurrentCamera.ViewMatrix.M));
 			Bind(RendererData.CurrentProgram, "ProjectionMatrix", glm::make_mat4x4(state.CurrentCamera.ProjectionMatrix.M));
-			Bind(RendererData.CurrentProgram, "NormalMatrix", glm::mat4(glm::transpose(glm::inverse(glm::mat3(glm::make_mat4x4(state.CurrentModelData.WorldMatrix.M))))));
 			Bind(RendererData.CurrentProgram, "CameraUp", state.CurrentCamera.Up);
 			Bind(RendererData.CurrentProgram, "CameraSide", state.CurrentCamera.Side);
 			Bind(RendererData.CurrentProgram, "NearPlane", state.CurrentCamera.NearPlane);
@@ -281,40 +315,85 @@ namespace SPF
 			Bind(RendererData.CurrentProgram, "Animation", state.CurrentUserData.Animation);
 			Bind(RendererData.CurrentProgram, "UserData", state.CurrentUserData.UserData);
 			Bind(RendererData.CurrentProgram, "UserMatrix", glm::make_mat4x4(state.CurrentUserData.UserMatrix.M));
+		}
 
-			// Model Data
-			Bind(RendererData.CurrentProgram, "Overlay", state.CurrentModelData.Overlay);
+		void UploadSSBO(int instancesCount)
+		{
+			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, (uint64_t)instancesCount * FloatsPerTransform * sizeof(float), &RendererData.TransformsSSBO[0]);
+			glBufferSubData(GL_SHADER_STORAGE_BUFFER, MaxInstances * FloatsPerTransform * sizeof(float), (uint64_t)instancesCount * FloatsPerOverlay * sizeof(float), &RendererData.OverlaysSSBO[0]);
+		}
+
+		void SendDrawCall(GLenum mode, GLint first, GLsizei count)
+		{
+			SetupDrawCall();
+
+			static RenderState::ModelData emptyModelData = { Matrix::Identity, RGBA::TransparentBlack };
+			CopyModelData(0, emptyModelData);
+			UploadSSBO(1);
 
 			glDrawArrays(mode, first, count);
 		}
 
-		void DrawMesh(ResourceIndex mesh, int first, int count, const RenderState::ModelData& modelData)
+		void SendInstancedDrawCall(ResourceIndex mesh, int first, int count, int instancesCount)
 		{
-			IssueVertices();
+			SetupDrawCall();
 
-			Meshes::Bind(mesh);
+			for (int i = 0; i < instancesCount; ++i)
+			{
+				CopyModelData(i, RendererData.Instances[i]);
+			}
+			UploadSSBO(instancesCount);
 
-			RendererData.CurrentState.CurrentModelData = modelData;
-			SendDrawCall(GL_TRIANGLES, first, count);
-			RendererData.CurrentState.CurrentModelData = { Matrix::Identity, RGBA::TransparentBlack };
+			glDrawArraysInstanced(GL_TRIANGLES, first, count, instancesCount);
 		}
 
-		void IssueVertices()
+		void DrawMesh(ResourceIndex mesh, int first, int count, const RenderState::ModelData& modelData)
 		{
-			if (RendererData.CurrentVertexCount == 0)
-				return;
-
-			Meshes::Bind(RendererData.BatchMesh);
-			Meshes::Update(RendererData.BatchMesh, RendererData.Vertices, RendererData.CurrentVertexCount);
-
-			GLenum primitiveType = GL_TRIANGLES;
-			if (RendererData.CurrentPrimitiveType == PrimitiveType::Line)
+			if (mesh != RendererData.CurrentInstanceMesh
+				|| first != RendererData.CurrentInstanceMeshFirst
+				|| count != RendererData.CurrentInstanceMeshCount
+				|| RendererData.CurrentInstanceCount == MaxInstances)
 			{
-				primitiveType = GL_LINES;
+				FlushDrawCalls();
 			}
 
-			SendDrawCall(primitiveType, 0, RendererData.CurrentVertexCount);
-			RendererData.CurrentVertexCount = 0;
+			RendererData.CurrentInstanceMesh = mesh;
+			RendererData.CurrentInstanceMeshFirst = first;
+			RendererData.CurrentInstanceMeshCount = count;
+
+			//if (RendererData.CurrentInstanceCount < MaxInstances)
+			{
+				RendererData.Instances[RendererData.CurrentInstanceCount++] = modelData;
+			}
+		}
+
+		void FlushDrawCalls()
+		{
+			if (RendererData.CurrentVertexCount > 0)
+			{
+				Meshes::Bind(RendererData.BatchMesh);
+				Meshes::Update(RendererData.BatchMesh, RendererData.Vertices, RendererData.CurrentVertexCount);
+
+				GLenum primitiveType = GL_TRIANGLES;
+				if (RendererData.CurrentPrimitiveType == PrimitiveType::Line)
+				{
+					primitiveType = GL_LINES;
+				}
+
+				SendDrawCall(primitiveType, 0, RendererData.CurrentVertexCount);
+				RendererData.CurrentVertexCount = 0;
+			}
+
+			if (RendererData.CurrentInstanceCount > 0)
+			{
+				if (RendererData.CurrentInstanceMesh != InvalidResource && RendererData.CurrentInstanceMeshCount > 0)
+				{
+					Meshes::Bind(RendererData.CurrentInstanceMesh);
+
+					SendInstancedDrawCall(GL_TRIANGLES, RendererData.CurrentInstanceMeshFirst, RendererData.CurrentInstanceMeshCount, RendererData.CurrentInstanceCount);
+				}
+				RendererData.CurrentInstanceCount = 0;
+			}
 		}
 
 		void Init(int w, int h)
@@ -337,6 +416,13 @@ namespace SPF
 			pixels[0] = 0xFFFFFFFF;
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
 
+			GLuint ssbo;
+			glGenBuffers(1, &ssbo);
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+			glBufferData(GL_SHADER_STORAGE_BUFFER, MaxInstances * (FloatsPerTransform + FloatsPerOverlay) * sizeof(float), nullptr, GL_STREAM_DRAW);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
+			RendererData.WorldMatrixSSBO = ssbo;
+
 			RendererData.DefaultShader = Shaders::Create(
 				"#version 330 core\n"
 				"uniform sampler2D Texture1;\n"
@@ -349,7 +435,6 @@ namespace SPF
 				"uniform sampler2D Texture8;\n"
 				"uniform float FogIntensity;\n"
 				"uniform vec3 FogColor;\n"
-				"uniform vec4 Overlay;\n"
 				"uniform float Animation;\n"
 				"uniform vec4 UserData;\n"
 				"uniform mat4 UserMatrix;\n"
@@ -358,6 +443,7 @@ namespace SPF
 				"in vec2 share_UV;\n"
 				"in vec4 share_Color;\n"
 				"in vec4 share_Overlay;\n"
+				"in vec4 share_ModelOverlay;\n"
 				"in vec3 share_Position;\n"
 				"in vec3 share_Normal;\n"
 				"in float share_Distance;\n"
@@ -368,7 +454,7 @@ namespace SPF
 				"	if (texColor.a <= 0) discard;\n"
 				"	out_Color = mix(texColor, vec4(share_Overlay.xyz, texColor.a), share_Overlay.a);\n"
 				"	out_Color = mix(out_Color, vec4(FogColor,texColor.a), clamp(FogIntensity * share_Distance, 0.0, 1.0));\n"
-				"	out_Color = mix(out_Color, vec4(Overlay.xyz, 1.0), Overlay.a);\n"
+				"	out_Color = mix(out_Color, vec4(share_ModelOverlay.xyz, 1.0), share_ModelOverlay.a);\n"
 				"}\n");
 
 			RendererData.FinalSurface = Surfaces::Create(w, h, SurfaceFlags::All);
@@ -385,7 +471,7 @@ namespace SPF
 
 		void DrawFinalSurface(int w, int h)
 		{
-			IssueVertices();
+			FlushDrawCalls();
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -416,14 +502,14 @@ namespace SPF
 			PushVertex({ { x + (float)w, y, 0.f }, Vector3::Zero, { 1.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
 			PushVertex({ { x, y, 0.f }, Vector3::Zero, { 0.f, 1.f }, Vector2::Zero, RGBA::White, RGBA::TransparentBlack });
 
-			IssueVertices();
+			FlushDrawCalls();
 		}
 
 		void SetPrimitiveType(PrimitiveType type)
 		{
 			if (RendererData.CurrentPrimitiveType != type)
 			{
-				IssueVertices();
+				FlushDrawCalls();
 				RendererData.CurrentPrimitiveType = type;
 			}
 		}
@@ -437,10 +523,9 @@ namespace SPF
 			}
 			if (RendererData.CurrentVertexCount == maxVerticesCount)
 			{
-				IssueVertices();
+				FlushDrawCalls();
 			}
-			RendererData.Vertices[RendererData.CurrentVertexCount] = v;
-			RendererData.CurrentVertexCount++;
+			RendererData.Vertices[RendererData.CurrentVertexCount++] = v;
 		}
 
 		ResourceIndex GetFinalSurface()
