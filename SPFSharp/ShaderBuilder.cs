@@ -362,6 +362,8 @@ namespace SPFSharp
 			public Vec3 Lerp(Vec3 a, Vec3 b, Float t) => new Vec3($"mix({a.Write()}, {b.Write()}, {t.Write()})");
 			public Vec4 Lerp(Vec4 a, Vec4 b, Float t) => new Vec4($"mix({a.Write()}, {b.Write()}, {t.Write()})");
 
+			public Float Smoothstep(Float a, Float b, Float t) => new Float($"smoothstep({a.Write()}, {b.Write()}, {t.Write()})");
+
 			public Float Dot(Vec3 a, Vec3 b) => new Float($"dot({a.Write()}, {b.Write()})");
 
 			public Vec3 Reflect(Vec3 incident, Vec3 normal) => new Vec3($"reflect({incident.Write()}, {normal.Write()})");
@@ -377,7 +379,15 @@ namespace SPFSharp
 
 			public Float Pow(Float v, Float power) => new Float($"pow({v.Write()}, {power.Write()})");
 
+			public Vec3 Pow(Vec3 v, Vec3 power) => new Vec3($"pow({v.Write()}, {power.Write()})");
+
 			public Float Saturate(Float value) => new Float($"clamp({value.Write()}, 0.0, 1.0)");
+
+			public Float Floor(Float value) => new Float($"floor({value.Write()})");
+
+			public Float Round(Float value) => new Float($"round({value.Write()})");
+
+			public Vec3 Floor(Vec3 value) => new Vec3($"floor({value.Write()})");
 
 			public Float Posterize(Float value, Float cutout) => new Float($"(({value.Write()} >= {cutout.Write()}) ? 1.0 : 0.0)");
 

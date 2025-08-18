@@ -30,6 +30,12 @@ namespace SPFSharp
 				return new Texture(id, w, h, true);
 			}
 
+			public static Texture Create(int w, int h)
+			{
+				int id = Native.Textures.SPF_CreateEmptyTexture((uint)w, (uint)h, 0);
+				return new Texture(id, w, h, true);
+			}
+
 			public Texture(byte[] buffer)
 			{
 				using (var cbuffer = new CBuffer(buffer))
