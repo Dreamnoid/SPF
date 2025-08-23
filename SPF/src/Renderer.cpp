@@ -140,7 +140,15 @@ namespace SPF
 				{
 					glActiveTexture2(GL_TEXTURE0 + i);
 					glEnable(GL_TEXTURE_2D);
-					glBindTexture(GL_TEXTURE_2D, (textureId < 0) ? RendererData.EmptyTexture : Resources.Textures[textureId].GLID);
+					if (textureId < 0)
+					{
+						glBindTexture(GL_TEXTURE_2D, RendererData.EmptyTexture);
+					}
+					else
+					{
+						const Texture& tex = Resources.Textures[textureId];
+						glBindTexture(tex.GLType, tex.GLID);
+					}
 				}
 			}
 

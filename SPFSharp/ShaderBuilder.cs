@@ -308,7 +308,7 @@ namespace SPFSharp
 			{
 				public string Name { get; }
 
-				public string Type => "sampler2D";
+				public virtual string Type => "sampler2D";
 
 				public Sampler2D(string name)
 				{
@@ -320,6 +320,17 @@ namespace SPFSharp
 				public Vec4 Sample(Vec2 uv) => new Vec4($"texture2D({Write()}, {uv.Write()})");
 
 				public Vec2 Size() => new Vec2($"vec2(textureSize({Write()}, 0))");
+			}
+
+			public class SamplerCube : Sampler2D
+			{
+				public override string Type => "samplerCube";
+
+				public SamplerCube(string name) : base(name)
+				{
+				}
+
+				public Vec4 Sample(Vec3 dir) => new Vec4($"texture({Write()}, {dir.Write()})");
 			}
 
 			public class Function<TResult> where TResult : IVariable
@@ -484,14 +495,14 @@ namespace SPFSharp
 			public readonly Vec4 UserData = new Vec4("UserData");
 			public readonly Mat4 UserMatrix = new Mat4("UserMatrix");
 			public readonly Vec4 OutputColor = new Vec4("out_Color");
-			public readonly Sampler2D Texture = new Sampler2D("Texture1");
-			public readonly Sampler2D Texture1 = new Sampler2D("Texture2");
-			public readonly Sampler2D Texture2 = new Sampler2D("Texture3");
-			public readonly Sampler2D Texture3 = new Sampler2D("Texture4");
-			public readonly Sampler2D Texture4 = new Sampler2D("Texture5");
-			public readonly Sampler2D Texture5 = new Sampler2D("Texture6");
-			public readonly Sampler2D Texture6 = new Sampler2D("Texture7");
-			public readonly Sampler2D Texture7 = new Sampler2D("Texture8");
+			public Sampler2D Texture = new Sampler2D("Texture1");
+			public Sampler2D Texture1 = new Sampler2D("Texture2");
+			public Sampler2D Texture2 = new Sampler2D("Texture3");
+			public Sampler2D Texture3 = new Sampler2D("Texture4");
+			public Sampler2D Texture4 = new Sampler2D("Texture5");
+			public Sampler2D Texture5 = new Sampler2D("Texture6");
+			public Sampler2D Texture6 = new Sampler2D("Texture7");
+			public Sampler2D Texture7 = new Sampler2D("Texture8");
 			public readonly Float CurrentDepth = new Float("gl_FragCoord.z");
 			public readonly Vec2 PixelCoordinates = new Vec2("gl_FragCoord.xy");
 			public readonly Float NearPlane = new Float("NearPlane");
@@ -600,14 +611,14 @@ namespace SPFSharp
 			{
 				var sb = new StringBuilder();
 				sb.AppendLine(Version);
-				sb.AppendLine($"uniform sampler2D {Texture.Name};");
-				sb.AppendLine($"uniform sampler2D {Texture1.Name};");
-				sb.AppendLine($"uniform sampler2D {Texture2.Name};");
-				sb.AppendLine($"uniform sampler2D {Texture3.Name};");
-				sb.AppendLine($"uniform sampler2D {Texture4.Name};");
-				sb.AppendLine($"uniform sampler2D {Texture5.Name};");
-				sb.AppendLine($"uniform sampler2D {Texture6.Name};");
-				sb.AppendLine($"uniform sampler2D {Texture7.Name};");
+				sb.AppendLine($"uniform {Texture.Type} {Texture.Name};");
+				sb.AppendLine($"uniform {Texture1.Type} {Texture1.Name};");
+				sb.AppendLine($"uniform {Texture2.Type} {Texture2.Name};");
+				sb.AppendLine($"uniform {Texture3.Type} {Texture3.Name};");
+				sb.AppendLine($"uniform {Texture4.Type} {Texture4.Name};");
+				sb.AppendLine($"uniform {Texture5.Type} {Texture5.Name};");
+				sb.AppendLine($"uniform {Texture6.Type} {Texture6.Name};");
+				sb.AppendLine($"uniform {Texture7.Type} {Texture7.Name};");
 				sb.AppendLine($"uniform mat4 {World.Name};");
 				sb.AppendLine($"uniform mat4 {View.Name};");
 				sb.AppendLine($"uniform mat4 {Projection.Name};");

@@ -29,6 +29,7 @@ namespace SPF
 		unsigned int Width;
 		unsigned int Height;
 		TextureFlags Flags;
+		int GLType;
 	};
 
 	struct Shader

@@ -64,7 +64,7 @@ namespace SPF
 
 			glBindTexture(GL_TEXTURE_2D, previousId);
 
-			return CreateResource(Resources.Textures, { true, id, w, h, (TextureFlags)flags });
+			return CreateResource(Resources.Textures, { true, id, w, h, (TextureFlags)flags, GL_TEXTURE_2D });
 		}
 
 		void GenerateMipmaps(ResourceIndex texture)
@@ -112,6 +112,36 @@ namespace SPF
 			return index;
 		}
 
+		ResourceIndex LoadCubemap(unsigned char* buffer, int length)
+		{
+			GLuint ids[1];
+			glGenTextures(1, ids);
+			GLuint id = ids[0];
+
+			glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+
+			int w, h, bpp;
+			stbi_uc* pixels = stbi_load_from_memory(buffer, length, &w, &h, &bpp, 4);
+
+			const int th = h / 6;
+
+			for (int i = 0; i < 6; ++i)
+			{
+				const int offset = (i * w * th );
+				GLvoid* start = (GLvoid*)((int*)pixels + offset);
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, w, th, 0, GL_RGBA, GL_UNSIGNED_BYTE, start);
+			}
+			stbi_image_free((void*)pixels);
+
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+			return CreateResource(Resources.Textures, { true, id, (unsigned int)w, (unsigned int)h, TextureFlags::None, GL_TEXTURE_CUBE_MAP });
+		}
+
 		void Delete(ResourceIndex texture)
 		{
 			GLuint ids[1];
@@ -152,6 +182,11 @@ extern "C"
 	DLLExport int SPF_LoadTexture(unsigned char* buffer, int length)
 	{
 		return SPF::Textures::Load(buffer, length);
+	}
+
+	DLLExport int SPF_LoadCubemap(unsigned char* buffer, int length)
+	{
+		return SPF::Textures::LoadCubemap(buffer, length);
 	}
 
 	DLLExport int SPF_CreateEmptyTexture(unsigned int w, unsigned int h, int flags)

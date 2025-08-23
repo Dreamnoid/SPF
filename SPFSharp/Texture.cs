@@ -36,6 +36,17 @@ namespace SPFSharp
 				return new Texture(id, w, h, true);
 			}
 
+			public static Texture LoadCubemap(byte[] buffer)
+			{
+				using (var cbuffer = new CBuffer(buffer))
+				{
+					int id = Native.Textures.SPF_LoadCubemap(cbuffer.Pointer, cbuffer.Length);
+					int width = Native.Textures.SPF_GetTextureWidth(id);
+					int height = Native.Textures.SPF_GetTextureHeight(id);
+					return new Texture(id, width, height);
+				}
+			}
+
 			public Texture(byte[] buffer)
 			{
 				using (var cbuffer = new CBuffer(buffer))
