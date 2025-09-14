@@ -399,6 +399,9 @@ namespace SPFSharp
 			public static Texture GetDefaultDepthTexture()
 				=> new Texture(Native.Surfaces.SPF_GetSurfaceDepthTexture(Native.Renderer.SPF_GetFinalSurface()), GetWindowWidth(), GetWindowHeight(), true);
 
+			public static void SetFinalSurfaceFiltering(bool filtering)
+				=> Native.Textures.SPF_SetTextureFiltering(Native.Surfaces.SPF_GetSurfaceTexture(Native.Renderer.SPF_GetFinalSurface()), filtering);
+
 			public static void SetPrimitiveType(PrimitiveType type)
 				=> Native.Renderer.SPF_SetPrimitiveType((int)type);
 
