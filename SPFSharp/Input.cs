@@ -143,7 +143,9 @@ namespace SPFSharp
 
 			public static bool IsControllerConnected() => Native.Input.SPF_IsControllerConnected();
 
-			public static ControllerModel GetControllerModel() => (ControllerModel)Native.Input.SPF_GetControllerModel();
+            public static bool IsUsingController() => Native.Input.SPF_IsUsingController();
+
+            public static ControllerModel GetControllerModel() => (ControllerModel)Native.Input.SPF_GetControllerModel();
 
 			public static float Deadzone = 0.05f;
 

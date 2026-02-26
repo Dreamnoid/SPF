@@ -15,18 +15,6 @@ namespace SPFSharp
 			int ID { get; }
 		}
 
-		public class Shader : IResource
-		{
-			public Int32 ID { get; }
-
-			public Shader(ShaderBuilder shader)
-			{
-				ID = Native.SPF_CreateShader(shader.ToString());
-			}
-
-			public void Dispose() => Native.SPF_DeleteShader(ID);
-		}
-
 		public class Instance : IDisposable
 		{
 			public Instance(string title, int w, int h)
@@ -42,10 +30,7 @@ namespace SPFSharp
 			}
 		}
 
-		public static Instance Open(string title, int w, int h)
-		{
-			return new Instance(title, w, h);
-		}
+		public static Instance Open(string title, int w, int h) => new Instance(title, w, h);
 
 		public static bool BeginLoop(out float dt)
 		{
@@ -63,35 +48,18 @@ namespace SPFSharp
 		{
 			public Int32 ID { get; }
 			public Texture Texture { get; }
-			public Texture DepthTexture { get; }
 			public int Width { get; }
 			public int Height { get; }
-			public bool HasDepth { get; }
 
-			public Surface(int w, int h, bool depth = false)
+			public Surface(int w, int h)
 			{
-				ID = Native.Surfaces.SPF_CreateSurface(w, h, depth);
-				Texture = new Texture(Native.Surfaces.SPF_GetSurfaceTexture(ID), w, h, true);
+				ID = Native.Textures.SPF_CreateEmptyTexture((uint)w, (uint)h);
 				Width = w;
 				Height = h;
-				HasDepth = depth;
-				if (depth)
-				{
-					DepthTexture = new Texture(Native.Surfaces.SPF_GetSurfaceDepthTexture(ID), w, h, true);
-				}
+				Texture = new Texture(ID, w, h);
 			}
 
-			public void Clear() => Native.Surfaces.SPF_ClearSurface(ID);
-
-			public void Dispose()
-			{
-				Native.Textures.SPF_DeleteTexture(Native.Surfaces.SPF_GetSurfaceTexture(ID));
-				Native.Surfaces.SPF_DeleteSurface(ID);
-			}
-
-			public void Attach(Texture texture) => Native.Surfaces.SPF_AttachToSurface(ID, texture.ID);
-
-			public void CopyDepthFrom(Surface source) => Native.Surfaces.SPF_CopySurfaceDepth(ID, source.ID);
+			public void Dispose() => Native.Textures.SPF_DeleteTexture(ID);
 		}
 
 		public static void SetFullscreen(bool fullscreen)
@@ -120,13 +88,7 @@ namespace SPFSharp
 
 		public static void SetWindowTitle(string title) => Native.Window.SPF_SetWindowTitle(title);
 
-		public static void GetDesktopSize(out int w, out int h) => Native.Window.SPF_GetDesktopSize(out w, out h);
-
 		public static void ShowMessageBox(string title, string message, bool isError = false) => Native.Window.SPF_ShowMessageBox(title, message, isError);
-
-		public static string OpenFileDialog(string defaultFolder, string filter) => Native.Window.SPF_OpenFileDialog(defaultFolder, filter).MarshalToString();
-
-		public static string SaveFileDialog(string defaultFolder, string filter) => Native.Window.SPF_SaveFileDialog(defaultFolder, filter).MarshalToString();
 
 		public class Image : IDisposable
 		{
@@ -168,45 +130,6 @@ namespace SPFSharp
 				{
 					Native.Images.SPF_SaveImage(filename, width, height, cbuffer.Pointer);
 				}
-			}
-		}
-
-		[StructLayout(LayoutKind.Sequential)]
-		public struct Vertex
-		{
-			public float X, Y, Z;
-			public float NormalX, NormalY, NormalZ;
-			public float U, V, BU, BV;
-			public float R, G, B, A;
-			public float OverlayR, OverlayG, OverlayB, OverlayA;
-
-			public static Vertex Create(Vector3 position, Vector2 uv) => Create(position, Vector3.Zero, uv, Vector2.Zero, Vector4.One, Vector4.Zero);
-
-			public static Vertex Create(Vector3 position, Vector2 uv, Vector4 color) => Create(position, Vector3.Zero, uv, Vector2.Zero, color, Vector4.Zero);
-
-			public static Vertex Create(Vector3 position, Vector3 normal, Vector2 uv, Vector2 billboard, Vector4 color, Vector4 overlay)
-			{
-				return new Vertex()
-				{
-					X = position.X,
-					Y = position.Y,
-					Z = position.Z,
-					NormalX = normal.X,
-					NormalY = normal.Y,
-					NormalZ = normal.Z,
-					U = uv.X,
-					V = uv.Y,
-					BU = billboard.X,
-					BV = billboard.Y,
-					R = color.X,
-					G = color.Y,
-					B = color.Z,
-					A = color.W,
-					OverlayR = overlay.X,
-					OverlayG = overlay.Y,
-					OverlayB = overlay.Z,
-					OverlayA = overlay.W
-				};
 			}
 		}
 
@@ -254,43 +177,6 @@ namespace SPFSharp
 			}
 		}
 
-		public class Mesh : IDisposable
-		{
-			public Int32 ID { get; }
-			public int VerticesCount { get; }
-
-			public Mesh(Vertex[] vertices) : this(vertices, false) { }
-
-			protected Mesh(Vertex[] vertices, bool dynamic)
-			{
-				ID = Native.SPF_LoadMesh(vertices, vertices.Length, dynamic);
-				VerticesCount = vertices.Length;
-			}
-
-			public void Dispose()
-			{
-				Native.SPF_DeleteMesh(ID);
-			}
-		}
-
-		public class DynamicMesh : Mesh
-		{
-			public Vertex[] Vertices { get; }
-
-			public DynamicMesh(Vertex[] vertices) : base(vertices, true)
-			{
-				Vertices = vertices;
-			}
-
-			public void Update()
-			{
-				Native.SPF_UpdateMesh(ID, Vertices, VerticesCount);
-			}
-		}
-
-		public static void FatalError(string msg)
-		{
-			Native.SPF_FatalError(msg);
-		}
+		public static void FatalError(string msg) => Native.SPF_FatalError(msg);
 	}
 }

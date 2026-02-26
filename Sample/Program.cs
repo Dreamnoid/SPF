@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SPFSharp;
 
-namespace SPFSharp
+namespace Sample
 {
     public static class Program
     {
-        const int WindowWidth = 640;
-        const int WindowHeight = 480;
-
-        const int SurfaceWidth = 320;
-        const int SurfaceHeight = 240;
+        const int WindowWidth = 1280;
+        const int WindowHeight = 720;
 
 		public static void Main()
 		{
@@ -30,11 +23,13 @@ namespace SPFSharp
 							//SPF.Renderer.Begin(surface, true);
 							//SPF.Renderer.FillRectangle(0, 0, SurfaceWidth, SurfaceHeight, new System.Numerics.Vector4(1, 0, 0, 1));
 
+                            SPF.Renderer.FillRectangle(10, 10, 24, 24, new System.Numerics.Vector4(1f, 0, 0, 1f));
+
 							//SPF.Renderer.Begin(null, true);
 
 							//SPF.Renderer.FillRectangle(10, 10, WindowWidth-20, WindowHeight-20, new System.Numerics.Vector4(1, 1, 0, 1));
                             SPF.Renderer.DrawTexture(tex, 100, 100);
-							SPF.Renderer.DrawTexture(tex, 120, 120);
+							//SPF.Renderer.DrawTexture(tex, 120, 120);
 							//SPF.Renderer.DrawTexture(surface.Texture, 10, 10);
 
 							SPF.EndLoop();

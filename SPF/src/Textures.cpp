@@ -1,5 +1,5 @@
-#include <Textures.h>
-#include "GL4.h"
+#include <Core.h>
+#include <SDL3/SDL.h>
 #include <cstdio>
 #include <vector>
 #include "Resources.h"
@@ -11,142 +11,53 @@
 
 namespace SPF
 {
+	struct
+	{
+		SDL_Renderer* Renderer = nullptr;
+	} TexturesData;
+
 	namespace Textures
 	{
-		ResourceIndex Create(unsigned int w, unsigned int h, void* pixels, TextureFlags flags)
+		void Init(SDL_Renderer* renderer)
 		{
-			GLuint ids[1];
-			glGenTextures(1, ids);
-			GLuint id = ids[0];
-
-			GLint previousId;
-			glGetIntegerv(GL_TEXTURE_BINDING_2D, &previousId);
-
-			glBindTexture(GL_TEXTURE_2D, id);
-
-			if (HasFlag(flags, TextureFlags::Depth))
-			{
-				// Make sure sampling outside the bounds of the depth map returns 1.0
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-				float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-				glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-
-				if (HasFlag(flags, TextureFlags::Stencil))
-				{
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, w, h, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, pixels);
-				}
-				else
-				{
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, w, h, 0, GL_DEPTH_COMPONENT, GL_FLOAT, pixels);
-				}
-			}
-			else
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-				const bool isHighPrecision = HasFlag(flags, TextureFlags::HighPrecision);
-				glTexImage2D(GL_TEXTURE_2D, 0, isHighPrecision ? GL_RGBA32F : GL_RGBA, w, h, 0, GL_RGBA, isHighPrecision ? GL_FLOAT : GL_UNSIGNED_BYTE, pixels);
-			}
-
-			if (HasFlag(flags, TextureFlags::MipMap))
-			{
-				glGenerateMipmap(GL_TEXTURE_2D);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-			}
-			else
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			}
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-
-			glBindTexture(GL_TEXTURE_2D, previousId);
-
-			return CreateResource(Resources.Textures, { true, id, w, h, (TextureFlags)flags, GL_TEXTURE_2D });
+			TexturesData.Renderer = renderer;
 		}
 
-		void GenerateMipmaps(ResourceIndex texture)
+		ResourceIndex Create(unsigned int w, unsigned int h, void* pixels)
 		{
-			GLint previousId;
-			glGetIntegerv(GL_TEXTURE_BINDING_2D, &previousId);
+			SDL_TextureAccess access = pixels != nullptr ? SDL_TEXTUREACCESS_STATIC : SDL_TEXTUREACCESS_TARGET;
 
-			Texture& textureData = Resources.Textures[texture];
-			glBindTexture(GL_TEXTURE_2D, textureData.GLID);
+			SDL_Texture* texture = SDL_CreateTexture(TexturesData.Renderer, SDL_PIXELFORMAT_ABGR8888, access, w, h);
+			if (!texture)
+			{
+				FatalError(SDL_GetError());
+			}
 
-			textureData.Flags = (textureData.Flags | TextureFlags::MipMap);
-			glGenerateMipmap(GL_TEXTURE_2D);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			if (pixels != nullptr && !SDL_UpdateTexture(texture, nullptr, pixels, w * 4))
+			{
+				FatalError(SDL_GetError());
+			}
 
-			glBindTexture(GL_TEXTURE_2D, previousId);
+			return CreateResource(Resources.Textures, { true, texture, w, h });
 		}
 
 		void SetFiltering(ResourceIndex texture, bool filtering)
 		{
-			GLint previousId;
-			glGetIntegerv(GL_TEXTURE_BINDING_2D, &previousId);
-
-			Texture& textureData = Resources.Textures[texture];
-			glBindTexture(GL_TEXTURE_2D, textureData.GLID);
-			if (filtering)
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (int)textureData.Flags & (int)TextureFlags::MipMap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			}
-			else
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (int)textureData.Flags & (int)TextureFlags::MipMap ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			}
-
-			glBindTexture(GL_TEXTURE_2D, previousId);
+			SDL_SetTextureScaleMode((SDL_Texture*)Resources.Textures[texture].Pointer, filtering ? SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
 		}
 
 		ResourceIndex Load(unsigned char* buffer, int length)
 		{
 			int w, h, bpp;
 			stbi_uc* pixels = stbi_load_from_memory(buffer, length, &w, &h, &bpp, 4);
-			ResourceIndex index = Create(w, h, (GLvoid*)pixels, TextureFlags::None);
+			ResourceIndex index = Create(w, h, pixels);
 			stbi_image_free((void*)pixels);
 			return index;
 		}
 
-		ResourceIndex LoadCubemap(unsigned char* buffer, int length)
-		{
-			GLuint ids[1];
-			glGenTextures(1, ids);
-			GLuint id = ids[0];
-
-			glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-
-			int w, h, bpp;
-			stbi_uc* pixels = stbi_load_from_memory(buffer, length, &w, &h, &bpp, 4);
-
-			const int th = h / 6;
-
-			for (int i = 0; i < 6; ++i)
-			{
-				const int offset = (i * w * th );
-				GLvoid* start = (GLvoid*)((int*)pixels + offset);
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, w, th, 0, GL_RGBA, GL_UNSIGNED_BYTE, start);
-			}
-			stbi_image_free((void*)pixels);
-
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-			return CreateResource(Resources.Textures, { true, id, (unsigned int)w, (unsigned int)h, TextureFlags::None, GL_TEXTURE_CUBE_MAP });
-		}
-
 		void Delete(ResourceIndex texture)
 		{
-			GLuint ids[1];
-			ids[0] = Resources.Textures[texture].GLID;
-			glDeleteTextures(1, ids);
+			SDL_DestroyTexture((SDL_Texture*)Resources.Textures[texture].Pointer);
 			DeleteResource(Resources.Textures, texture);
 		}
 
@@ -159,11 +70,6 @@ namespace SPF
 		{
 			return Resources.Textures[texture].Height;
 		}
-
-		bool IsFlipped(ResourceIndex texture)
-		{
-			return HasFlag(Resources.Textures[texture].Flags, TextureFlags::Flipped);
-		}
 	}
 }
 
@@ -174,24 +80,14 @@ extern "C"
 		return SPF::Textures::SetFiltering(texture, filtering);
 	}
 
-	DLLExport void SPF_GenerateTextureMipmaps(int texture)
-	{
-		return SPF::Textures::GenerateMipmaps(texture);
-	}
-
 	DLLExport int SPF_LoadTexture(unsigned char* buffer, int length)
 	{
 		return SPF::Textures::Load(buffer, length);
 	}
 
-	DLLExport int SPF_LoadCubemap(unsigned char* buffer, int length)
+	DLLExport int SPF_CreateEmptyTexture(unsigned int w, unsigned int h)
 	{
-		return SPF::Textures::LoadCubemap(buffer, length);
-	}
-
-	DLLExport int SPF_CreateEmptyTexture(unsigned int w, unsigned int h, int flags)
-	{
-		return SPF::Textures::Create(w, h, nullptr, (SPF::TextureFlags)flags);
+		return SPF::Textures::Create(w, h, nullptr);
 	}
 
 	DLLExport void SPF_DeleteTexture(int texture)
@@ -207,10 +103,5 @@ extern "C"
 	DLLExport int SPF_GetTextureHeight(int texture)
 	{
 		return SPF::Textures::GetHeight(texture);
-	}
-
-	DLLExport int SPF_IsTextureFlipped(int texture)
-	{
-		return SPF::Textures::IsFlipped(texture);
 	}
 }

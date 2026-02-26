@@ -20,7 +20,7 @@ namespace SPF
 
 	constexpr ResourceIndex UnsetResource = -2;
 
-	DLLExport void FatalError(const char* msg);
+	void FatalError(const char* msg);
 
 	struct Rect
 	{
@@ -69,6 +69,11 @@ namespace SPF
 		static RGBA TransparentBlack;
 	};
 
+	struct Color
+	{
+		uint8_t R, G, B, A;
+	};
+
 	struct Vertex
 	{
 		Vector3 Position;
@@ -105,38 +110,16 @@ namespace SPF
 		return false;
 	}
 
-	enum class TextureFlags : int
-	{
-		None = 0,
-		Depth = (1 << 0),
-		Flipped = (1 << 1),
-		Stencil = (1 << 2),
-		MipMap = (1 << 3),
-		HighPrecision = (1 << 4),
-	};
-
-	inline constexpr TextureFlags operator|(TextureFlags x, TextureFlags y)
-	{
-		return static_cast<TextureFlags>(static_cast<int>(x) | static_cast<int>(y));
-	}
-
-	enum class SurfaceFlags : int
-	{
-		None = 0,
-		Color = (1 << 0),
-		Depth = (1 << 1),
-		Stencil = (1 << 2),
-
-		All = Color | Depth | Stencil
-	};
-
-	inline constexpr SurfaceFlags operator|(SurfaceFlags x, SurfaceFlags y)
-	{
-		return static_cast<SurfaceFlags>(static_cast<int>(x) | static_cast<int>(y));
-	}
-
 	template<typename T> inline constexpr bool HasFlag(T x, T y)
 	{
 		return (static_cast<int>(x) & static_cast<int>(y));
 	}
+
+	enum class BlendMode : int
+	{
+		None,
+		Alpha,
+		Additive,
+		Multiply,
+	};
 }

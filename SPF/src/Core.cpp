@@ -1,5 +1,5 @@
 #include <Core.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <string.h>
 
 namespace SPF

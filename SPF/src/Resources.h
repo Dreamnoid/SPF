@@ -4,46 +4,17 @@
 
 namespace SPF
 {
-	struct Mesh
-	{
-		bool InUse = false;
-		HardwareID VertexArrayGLID;
-		HardwareID VertexBufferGLID;
-		int VerticesCount = 0;
-	};
-
-	struct Surface
-	{
-		bool InUse;
-		HardwareID GLID;
-		ResourceIndex ColorTexture;
-		ResourceIndex DepthTexture;
-		SurfaceFlags Flags;
-		int AdditionalColorTextures;
-	};
-
 	struct Texture
 	{
 		bool InUse;
-		HardwareID GLID;
+		OpaquePointer Pointer;
 		unsigned int Width;
 		unsigned int Height;
-		TextureFlags Flags;
-		int GLType;
-	};
-
-	struct Shader
-	{
-		bool InUse;
-		HardwareID GLID;
 	};
 
 	struct ResourcesData
 	{
-		std::vector<Mesh> Meshes;
-		std::vector<Surface> Surfaces;
 		std::vector<Texture> Textures;
-		std::vector<Shader> Shaders;
 	};
 	extern ResourcesData Resources;
 

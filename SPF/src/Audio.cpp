@@ -2,8 +2,8 @@
 #include <array>
 #include <cstdio>
 #include <string>
-#include <Audio.h>
-#include <SDL.h>
+#include <Core.h>
+#include <SDL3/SDL.h>
 
 #include "stb_vorbis.h"
 
@@ -151,31 +151,30 @@ namespace SPF
 			}
 		}
 
+		void SDLCALL AudioCallback3(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount)
+		{
+			if (additional_amount > 0)
+			{
+				Uint8* data = SDL_stack_alloc(Uint8, additional_amount);
+				if (data)
+				{
+					AudioCallback(userdata, data, additional_amount);
+					SDL_PutAudioStreamData(stream, data, additional_amount);
+					SDL_stack_free(data);
+				}
+			}
+		}
+
 		void Init()
 		{
-			SDL_AudioSpec desiredSpec;
-			SDL_zero(desiredSpec);
-			desiredSpec.freq = Frequency;
-			desiredSpec.format = AUDIO_S16SYS;
-			desiredSpec.channels = Channels;
-			desiredSpec.samples = 1024;
-			desiredSpec.callback = AudioCallback;
-			desiredSpec.userdata = nullptr;
-
-			SDL_AudioSpec obtainedSpec;
-
-			AudioData.DeviceID = SDL_OpenAudioDevice(NULL, SDL_FALSE, &desiredSpec, &obtainedSpec, 0);
-			if (AudioData.DeviceID < 2)
-			{
-				FatalError(SDL_GetError());
-			}
-
 			for (int i = 0; i < AudioData.Channels.size(); ++i)
 			{
 				AudioData.Channels[i].Sound = nullptr;
 			}
 
-			SDL_PauseAudioDevice(AudioData.DeviceID, SDL_FALSE);
+			const SDL_AudioSpec spec = { SDL_AUDIO_S16, Channels, Frequency };
+			SDL_AudioStream* stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, AudioCallback3, nullptr);
+			SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(stream));
 		}
 
 		void Dispose()
@@ -186,7 +185,7 @@ namespace SPF
 		ResourceIndex LoadSound(unsigned char* buffer, int length)
 		{
 			SoundChunk* sample = new SoundChunk();
-			SDL_LoadWAV_RW(SDL_RWFromMem(buffer, length), SDL_TRUE, &sample->Specs, &sample->Samples, &sample->Length);
+			SDL_LoadWAV_IO(SDL_IOFromMem(buffer, length), true, &sample->Specs, &sample->Samples, &sample->Length);
 
 			sample->SamplesCount = sample->Length / (SDL_AUDIO_BITSIZE(sample->Specs.format) / 8);
 
@@ -235,7 +234,7 @@ namespace SPF
 
 		void DeleteSound(ResourceIndex sound)
 		{
-			SDL_FreeWAV(AudioData.Sounds[sound]->Samples);
+			SDL_free(AudioData.Sounds[sound]->Samples);
 			delete AudioData.Sounds[sound];
 			AudioData.Sounds[sound] = nullptr;
 		}
@@ -277,7 +276,7 @@ namespace SPF
 			music->VorbisStream = vorbis;
 			music->Specs.freq = info.sample_rate;
 			music->Specs.channels = info.channels;
-			music->Specs.format = AUDIO_S16;
+			music->Specs.format = SDL_AUDIO_S16;
 
 			for (ResourceIndex i = 0; i < AudioData.Musics.size(); ++i)
 			{

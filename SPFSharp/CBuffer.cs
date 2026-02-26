@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SPFSharp
 {
-	internal class CBuffer : IDisposable
+    internal class CBuffer : IDisposable
 	{
 		public IntPtr Pointer { get; private set; }
 		public int Length { get; private set; }

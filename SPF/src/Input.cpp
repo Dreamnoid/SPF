@@ -1,21 +1,123 @@
-#include <Input.h>
-#include <SDL.h>
+#include <Core.h>
+#include <SDL3/SDL.h>
 #include <cstring>
 #include <string>
 
 namespace SPF
 {
+	enum class Key : int
+	{
+		Up = 0,
+		Down = 1,
+		Right = 2,
+		Left = 3,
+		Space = 4,
+		Escape = 5,
+		Delete = 6,
+		Control = 10,
+		Shift = 11,
+		Alt = 12,
+		Num0 = 13,
+		Num1 = 14,
+		Num2 = 15,
+		Num3 = 16,
+		Num4 = 17,
+		Num5 = 18,
+		Num6 = 19,
+		Num7 = 20,
+		Num8 = 21,
+		Num9 = 22,
+		Return = 23,
+		A,
+		B,
+		C,
+		D,
+		E,
+		F,
+		G,
+		H,
+		I,
+		J,
+		K,
+		L,
+		M,
+		N,
+		O,
+		P,
+		Q,
+		R,
+		S,
+		T,
+		U,
+		V,
+		W,
+		X,
+		Y,
+		Z,
+		F1,
+		F2,
+		F3,
+		F4,
+		F5,
+		F6,
+		F7,
+		F8,
+		F9,
+		F10,
+		F11,
+		F12,
+		Tab,
+		PrintScreen,
+		Backspace,
+		Home,
+		End
+	};
+
+	enum class Button : int
+	{
+		A = 0,
+		B = 1,
+		X = 2,
+		Y = 3,
+		Start = 4,
+		Select = 5,
+		DPadUp = 6,
+		DPadDown = 7,
+		DPadRight = 8,
+		DPadLeft = 9,
+		LeftShoulder = 10,
+		RightShoulder = 11,
+		Home = 12,
+	};
+
+	enum class MouseButton : int
+	{
+		Left = 0,
+		Right = 1,
+		Middle = 2
+	};
+
+	enum class ControllerModel
+	{
+		None = 0,
+		XBox = 1,
+		Playstation = 2,
+	};
+
 	constexpr int ModifiersCount = 3;
 
 	struct
 	{
 		SDL_Window* Window;
-		SDL_GameController* Controller;
-		int KeysDownPreviousFrame[SDL_NUM_SCANCODES + ModifiersCount];
-		int KeysDown[SDL_NUM_SCANCODES + ModifiersCount];
+		SDL_Gamepad* Controller;
+		int KeysDownPreviousFrame[SDL_SCANCODE_COUNT + ModifiersCount];
+		int KeysDown[SDL_SCANCODE_COUNT + ModifiersCount];
 
-		int ButtonsDownPreviousFrame[SDL_CONTROLLER_BUTTON_MAX];
-		int ButtonsDown[SDL_CONTROLLER_BUTTON_MAX];
+		int ButtonsDownPreviousFrame[SDL_GAMEPAD_BUTTON_COUNT];
+		int ButtonsDown[SDL_GAMEPAD_BUTTON_COUNT];
+
+		uint64_t GamepadTimestamp = 0;
+		uint64_t KeyboardTimestamp = 0;
 
 		int MouseX;
 		int MouseY;
@@ -24,16 +126,10 @@ namespace SPF
 		int MouseWheel;
 		unsigned int CurrentMouseState;
 		unsigned int PreviousMouseState;
-		bool RelativeMode = false;
-
-		std::string LastTextInput;
-		bool TextInputEnabled = false;
-
 	} InputData;
 
 	namespace Input
 	{
-
 		int TranslateKey(Key key)
 		{
 			switch (key)
@@ -82,9 +178,9 @@ namespace SPF
 			case Key::Num8: return SDL_SCANCODE_KP_8;
 			case Key::Num9: return SDL_SCANCODE_KP_9;
 			case Key::Return: return SDL_SCANCODE_RETURN;
-			case Key::Control: return (SDL_NUM_SCANCODES + 0);
-			case Key::Shift: return (SDL_NUM_SCANCODES + 1);
-			case Key::Alt: return (SDL_NUM_SCANCODES + 2);
+			case Key::Control: return (SDL_SCANCODE_COUNT + 0);
+			case Key::Shift: return (SDL_SCANCODE_COUNT + 1);
+			case Key::Alt: return (SDL_SCANCODE_COUNT + 2);
 			case Key::F1: return SDL_SCANCODE_F1;
 			case Key::F2: return SDL_SCANCODE_F2;
 			case Key::F3: return SDL_SCANCODE_F3;
@@ -109,10 +205,10 @@ namespace SPF
 		Key LocalizeKey(Key key)
 		{
 			int pseudoScanCode = TranslateKey(key);
-			if (pseudoScanCode >= SDL_NUM_SCANCODES)
+			if (pseudoScanCode >= SDL_SCANCODE_COUNT)
 				return key;
 
-			SDL_Keycode keyCode = SDL_GetKeyFromScancode((SDL_Scancode)pseudoScanCode);
+			SDL_Keycode keyCode = SDL_GetKeyFromScancode((SDL_Scancode)pseudoScanCode, SDL_KMOD_NONE, false);
 			switch (keyCode)
 			{
 			case SDLK_UP: return Key::Up;
@@ -122,32 +218,32 @@ namespace SPF
 			case SDLK_SPACE: return Key::Space;
 			case SDLK_ESCAPE: return Key::Escape;
 			case SDLK_DELETE: return Key::Delete;
-			case SDLK_a: return Key::A;
-			case SDLK_b: return Key::B;
-			case SDLK_c: return Key::C;
-			case SDLK_d: return Key::D;
-			case SDLK_e: return Key::E;
-			case SDLK_f: return Key::F;
-			case SDLK_g: return Key::G;
-			case SDLK_h: return Key::H;
-			case SDLK_i: return Key::I;
-			case SDLK_j: return Key::J;
-			case SDLK_k: return Key::K;
-			case SDLK_l: return Key::L;
-			case SDLK_m: return Key::M;
-			case SDLK_n: return Key::N;
-			case SDLK_o: return Key::O;
-			case SDLK_p: return Key::P;
-			case SDLK_q: return Key::Q;
-			case SDLK_r: return Key::R;
-			case SDLK_s: return Key::S;
-			case SDLK_t: return Key::T;
-			case SDLK_u: return Key::U;
-			case SDLK_v: return Key::V;
-			case SDLK_w: return Key::W;
-			case SDLK_x: return Key::X;
-			case SDLK_y: return Key::Y;
-			case SDLK_z: return Key::Z;
+			case SDLK_A: return Key::A;
+			case SDLK_B: return Key::B;
+			case SDLK_C: return Key::C;
+			case SDLK_D: return Key::D;
+			case SDLK_E: return Key::E;
+			case SDLK_F: return Key::F;
+			case SDLK_G: return Key::G;
+			case SDLK_H: return Key::H;
+			case SDLK_I: return Key::I;
+			case SDLK_J: return Key::J;
+			case SDLK_K: return Key::K;
+			case SDLK_L: return Key::L;
+			case SDLK_M: return Key::M;
+			case SDLK_N: return Key::N;
+			case SDLK_O: return Key::O;
+			case SDLK_P: return Key::P;
+			case SDLK_Q: return Key::Q;
+			case SDLK_R: return Key::R;
+			case SDLK_S: return Key::S;
+			case SDLK_T: return Key::T;
+			case SDLK_U: return Key::U;
+			case SDLK_V: return Key::V;
+			case SDLK_W: return Key::W;
+			case SDLK_X: return Key::X;
+			case SDLK_Y: return Key::Y;
+			case SDLK_Z: return Key::Z;
 			case SDLK_KP_0: return Key::Num0;
 			case SDLK_KP_1: return Key::Num1;
 			case SDLK_KP_2: return Key::Num2;
@@ -180,24 +276,24 @@ namespace SPF
 			}
 		}
 
-		SDL_GameControllerButton TranslateButton(Button button)
+		SDL_GamepadButton TranslateButton(Button button)
 		{
 			switch (button)
 			{
-			case Button::A: return SDL_CONTROLLER_BUTTON_A;
-			case Button::B: return SDL_CONTROLLER_BUTTON_B;
-			case Button::X: return SDL_CONTROLLER_BUTTON_X;
-			case Button::Y: return SDL_CONTROLLER_BUTTON_Y;
-			case Button::Start: return SDL_CONTROLLER_BUTTON_START;
-			case Button::Select: return SDL_CONTROLLER_BUTTON_BACK;
-			case Button::DPadUp: return SDL_CONTROLLER_BUTTON_DPAD_UP;
-			case Button::DPadDown: return SDL_CONTROLLER_BUTTON_DPAD_DOWN;
-			case Button::DPadRight: return SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
-			case Button::DPadLeft: return SDL_CONTROLLER_BUTTON_DPAD_LEFT;
-			case Button::LeftShoulder: return SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
-			case Button::RightShoulder: return SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
-			case Button::Home: return SDL_CONTROLLER_BUTTON_GUIDE;
-			default: return SDL_CONTROLLER_BUTTON_A;
+			case Button::A: return SDL_GAMEPAD_BUTTON_SOUTH;
+			case Button::B: return SDL_GAMEPAD_BUTTON_EAST;
+			case Button::X: return SDL_GAMEPAD_BUTTON_WEST;
+			case Button::Y: return SDL_GAMEPAD_BUTTON_NORTH;
+			case Button::Start: return SDL_GAMEPAD_BUTTON_START;
+			case Button::Select: return SDL_GAMEPAD_BUTTON_BACK;
+			case Button::DPadUp: return SDL_GAMEPAD_BUTTON_DPAD_UP;
+			case Button::DPadDown: return SDL_GAMEPAD_BUTTON_DPAD_DOWN;
+			case Button::DPadRight: return SDL_GAMEPAD_BUTTON_DPAD_RIGHT;
+			case Button::DPadLeft: return SDL_GAMEPAD_BUTTON_DPAD_LEFT;
+			case Button::LeftShoulder: return SDL_GAMEPAD_BUTTON_LEFT_SHOULDER;
+			case Button::RightShoulder: return SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER;
+			case Button::Home: return SDL_GAMEPAD_BUTTON_GUIDE;
+			default: return SDL_GAMEPAD_BUTTON_SOUTH;
 			}
 		}
 
@@ -215,23 +311,26 @@ namespace SPF
 		void SearchGamepad()
 		{
 			InputData.Controller = nullptr;
-			for (int i = 0; i < SDL_NumJoysticks(); ++i)
+			int count = 0;
+			SDL_JoystickID* gamepads = SDL_GetGamepads(&count);
+			for (int i = 0; i < count; ++i)
 			{
-				if (SDL_IsGameController(i))
+				if (SDL_IsGamepad(gamepads[i]))
 				{
-					InputData.Controller = SDL_GameControllerOpen(i);
+					InputData.Controller = SDL_OpenGamepad(gamepads[i]);
 					if (InputData.Controller)
 					{
 						break;
 					}
 				}
 			}
+			SDL_free(gamepads);
 		}
 
-		void Init(const OpaquePointer window)
+		void Init(SDL_Window* window)
 		{
-			InputData.Window = (SDL_Window*)window;
-			SDL_GameControllerEventState(SDL_ENABLE);
+			InputData.Window = window;
+			SDL_SetGamepadEventsEnabled(true);
 			SearchGamepad();
 		}
 
@@ -243,7 +342,10 @@ namespace SPF
 			int previousMouseX = InputData.MouseX;
 			int previousMouseY = InputData.MouseY;
 			InputData.PreviousMouseState = InputData.CurrentMouseState;
-			InputData.CurrentMouseState = SDL_GetMouseState(&InputData.MouseX, &InputData.MouseY);
+			float mouseX, mouseY;
+			InputData.CurrentMouseState = SDL_GetMouseState(&mouseX, &mouseY);
+			InputData.MouseX = (int)mouseX;
+			InputData.MouseY = (int)mouseY;
 
 			// Scale mouse position with fullscreen desktop mode
 			{
@@ -253,58 +355,74 @@ namespace SPF
 				InputData.MouseY = (int)((InputData.MouseY / (float)hardwareWindowHeight) * windowSize.Height);
 			}
 
-			if (InputData.RelativeMode)
-			{
-				SDL_GetRelativeMouseState(&InputData.MouseDeltaX, &InputData.MouseDeltaY);
-			}
-			else
-			{
-				InputData.MouseDeltaX = InputData.MouseX - previousMouseX;
-				InputData.MouseDeltaY = InputData.MouseY - previousMouseY;
-			}
+			InputData.MouseDeltaX = InputData.MouseX - previousMouseX;
+			InputData.MouseDeltaY = InputData.MouseY - previousMouseY;
 
 			SDL_Keymod modifiers = SDL_GetModState();
-			InputData.KeysDown[TranslateKey(Key::Control)] = ((modifiers & KMOD_CTRL) != 0);
-			InputData.KeysDown[TranslateKey(Key::Shift)] = ((modifiers & KMOD_SHIFT) != 0);
-			InputData.KeysDown[TranslateKey(Key::Alt)] = ((modifiers & KMOD_ALT) != 0);
+			InputData.KeysDown[TranslateKey(Key::Control)] = ((modifiers & SDL_KMOD_CTRL) != 0);
+			InputData.KeysDown[TranslateKey(Key::Shift)] = ((modifiers & SDL_KMOD_SHIFT) != 0);
+			InputData.KeysDown[TranslateKey(Key::Alt)] = ((modifiers & SDL_KMOD_ALT) != 0);
 
 			InputData.MouseWheel = 0;
 		}
 
-		void HandleEvent(const OpaquePointer evtPtr)
+		uint64_t GetCurrentTimestamp()
 		{
-			const SDL_Event& evt = *(SDL_Event*)evtPtr;
-			if (evt.type == SDL_KEYDOWN)
+			SDL_Time time;
+			SDL_GetCurrentTime(&time);
+			return (uint64_t)time;
+		}
+
+		constexpr float ThumbstickDeadzoneRatio = 0.33f;
+
+		float NormalizeThumbstick(Sint16 rawValue)
+		{
+			float normalizedValue = rawValue / 32767.f;
+			/*if (fabs(normalizedValue) <= ThumbstickDeadzoneRatio)
 			{
-				InputData.KeysDown[evt.key.keysym.scancode] = 1;
-			}
-			if (evt.type == SDL_KEYUP)
+				normalizedValue = 0.f;
+			}*/
+			return normalizedValue;
+		}
+
+		void HandleEvent(const SDL_Event& evt)
+		{
+			if (evt.type == SDL_EVENT_KEY_DOWN)
 			{
-				InputData.KeysDown[evt.key.keysym.scancode] = 0;
+				InputData.KeyboardTimestamp = GetCurrentTimestamp();
+				InputData.KeysDown[evt.key.scancode] = 1;
 			}
-			if (evt.type == SDL_CONTROLLERBUTTONDOWN)
+			if (evt.type == SDL_EVENT_KEY_UP)
 			{
-				InputData.ButtonsDown[evt.cbutton.button] = 1;
+				InputData.KeysDown[evt.key.scancode] = 0;
 			}
-			if (evt.type == SDL_CONTROLLERBUTTONUP)
+			if (evt.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN)
 			{
-				InputData.ButtonsDown[evt.cbutton.button] = 0;
+				InputData.GamepadTimestamp = GetCurrentTimestamp();
+				InputData.ButtonsDown[evt.gbutton.button] = 1;
 			}
-			if (evt.type == SDL_CONTROLLERDEVICEADDED || evt.type == SDL_CONTROLLERDEVICEREMOVED)
+			if (evt.type == SDL_EVENT_GAMEPAD_BUTTON_UP)
+			{
+				InputData.ButtonsDown[evt.gbutton.button] = 0;
+			}
+			if (evt.type == SDL_EVENT_GAMEPAD_ADDED || evt.type == SDL_EVENT_GAMEPAD_REMOVED)
 			{
 				SearchGamepad();
-				if (evt.type == SDL_CONTROLLERDEVICEREMOVED)
+				if (evt.type == SDL_EVENT_GAMEPAD_REMOVED)
 				{
 					memset(&InputData.ButtonsDown, 0, sizeof(InputData.ButtonsDown)); // All buttons released
 				}
 			}
-			if (evt.type == SDL_TEXTINPUT)
+			else if (evt.type == SDL_EVENT_GAMEPAD_AXIS_MOTION)
 			{
-				InputData.LastTextInput = evt.text.text;
+				if (fabs(NormalizeThumbstick(evt.gaxis.value)) > ThumbstickDeadzoneRatio)
+				{
+					InputData.GamepadTimestamp = GetCurrentTimestamp();
+				}
 			}
-			if (evt.type == SDL_MOUSEWHEEL)
+			if (evt.type == SDL_EVENT_MOUSE_WHEEL)
 			{
-				InputData.MouseWheel = evt.wheel.y;
+				InputData.MouseWheel = (int)evt.wheel.y;
 			}
 		}
 
@@ -312,7 +430,7 @@ namespace SPF
 		{
 			if (InputData.Controller)
 			{
-				SDL_GameControllerClose(InputData.Controller);
+				SDL_CloseGamepad(InputData.Controller);
 			}
 		}
 
@@ -345,13 +463,13 @@ namespace SPF
 
 		bool IsButtonPressed(Button button)
 		{
-			SDL_GameControllerButton code = TranslateButton(button);
+			SDL_GamepadButton code = TranslateButton(button);
 			return !InputData.ButtonsDownPreviousFrame[code] && InputData.ButtonsDown[code];
 		}
 
 		bool IsButtonReleased(Button button)
 		{
-			SDL_GameControllerButton code = TranslateButton(button);
+			SDL_GamepadButton code = TranslateButton(button);
 			return InputData.ButtonsDownPreviousFrame[code] && !InputData.ButtonsDown[code];
 		}
 
@@ -359,15 +477,15 @@ namespace SPF
 		{
 			if (InputData.Controller != nullptr)
 			{
-				switch (SDL_GameControllerGetType(InputData.Controller))
+				switch (SDL_GetGamepadType(InputData.Controller))
 				{
-				case SDL_CONTROLLER_TYPE_XBOX360:
-				case SDL_CONTROLLER_TYPE_XBOXONE:
+				case SDL_GAMEPAD_TYPE_XBOX360:
+				case SDL_GAMEPAD_TYPE_XBOXONE:
 					return ControllerModel::XBox;
 
-				case SDL_CONTROLLER_TYPE_PS3:
-				case SDL_CONTROLLER_TYPE_PS4:
-				case SDL_CONTROLLER_TYPE_PS5:
+				case SDL_GAMEPAD_TYPE_PS3:
+				case SDL_GAMEPAD_TYPE_PS4:
+				case SDL_GAMEPAD_TYPE_PS5:
 					return ControllerModel::Playstation;
 
 				default:
@@ -399,18 +517,18 @@ namespace SPF
 
 		bool IsMouseButtonDown(MouseButton button)
 		{
-			return (InputData.CurrentMouseState & SDL_BUTTON(TranslateMouseButton(button)));
+			return (InputData.CurrentMouseState & SDL_BUTTON_MASK(TranslateMouseButton(button)));
 		}
 
 		bool IsMouseButtonPressed(MouseButton button)
 		{
-			auto mask = SDL_BUTTON(TranslateMouseButton(button));
+			auto mask = SDL_BUTTON_MASK(TranslateMouseButton(button));
 			return ((InputData.CurrentMouseState & mask) && !(InputData.PreviousMouseState & mask));
 		}
 
 		bool IsMouseButtonReleased(MouseButton button)
 		{
-			auto mask = SDL_BUTTON(TranslateMouseButton(button));
+			auto mask = SDL_BUTTON_MASK(TranslateMouseButton(button));
 			return (!(InputData.CurrentMouseState & mask) && (InputData.PreviousMouseState & mask));
 		}
 
@@ -419,23 +537,11 @@ namespace SPF
 			return InputData.MouseWheel;
 		}
 
-		constexpr float ThumbstickDeadzoneRatio = 0.1f;
-
-		float NormalizeThumbstick(Sint16 rawValue)
-		{
-			float normalizedValue = rawValue / 32767.f;
-			/*if (fabs(normalizedValue) <= ThumbstickDeadzoneRatio)
-			{
-				normalizedValue = 0.f;
-			}*/
-			return normalizedValue;
-		}
-
 		float GetLeftThumbstickX()
 		{
 			if (InputData.Controller)
 			{
-				return NormalizeThumbstick(SDL_GameControllerGetAxis(InputData.Controller, SDL_CONTROLLER_AXIS_LEFTX));
+				return NormalizeThumbstick(SDL_GetGamepadAxis(InputData.Controller, SDL_GAMEPAD_AXIS_LEFTX));
 			}
 			else return 0.f;
 		}
@@ -444,7 +550,7 @@ namespace SPF
 		{
 			if (InputData.Controller)
 			{
-				return NormalizeThumbstick(SDL_GameControllerGetAxis(InputData.Controller, SDL_CONTROLLER_AXIS_LEFTY));
+				return NormalizeThumbstick(SDL_GetGamepadAxis(InputData.Controller, SDL_GAMEPAD_AXIS_LEFTY));
 			}
 			else return 0.f;
 		}
@@ -453,7 +559,7 @@ namespace SPF
 		{
 			if (InputData.Controller)
 			{
-				return NormalizeThumbstick(SDL_GameControllerGetAxis(InputData.Controller, SDL_CONTROLLER_AXIS_RIGHTX));
+				return NormalizeThumbstick(SDL_GetGamepadAxis(InputData.Controller, SDL_GAMEPAD_AXIS_RIGHTX));
 			}
 			else return 0.f;
 		}
@@ -462,59 +568,33 @@ namespace SPF
 		{
 			if (InputData.Controller)
 			{
-				return NormalizeThumbstick(SDL_GameControllerGetAxis(InputData.Controller, SDL_CONTROLLER_AXIS_RIGHTY));
+				return NormalizeThumbstick(SDL_GetGamepadAxis(InputData.Controller, SDL_GAMEPAD_AXIS_RIGHTY));
 			}
 			else return 0.f;
-		}
-
-		void SetRelativeMouseState(bool state)
-		{
-			if (InputData.RelativeMode == state)
-				return;
-
-			int w, h;
-			SDL_GetWindowSize(InputData.Window, &w, &h);
-			InputData.MouseX = w / 2;
-			InputData.MouseY = h / 2;
-
-			InputData.RelativeMode = state;
-			if (state)
-			{
-				SDL_WarpMouseInWindow(InputData.Window, InputData.MouseX, InputData.MouseY);
-				SDL_SetRelativeMouseMode(SDL_TRUE);
-				int mdx, mdy;
-				SDL_GetRelativeMouseState(&mdx, &mdy); // Exhaust the delta, so it won't jump next Update
-			}
-			else
-			{
-				SDL_SetRelativeMouseMode(SDL_FALSE);
-				SDL_WarpMouseInWindow(InputData.Window, InputData.MouseX, InputData.MouseY);
-			}
-		}
-
-		void StartTextInput()
-		{
-			InputData.LastTextInput.clear();
-			SDL_StartTextInput();
-			InputData.TextInputEnabled = true;
-		}
-
-		void StopTextInput()
-		{
-			InputData.TextInputEnabled = false;
-			SDL_StopTextInput();
-		}
-
-		const char* GetTextInput()
-		{
-			return InputData.LastTextInput.c_str();
 		}
 
 		void Rumble(float duration, float lowIntensity, float highIntensity)
 		{
 			if (InputData.Controller)
 			{
-				SDL_GameControllerRumble(InputData.Controller, (uint16_t)(lowIntensity * 65535.0f), (uint16_t)(highIntensity * 65535.0f), (uint32_t)(duration * 1000.0f));
+				SDL_RumbleGamepad(InputData.Controller, (uint16_t)(lowIntensity * 65535.0f), (uint16_t)(highIntensity * 65535.0f), (uint32_t)(duration * 1000.0f));
+			}
+		}
+
+		bool IsUsingController()
+		{
+			return InputData.Controller && (InputData.GamepadTimestamp > InputData.KeyboardTimestamp);
+		}
+
+		void SetCursorVisibility(bool visible)
+		{
+			if (visible)
+			{
+				SDL_ShowCursor();
+			}
+			else
+			{
+				SDL_HideCursor();
 			}
 		}
 	}
@@ -540,6 +620,11 @@ extern "C"
 	DLLExport int SPF_IsControllerConnected()
 	{
 		return SPF::Input::IsControllerConnected() ? 1 : 0;
+	}
+
+	DLLExport int SPF_IsUsingController()
+	{
+		return SPF::Input::IsUsingController() ? 1 : 0;
 	}
 
 	DLLExport int SPF_IsButtonDown(int button)
@@ -622,26 +707,6 @@ extern "C"
 		return SPF::Input::GetRightThumbstickY();
 	}
 
-	DLLExport void SPF_SetRelativeMouseState(bool state)
-	{
-		SPF::Input::SetRelativeMouseState(state);
-	}
-
-	DLLExport void SPF_StartTextInput()
-	{
-		SPF::Input::StartTextInput();
-	}
-
-	DLLExport void SPF_StopTextInput()
-	{
-		SPF::Input::StopTextInput();
-	}
-
-	DLLExport const char* SPF_GetTextInput()
-	{
-		return SPF::Input::GetTextInput();
-	}
-
 	DLLExport void SPF_Rumble(float duration, float lowIntensity, float highIntensity)
 	{
 		SPF::Input::Rumble(duration, lowIntensity, highIntensity);
@@ -650,5 +715,10 @@ extern "C"
 	DLLExport int SPF_LocalizeKey(int key)
 	{
 		return (int)SPF::Input::LocalizeKey((SPF::Key)key);
+	}
+
+	DLLExport void SPF_SetCursorVisibility(bool visible)
+	{
+		SPF::Input::SetCursorVisibility(visible);
 	}
 }

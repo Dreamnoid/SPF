@@ -1,5 +1,5 @@
 #include <vector>
-#include <Images.h>
+#include <Core.h>
 
 #define STBI_ONLY_JPEG
 #define STBI_ONLY_PNG

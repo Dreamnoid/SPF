@@ -2,7 +2,6 @@
 #include <stdio.h>
 
 #include <Core.h>
-#include <Textures.h>
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
@@ -16,6 +15,11 @@ namespace SPF
 		int OffsetX;
 		int OffsetY;
 	};
+
+	namespace Textures
+	{
+		ResourceIndex Create(unsigned int w, unsigned int h, void* pixels);
+	}
 
 	ResourceIndex LoadFont(const unsigned char* buffer, int width, int height, int fontSize, int firstCharacter, int lastCharacter, SPF::Glyph* glyphes)
 	{
