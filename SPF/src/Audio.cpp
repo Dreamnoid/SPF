@@ -174,7 +174,8 @@ namespace SPF
 
 			const SDL_AudioSpec spec = { SDL_AUDIO_S16, Channels, Frequency };
 			SDL_AudioStream* stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, AudioCallback3, nullptr);
-			SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(stream));
+			AudioData.DeviceID = SDL_GetAudioStreamDevice(stream);
+			SDL_ResumeAudioDevice(AudioData.DeviceID);
 		}
 
 		void Dispose()

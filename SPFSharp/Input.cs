@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using System.Runtime.InteropServices;
 
 namespace SPFSharp
 {
@@ -143,9 +142,9 @@ namespace SPFSharp
 
 			public static bool IsControllerConnected() => Native.Input.SPF_IsControllerConnected();
 
-            public static bool IsUsingController() => Native.Input.SPF_IsUsingController();
+			public static bool IsUsingController() => Native.Input.SPF_IsUsingController();
 
-            public static ControllerModel GetControllerModel() => (ControllerModel)Native.Input.SPF_GetControllerModel();
+			public static ControllerModel GetControllerModel() => (ControllerModel)Native.Input.SPF_GetControllerModel();
 
 			public static float Deadzone = 0.05f;
 
@@ -176,14 +175,6 @@ namespace SPFSharp
 			public static float GetRightThumbstickX() => Native.Input.SPF_GetRightThumbstickX();
 
 			public static float GetRightThumbstickY() => Native.Input.SPF_GetRightThumbstickY();
-
-			public static void SetRelativeMouseState(bool state) => Native.Input.SPF_SetRelativeMouseState(state);
-
-			public static void StartTextInput() => Native.Input.SPF_StartTextInput();
-
-			public static void StopTextInput() => Native.Input.SPF_StopTextInput();
-
-			public static string GetTextInput() => Marshal.PtrToStringAnsi(Native.Input.SPF_GetTextInput());
 
 			public static void Rumble(float duration, float lowIntensity = 0.5f, float highIntensity = 0.5f) 
 				=> Native.Input.SPF_Rumble(duration, lowIntensity, highIntensity);

@@ -20,10 +20,10 @@ namespace SPFSharp
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern bool SPF_IsControllerConnected();
 
-            [SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-            public static extern bool SPF_IsUsingController();
+			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+			public static extern bool SPF_IsUsingController();
 
-            [SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern int SPF_GetControllerModel();
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
@@ -63,18 +63,6 @@ namespace SPFSharp
 			public static extern float SPF_GetRightThumbstickY();
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern void SPF_SetRelativeMouseState(bool state);
-
-			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern void SPF_StartTextInput();
-
-			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern void SPF_StopTextInput();
-
-			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern IntPtr SPF_GetTextInput();
-
-			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern bool SPF_IsKeyDown(int key);
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
@@ -88,9 +76,6 @@ namespace SPFSharp
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern int SPF_LocalizeKey(int key);
-
-			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern void SPF_SetCursorVisibility(bool visible);
-        }
+		}
 	}
 }

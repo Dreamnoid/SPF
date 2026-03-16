@@ -585,18 +585,6 @@ namespace SPF
 		{
 			return InputData.Controller && (InputData.GamepadTimestamp > InputData.KeyboardTimestamp);
 		}
-
-		void SetCursorVisibility(bool visible)
-		{
-			if (visible)
-			{
-				SDL_ShowCursor();
-			}
-			else
-			{
-				SDL_HideCursor();
-			}
-		}
 	}
 }
 
@@ -715,10 +703,5 @@ extern "C"
 	DLLExport int SPF_LocalizeKey(int key)
 	{
 		return (int)SPF::Input::LocalizeKey((SPF::Key)key);
-	}
-
-	DLLExport void SPF_SetCursorVisibility(bool visible)
-	{
-		SPF::Input::SetCursorVisibility(visible);
 	}
 }

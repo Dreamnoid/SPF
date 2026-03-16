@@ -14,7 +14,6 @@ namespace SPF
 	using OpaquePointer = void*;
 
 	using ResourceIndex = int32_t;
-	using HardwareID = uint32_t;
 	
 	constexpr ResourceIndex InvalidResource = -1;
 

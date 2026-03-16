@@ -31,7 +31,7 @@ namespace SPF
 
 			if (clear)
 			{
-				SDL_SetRenderDrawColor(RendererData.Renderer, 0, 0, 0, 255);
+				SDL_SetRenderDrawColor(RendererData.Renderer, 0, 0, 0, 0);
 				SDL_RenderClear(RendererData.Renderer);
 			}
 		}
@@ -49,6 +49,11 @@ namespace SPF
 		static SDL_FColor ToSDL(const RGBA& color)
 		{
 			return SDL_FColor{ color.R, color.G, color.B, color.A };
+		}
+
+		static SDL_FColor ToSDLMultiplyAlpha(const RGBA& color, float alpha)
+		{
+			return SDL_FColor{ color.R, color.G, color.B, color.A * alpha };
 		}
 
 		static void SetSDLColor(const Color& color)
@@ -79,29 +84,49 @@ namespace SPF
 		}
 
 		void DrawTexture(
-			HardwareID texture,
+			ResourceIndex texture,
 			Vector2 a, Vector2 b, Vector2 c, Vector2 d,
 			Rect source,
 			bool flipX, bool flipY,
 			RGBA colorA, RGBA colorB, RGBA colorC, RGBA colorD,
 			RGBA overlay)
 		{
+			SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND;
+			SDL_GetRenderDrawBlendMode(RendererData.Renderer, &blendMode);
+
 			const SPF::Texture& texInfo = Resources.Textures[texture];
 			
 			Vector2 uv1, uv2;
 			DetermineUV(ToSDL(source), texInfo.Width, texInfo.Height, flipX, flipY, uv1, uv2);
 
-			SDL_Vertex vertices[4]
+			const static int indices[6]{ 0, 1, 2, 0, 2, 3 };
+
+			const float nonOverlayRatio = 1.f - overlay.A;
+			const SDL_Vertex vertices[4]
 			{
 				{ ToSDL(a), ToSDL(colorA), { uv1.X, uv1.Y } },
 				{ ToSDL(b), ToSDL(colorB), { uv2.X, uv1.Y } },
 				{ ToSDL(c), ToSDL(colorC), { uv2.X, uv2.Y } },
 				{ ToSDL(d), ToSDL(colorD), { uv1.X, uv2.Y } }
 			};
-			int indices[6] { 0, 1, 2, 0, 2, 3 };
-			SDL_RenderGeometry(RendererData.Renderer, (SDL_Texture*)texInfo.Pointer, vertices, 4, indices, 6);
 
-			// TODO: overlay = lazy create a copy of the texture with only alpha and draw it modulated
+			SDL_Texture* tex = (SDL_Texture*)texInfo.Pointer;
+			SDL_SetTextureBlendMode(tex, blendMode);
+			SDL_RenderGeometry(RendererData.Renderer, tex, vertices, 4, indices, 6);
+
+			if (overlay.A > 0.f)
+			{
+				SDL_Texture* maskTex = (SDL_Texture*)texInfo.MaskPointer;
+				const SDL_Vertex vertices2[4]
+				{
+					{ ToSDL(a), ToSDLMultiplyAlpha(overlay, colorA.A), { uv1.X, uv1.Y } },
+					{ ToSDL(b), ToSDLMultiplyAlpha(overlay, colorB.A), { uv2.X, uv1.Y } },
+					{ ToSDL(c), ToSDLMultiplyAlpha(overlay, colorC.A), { uv2.X, uv2.Y } },
+					{ ToSDL(d), ToSDLMultiplyAlpha(overlay, colorD.A), { uv1.X, uv2.Y } }
+				};
+				SDL_SetTextureBlendMode(maskTex, blendMode);
+				SDL_RenderGeometry(RendererData.Renderer, maskTex, vertices2, 4, indices, 6);
+			}
 		}
 
 		void FillRectangle(Rect dest, Color color)
@@ -156,7 +181,7 @@ extern "C"
 		float dColorR, float dColorG, float dColorB, float dColorA,
 		float overlayR, float overlayG, float ovelayB, float overlayA)
 	{
-		SPF::Renderer::DrawTexture((SPF::HardwareID)texture,
+		SPF::Renderer::DrawTexture(texture,
 			{ aX, aY }, { bX, bY }, { cX, cY }, { dX, dY },
 			{ sourceX, sourceY, sourceW, sourceH },
 			flipX, flipY,
@@ -170,5 +195,10 @@ extern "C"
 	DLLExport void SPF_FillRectangle(int x, int y, int w, int h, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 	{
 		SPF::Renderer::FillRectangle({ x, y, w, h }, { r, g, b, a });
+	}
+
+	DLLExport void SPF_DrawLine(float fromX, float fromY, float toX, float toY, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+	{
+		SPF::Renderer::DrawLine({ fromX, fromY }, { toX, toY }, { r, g, b, a });
 	}
 }

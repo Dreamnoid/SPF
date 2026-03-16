@@ -8,6 +8,7 @@ namespace SPF
 	{
 		bool InUse;
 		OpaquePointer Pointer;
+		OpaquePointer MaskPointer;
 		unsigned int Width;
 		unsigned int Height;
 	};

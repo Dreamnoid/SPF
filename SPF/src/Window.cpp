@@ -61,7 +61,7 @@ namespace SPF
 				FatalError(SDL_GetError());
 			}
 
-			if (!SDL_SetRenderLogicalPresentation(WindowData.Renderer, 1280, 720, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE))
+			if (!SDL_SetRenderLogicalPresentation(WindowData.Renderer, w, h, SDL_LOGICAL_PRESENTATION_LETTERBOX))
 			{
 				FatalError(SDL_GetError());
 			}
@@ -116,6 +116,14 @@ namespace SPF
 		void SetFullscreen(bool fullscreen)
 		{
 			SDL_SetWindowFullscreen(WindowData.Window, fullscreen);
+			if (fullscreen)
+			{
+				SDL_HideCursor();
+			}
+			else
+			{
+				SDL_ShowCursor();
+			}
 		}
 
 		void SetWindowTitle(const char* title)

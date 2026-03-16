@@ -162,23 +162,6 @@ namespace SPFSharp
                     overlay.X, overlay.Y, overlay.Z, overlay.W);
 			}
 
-			public static void FillSurface() => FillSurface(Vector4.One);
-
-			public static void FillSurface(in Vector4 color)
-			{
-			}
-
-			public static void DrawFullScreenQuad() => DrawFullScreenQuad(Vector4.One);
-
-			public static void DrawFullScreenQuad(in Vector4 color)
-			{
-
-			}
-
-			public static void DrawLine(in Vector2 from, in Vector2 to, in Vector4 color)
-			{
-			}
-
 			public static void SetBlending(BlendMode blendMode = BlendMode.Alpha)
 				=> Native.Renderer.SPF_SetBlending((int)blendMode);
 		}

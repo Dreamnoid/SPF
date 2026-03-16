@@ -29,6 +29,9 @@ namespace SPFSharp
                 float cColorR, float cColorG, float cColorB, float cColorA,
                 float dColorR, float dColorG, float dColorB, float dColorA,
                 float overlayR, float overlayG, float ovelayB, float overlayA);
+
+            [SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SPF_DrawLine(float fromX, float fromY, float toX, float toY, byte r, byte g, byte b, byte a);
         }
 	}
 }
