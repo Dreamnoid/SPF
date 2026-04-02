@@ -46,6 +46,11 @@ namespace SPF
 
 	namespace Window
 	{
+		bool IsFullscreenRequested()
+		{
+			return SDL_GetEnvironmentVariable(SDL_GetEnvironment(), "SteamTenfoot");
+		}
+
 		void Open(const char* title, int w, int h)
 		{
 			WindowData.Width = w;
@@ -56,7 +61,7 @@ namespace SPF
 				FatalError(SDL_GetError());
 			}
 
-			if (!SDL_CreateWindowAndRenderer(title, w, h, SDL_WINDOW_RESIZABLE, &WindowData.Window, &WindowData.Renderer))
+			if (!SDL_CreateWindowAndRenderer(title, w, h, IsFullscreenRequested() ? SDL_WINDOW_FULLSCREEN : 0, &WindowData.Window, &WindowData.Renderer))
 			{
 				FatalError(SDL_GetError());
 			}
@@ -198,6 +203,11 @@ extern "C"
 	DLLExport void SPF_Close()
 	{
 		SPF::Window::Close();
+	}
+
+	DLLExport bool SPF_IsFullscreenRequested()
+	{
+		return SPF::Window::IsFullscreenRequested();
 	}
 
 	DLLExport void SPF_SetFullscreen(bool fullscreen)

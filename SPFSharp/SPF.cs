@@ -62,6 +62,8 @@ namespace SPFSharp
 			public void Dispose() => Native.Textures.SPF_DeleteTexture(ID);
 		}
 
+		public static bool IsFullscreenRequested() => Native.Window.SPF_IsFullscreenRequested();
+
 		public static void SetFullscreen(bool fullscreen)
 		{
 			Native.Window.SPF_SetFullscreen(fullscreen);
