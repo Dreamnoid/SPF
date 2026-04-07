@@ -473,9 +473,14 @@ namespace SPF
 			return InputData.ButtonsDownPreviousFrame[code] && !InputData.ButtonsDown[code];
 		}
 
+		bool IsUsingController()
+		{
+			return InputData.Controller && (InputData.GamepadTimestamp > InputData.KeyboardTimestamp);
+		}
+
 		ControllerModel GetControllerModel()
 		{
-			if (InputData.Controller != nullptr)
+			if (IsUsingController())
 			{
 				switch (SDL_GetGamepadType(InputData.Controller))
 				{
@@ -579,11 +584,6 @@ namespace SPF
 			{
 				SDL_RumbleGamepad(InputData.Controller, (uint16_t)(lowIntensity * 65535.0f), (uint16_t)(highIntensity * 65535.0f), (uint32_t)(duration * 1000.0f));
 			}
-		}
-
-		bool IsUsingController()
-		{
-			return InputData.Controller && (InputData.GamepadTimestamp > InputData.KeyboardTimestamp);
 		}
 	}
 }
