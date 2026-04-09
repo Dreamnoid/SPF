@@ -85,7 +85,8 @@ namespace SPFSharp
 			DPadRight = 8,
 			DPadLeft = 9,
 			LeftShoulder = 10,
-			RightShoulder = 11
+			RightShoulder = 11,
+			Home = 12
 		}
 
 		public enum MouseButton : int
