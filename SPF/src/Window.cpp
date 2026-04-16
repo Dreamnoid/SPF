@@ -6,11 +6,9 @@ namespace SPF
 {
 	struct
 	{
-		int Width = 0;
-		int Height = 0;
 		SDL_Window* Window = nullptr;
 		SDL_Renderer* Renderer = nullptr;
-		unsigned int LastTick = 0;
+		Uint64 LastTick = 0;
 		char* LastClipboardData = nullptr;
 	} WindowData;
 
@@ -44,6 +42,14 @@ namespace SPF
 		void Dispose();
 	}
 
+	namespace Steam
+	{
+		void Init(uint32_t appID);
+		void Update();
+		bool IsOverlayActive();
+		void Dispose();
+	}
+
 	namespace Window
 	{
 		bool IsFullscreenRequested()
@@ -51,10 +57,9 @@ namespace SPF
 			return SDL_GetEnvironmentVariable(SDL_GetEnvironment(), "SteamTenfoot");
 		}
 
-		void Open(const char* title, int w, int h)
+		void Open(const char* title, int w, int h, uint32_t appID)
 		{
-			WindowData.Width = w;
-			WindowData.Height = h;
+			Steam::Init(appID); // Must be called as soon as possible, and always before SDL_Init
 
 			if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD))
 			{
@@ -79,12 +84,14 @@ namespace SPF
 
 		bool BeginLoop(float* dt)
 		{
-			unsigned int currentTick = SDL_GetTicks();
-			unsigned int timeElapsed = currentTick - WindowData.LastTick;
+			Uint64 currentTick = SDL_GetTicks();
+			Uint64 timeElapsed = currentTick - WindowData.LastTick;
 			WindowData.LastTick = currentTick;
 			*dt = timeElapsed / 1000.0f;
 
-			Input::Update({ WindowData.Width, WindowData.Height });
+			int width, height;
+			SDL_GetWindowSize(WindowData.Window, &width, &height);
+			Input::Update({ width, height });
 
 			SDL_Event evt;
 			while (SDL_PollEvent(&evt))
@@ -100,6 +107,7 @@ namespace SPF
 				}
 			}
 
+			Steam::Update();
 			Renderer::Begin(UnsetResource, true);
 			return true;
 		}
@@ -111,6 +119,7 @@ namespace SPF
 
 		void Close()
 		{
+			Steam::Dispose();
 			Input::Dispose();
 			Audio::Dispose();
 			SDL_DestroyRenderer(WindowData.Renderer);
@@ -138,23 +147,27 @@ namespace SPF
 
 		int GetWidth()
 		{
-			return WindowData.Width;
+			int width = 0;
+			SDL_GetWindowSize(WindowData.Window, &width, NULL);
+			return width;
 		}
 
 		int GetHeight()
 		{
-			return WindowData.Height;
+			int height = 0;
+			SDL_GetWindowSize(WindowData.Window, NULL, &height);
+			return height;
 		}
 
 		bool HasFocus()
 		{
-			return (SDL_GetWindowFlags(WindowData.Window) & SDL_WINDOW_INPUT_FOCUS) == SDL_WINDOW_INPUT_FOCUS;
+			return ((SDL_GetWindowFlags(WindowData.Window) & SDL_WINDOW_INPUT_FOCUS) == SDL_WINDOW_INPUT_FOCUS) && !Steam::IsOverlayActive();
 		}
 
 		void SaveScreenshot(const char* filename)
 		{
 			SDL_Surface* image = SDL_GetWindowSurface(WindowData.Window);
-			Images::Save(filename, WindowData.Width, WindowData.Height, (unsigned char*)image->pixels);
+			Images::Save(filename, image->w, image->h, (unsigned char*)image->pixels);
 		}
 
 		void ShowMessageBox(const char* title, const char* message, bool isError)
@@ -185,9 +198,9 @@ namespace SPF
 
 extern "C"
 {
-	DLLExport void SPF_Open(const char* title, int w, int h)
+	DLLExport void SPF_Open(const char* title, int w, int h, unsigned int appID)
 	{
-		SPF::Window::Open(title, w, h);
+		SPF::Window::Open(title, w, h, appID);
 	}
 
 	DLLExport int SPF_BeginLoop(float* dt)

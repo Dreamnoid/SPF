@@ -14,5 +14,8 @@ namespace SPFSharp
 
 		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SPF_FatalError(string msg);
-	}
+
+        [SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void SPF_UnlockAchievement(string id);
+    }
 }

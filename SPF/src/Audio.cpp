@@ -14,7 +14,7 @@ namespace SPF
 
 	struct SoundChunk
 	{
-		SDL_AudioSpec Specs;
+		SDL_AudioSpec Specs = {};
 		uint8_t* Samples = nullptr;
 		uint32_t Length = 0;
 		uint32_t SamplesCount = 0;
@@ -25,7 +25,7 @@ namespace SPF
 	{
 		float Volume = 1.0f;
 		const SoundChunk* Sound = nullptr;
-		int Position = 0;
+		uint32_t Position = 0;
 		bool Looping = false;
 	};
 
@@ -43,7 +43,7 @@ namespace SPF
 
 	namespace Audio
 	{
-		void Resample(const SoundChunk* sound, int& position, float& sampleL, float& sampleR)
+		void Resample(const SoundChunk* sound, uint32_t& position, float& sampleL, float& sampleR)
 		{
 			const bool stereo = sound->Specs.channels == 2;
 
@@ -146,8 +146,8 @@ namespace SPF
 				mixedSampleL = std::min(std::max(mixedSampleL, -1.f), 1.f);
 				mixedSampleR = std::min(std::max(mixedSampleR, -1.f), 1.f);
 
-				samples[(i * Channels) + 0] = mixedSampleL * INT16_MAX;
-				samples[(i * Channels) + 1] = mixedSampleR * INT16_MAX;
+				samples[(i * Channels) + 0] = (int16_t)(mixedSampleL * INT16_MAX);
+				samples[(i * Channels) + 1] = (int16_t)(mixedSampleR * INT16_MAX);
 			}
 		}
 
@@ -199,7 +199,7 @@ namespace SPF
 				}
 			}
 			AudioData.Sounds.push_back(sample);
-			return AudioData.Sounds.size() - 1;
+			return (ResourceIndex)(AudioData.Sounds.size() - 1);
 		}
 
 		int PlaySound(ResourceIndex sound, float volume, bool looping)
@@ -288,7 +288,7 @@ namespace SPF
 				}
 			}
 			AudioData.Musics.push_back(music);
-			return AudioData.Musics.size() - 1;
+			return (ResourceIndex)(AudioData.Musics.size() - 1);
 		}
 
 		void DeleteMusic(ResourceIndex music)

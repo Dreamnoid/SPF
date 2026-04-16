@@ -1,4 +1,5 @@
 ﻿using SPFSharp;
+using System.Numerics;
 
 namespace Sample
 {
@@ -9,6 +10,8 @@ namespace Sample
 
 		public static void Main()
 		{
+			bool paused = false;
+			var position = new Vector2(120, 120);
 			using (SPF.Open("Test", WindowWidth, WindowHeight))
 			{
 				using (var surface = new SPF.Surface(320, 180))
@@ -21,6 +24,16 @@ namespace Sample
 						tex.SetFiltering(false);
 						while (SPF.BeginLoop(out float dt))
 						{
+							if (SPF.Input.IsCurrentInputLost())
+							{
+								paused = true;
+                            }
+
+							if (!paused)
+							{
+								position += SPF.Input.GetLeftThumbstick() * 100f * dt;
+							}
+
 							SPF.Renderer.Begin(surface, true);
 							SPF.Renderer.FillRectangle(0, 0, surface.Width, surface.Height, new System.Numerics.Vector4(1, 0, 0, 1));
 
@@ -31,10 +44,24 @@ namespace Sample
 							//SPF.Renderer.DrawTexture(tex, 120, 120);
 							//SPF.Renderer.DrawTexture(surface.Texture, 10, 10);
 
-							SPF.Renderer.DrawTexture(tex, 120, 120, (int)(tex.Width * 1.5f), (int)(tex.Height * 1.2f), 0, 0, tex.Width, tex.Height, false, false, System.Numerics.Vector4.One);
+							SPF.Renderer.DrawTexture(tex, (int)position.X, (int)position.Y, (int)(tex.Width * 1.5f), (int)(tex.Height * 1.2f), 0, 0, tex.Width, tex.Height, false, false, System.Numerics.Vector4.One);
 
 							SPF.Renderer.Begin(null, true);
 							SPF.Renderer.DrawTexture(surface.Texture, 32, 32);
+
+							if (paused)
+							{
+								SPF.Renderer.FillRectangle(0, 0, WindowWidth, WindowHeight, new Vector4(0, 0, 0, 0.5f));
+								if (SPF.Input.IsKeyPressed(SPF.Key.Escape))
+								{
+									paused = false;
+								}
+							}
+
+							if (SPF.Input.IsUsingController())
+							{
+								SPF.Renderer.FillRectangle(0, 0, 16, 16, new Vector4(0, 1, 0, 1));
+							}
 
 							SPF.EndLoop();
 						}

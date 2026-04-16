@@ -98,6 +98,7 @@
     <ClCompile Include="src\Resources.cpp" />
     <ClCompile Include="src\Textures.cpp" />
     <ClCompile Include="src\Window.cpp" />
+    <ClCompile Include="Steam.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Core.h" />

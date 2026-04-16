@@ -8,7 +8,7 @@ namespace SPFSharp
 		public static class Window
 		{
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern void SPF_Open(string title, int w, int h);
+			public static extern void SPF_Open(string title, int w, int h, uint appID);
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern bool SPF_BeginLoop(out float dt);

@@ -108,8 +108,8 @@ namespace SPF
 
 	struct
 	{
-		SDL_Window* Window;
-		SDL_Gamepad* Controller;
+		SDL_Window* Window = nullptr;
+		SDL_Gamepad* Controller = nullptr;
 		int KeysDownPreviousFrame[SDL_SCANCODE_COUNT + ModifiersCount];
 		int KeysDown[SDL_SCANCODE_COUNT + ModifiersCount];
 
@@ -119,13 +119,15 @@ namespace SPF
 		uint64_t GamepadTimestamp = 0;
 		uint64_t KeyboardTimestamp = 0;
 
-		int MouseX;
-		int MouseY;
-		int MouseDeltaX;
-		int MouseDeltaY;
-		int MouseWheel;
-		unsigned int CurrentMouseState;
-		unsigned int PreviousMouseState;
+		int MouseX = 0;
+		int MouseY = 0;
+		int MouseDeltaX = 0;
+		int MouseDeltaY = 0;
+		int MouseWheel = 0;
+		unsigned int CurrentMouseState = 0;
+		unsigned int PreviousMouseState = 0;
+
+		bool IsGamepadLost = false;
 	} InputData;
 
 	namespace Input
@@ -308,30 +310,10 @@ namespace SPF
 			}
 		}
 
-		void SearchGamepad()
-		{
-			InputData.Controller = nullptr;
-			int count = 0;
-			SDL_JoystickID* gamepads = SDL_GetGamepads(&count);
-			for (int i = 0; i < count; ++i)
-			{
-				if (SDL_IsGamepad(gamepads[i]))
-				{
-					InputData.Controller = SDL_OpenGamepad(gamepads[i]);
-					if (InputData.Controller)
-					{
-						break;
-					}
-				}
-			}
-			SDL_free(gamepads);
-		}
-
 		void Init(SDL_Window* window)
 		{
 			InputData.Window = window;
 			SDL_SetGamepadEventsEnabled(true);
-			SearchGamepad();
 		}
 
 		void Update(const Size& windowSize)
@@ -377,12 +359,16 @@ namespace SPF
 
 		float NormalizeThumbstick(Sint16 rawValue)
 		{
-			float normalizedValue = rawValue / 32767.f;
-			/*if (fabs(normalizedValue) <= ThumbstickDeadzoneRatio)
+			return rawValue / 32767.f;
+		}
+
+		void UseGamepad(SDL_Gamepad* gamepad)
+		{
+			if (gamepad)
 			{
-				normalizedValue = 0.f;
-			}*/
-			return normalizedValue;
+				InputData.Controller = gamepad; // Mark this gamepad as the current one
+			}
+			InputData.GamepadTimestamp = GetCurrentTimestamp(); // Record timestamp to compare against other input methods
 		}
 
 		void HandleEvent(const SDL_Event& evt)
@@ -398,26 +384,43 @@ namespace SPF
 			}
 			if (evt.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN)
 			{
-				InputData.GamepadTimestamp = GetCurrentTimestamp();
+				UseGamepad(SDL_GetGamepadFromID(evt.gbutton.which));
 				InputData.ButtonsDown[evt.gbutton.button] = 1;
 			}
 			if (evt.type == SDL_EVENT_GAMEPAD_BUTTON_UP)
 			{
 				InputData.ButtonsDown[evt.gbutton.button] = 0;
 			}
-			if (evt.type == SDL_EVENT_GAMEPAD_ADDED || evt.type == SDL_EVENT_GAMEPAD_REMOVED)
+			if (evt.type == SDL_EVENT_GAMEPAD_ADDED) // Will be received even if the gamepad was connected prior to the start
 			{
-				SearchGamepad();
-				if (evt.type == SDL_EVENT_GAMEPAD_REMOVED)
+				SDL_Gamepad* gamepad = SDL_OpenGamepad(evt.gdevice.which);
+				if (gamepad && InputData.Controller == nullptr)
 				{
-					memset(&InputData.ButtonsDown, 0, sizeof(InputData.ButtonsDown)); // All buttons released
+					InputData.Controller = gamepad; // If no other gamepad is currently in use, assume this one will be
+				}
+			}
+			else if (evt.type == SDL_EVENT_GAMEPAD_REMOVED)
+			{
+				SDL_Gamepad* gamepad = SDL_GetGamepadFromID(evt.gdevice.which);
+				if (gamepad)
+				{
+					if (gamepad == InputData.Controller) // We lost the gamepad that was in use
+					{
+						InputData.Controller = nullptr;
+						memset(&InputData.ButtonsDown, 0, sizeof(InputData.ButtonsDown)); // All buttons released
+						if (InputData.GamepadTimestamp > InputData.KeyboardTimestamp)
+						{
+							InputData.IsGamepadLost = true; // We were currently using this gamepad as the input method, losing it is an issue
+						}
+					}
+					SDL_CloseGamepad(gamepad);
 				}
 			}
 			else if (evt.type == SDL_EVENT_GAMEPAD_AXIS_MOTION)
 			{
 				if (fabs(NormalizeThumbstick(evt.gaxis.value)) > ThumbstickDeadzoneRatio)
 				{
-					InputData.GamepadTimestamp = GetCurrentTimestamp();
+					UseGamepad(SDL_GetGamepadFromID(evt.gaxis.which));
 				}
 			}
 			if (evt.type == SDL_EVENT_MOUSE_WHEEL)
@@ -476,6 +479,13 @@ namespace SPF
 		bool IsUsingController()
 		{
 			return InputData.Controller && (InputData.GamepadTimestamp > InputData.KeyboardTimestamp);
+		}
+
+		bool IsCurrentInputLost()
+		{
+			bool isLost = InputData.IsGamepadLost;
+			InputData.IsGamepadLost = false;
+			return isLost;
 		}
 
 		ControllerModel GetControllerModel()
@@ -613,6 +623,11 @@ extern "C"
 	DLLExport int SPF_IsUsingController()
 	{
 		return SPF::Input::IsUsingController() ? 1 : 0;
+	}
+
+	DLLExport int SPF_IsCurrentInputLost()
+	{
+		return SPF::Input::IsCurrentInputLost() ? 1 : 0;
 	}
 
 	DLLExport int SPF_IsButtonDown(int button)

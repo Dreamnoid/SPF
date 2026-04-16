@@ -15,11 +15,11 @@ namespace SPFSharp
 			int ID { get; }
 		}
 
-		public class Instance : IDisposable
+		private class Instance : IDisposable
 		{
-			public Instance(string title, int w, int h)
+			public Instance(string title, int w, int h, uint appID)
 			{
-				Native.Window.SPF_Open(title, w, h);
+				Native.Window.SPF_Open(title, w, h, appID);
 				RefreshWindowSize();
 			}
 
@@ -30,7 +30,7 @@ namespace SPFSharp
 			}
 		}
 
-		public static Instance Open(string title, int w, int h) => new Instance(title, w, h);
+		public static IDisposable Open(string title, int w, int h, uint appID = 0) => new Instance(title, w, h, appID);
 
 		public static bool BeginLoop(out float dt)
 		{
@@ -43,6 +43,8 @@ namespace SPFSharp
 		public static void EndLoop() => Native.Window.SPF_EndLoop();
 
 		public static void SaveScreenshot(string filename) => Native.Window.SPF_SaveScreenshot(filename);
+
+		public static void UnlockAchievement(string id) => Native.SPF_UnlockAchievement(id);
 
 		public class Surface : IResource
 		{
