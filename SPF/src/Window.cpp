@@ -44,7 +44,7 @@ namespace SPF
 
 	namespace Steam
 	{
-		void Init(uint32_t appID);
+		bool Init(uint32_t appID);
 		void Update();
 		bool IsOverlayActive();
 		void Dispose();
@@ -59,7 +59,11 @@ namespace SPF
 
 		void Open(const char* title, int w, int h, uint32_t appID)
 		{
-			Steam::Init(appID); // Must be called as soon as possible, and always before SDL_Init
+			if (Steam::Init(appID)) // Must be called as soon as possible, and always before SDL_Init
+			{
+				exit(1);
+				return;
+			}
 
 			if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD))
 			{

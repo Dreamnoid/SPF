@@ -46,7 +46,7 @@ namespace SPF
 				mask = SDL_CreateTexture(TexturesData.Renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STATIC, w, h);
 				uint8_t* maskPixels = (uint8_t*)SDL_malloc(w * h * 4);
 				SDL_memset(maskPixels, 255, w * h * 4);
-				for (int i = 0; i < w * h; ++i)
+				for (unsigned int i = 0; i < w * h; ++i)
 				{
 					maskPixels[i * 4 + 3] = ((uint8_t*)pixels)[i * 4 + 3];
 				}

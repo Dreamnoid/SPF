@@ -42,7 +42,7 @@ namespace SPF
 				}
 			}
 			ImagesData.Images.push_back({ true, pixels,(unsigned int)w,(unsigned int)h });
-			return ImagesData.Images.size() - 1;
+			return (ResourceIndex)(ImagesData.Images.size() - 1);
 		}
 
 		void Save(const char* filename, int width, int height, unsigned char* pixels)

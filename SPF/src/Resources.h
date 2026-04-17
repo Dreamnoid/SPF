@@ -33,7 +33,7 @@ namespace SPF
 		}
 		pool.push_back(resource);
 		pool[pool.size() - 1].InUse = true;
-		return pool.size() - 1;
+		return (ResourceIndex)(pool.size() - 1);
 	}
 
 	template<typename T>

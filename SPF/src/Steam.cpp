@@ -5,7 +5,10 @@
 
 namespace SPF
 {
-	void ShowMessageBox(const char* title, const char* message, bool isError);
+	namespace Window
+	{
+		void ShowMessageBox(const char* title, const char* message, bool isError);
+	}
 
 	namespace Steam
 	{
@@ -31,30 +34,30 @@ namespace SPF
 
 #endif
 
-		void Init(uint32_t appID)
+		bool Init(uint32_t appID)
 		{
 #if STEAM
 			if (appID == 0)
-				return; // No AppID = no Steam support
+				return false; // No AppID = no Steam support
 
 			if (SteamAPI_RestartAppIfNecessary(appID))
 			{
-				exit(1); // Let Steam restart the app
-				return;
+				return true; // Let Steam restart the app
 			}
 
 			if (!SteamAPI_Init())
 			{
-				ShowMessageBox("Steam integration issue", 
+				Window::ShowMessageBox("Steam integration issue", 
 					"The Steam integration failed: achievements will not be unlocked during gameplay!\nMake sure to launch the game from Steam.",
 					true);
-				return;
+				return false;
 			}
 
 			SteamData.Initialized = true;
 			SteamData.Callbacks = new Callbacks();
 			SteamUserStats()->RequestUserStats(SteamUser()->GetSteamID());
 #endif
+			return false;
 		}
 
 		void Update()
