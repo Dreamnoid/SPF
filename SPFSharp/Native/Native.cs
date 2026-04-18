@@ -7,9 +7,9 @@ namespace SPFSharp
 	internal static partial class Native
 	{
 #if LINUX
-		const string DLLName = "SPF.so";
+		const string DLLName = "SPF3.so";
 #else
-		const string DLLName = "SPF.dll";
+		const string DLLName = "SPF3.dll";
 #endif
 
 		[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
