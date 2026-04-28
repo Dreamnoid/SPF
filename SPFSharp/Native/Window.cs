@@ -26,6 +26,9 @@ namespace SPFSharp
 			public static extern void SPF_SetFullscreen(bool fullscreen);
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+			public static extern void SPF_SetVSync(bool enabled);
+
+			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern void SPF_SetWindowSize(int w, int h);
 
 			[SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]

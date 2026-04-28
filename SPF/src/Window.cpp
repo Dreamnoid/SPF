@@ -144,6 +144,11 @@ namespace SPF
 			}
 		}
 
+		void SetVSync(bool enabled)
+		{
+			SDL_SetRenderVSync(WindowData.Renderer, enabled ? 1 : 0);
+		}
+
 		void SetWindowTitle(const char* title)
 		{
 			SDL_SetWindowTitle(WindowData.Window, title);
@@ -230,6 +235,11 @@ extern "C"
 	DLLExport void SPF_SetFullscreen(bool fullscreen)
 	{
 		SPF::Window::SetFullscreen(fullscreen);
+	}
+
+	DLLExport void SPF_SetVSync(bool enabled)
+	{
+		SPF::Window::SetVSync(enabled);
 	}
 
 	DLLExport int SPF_GetWindowWidth()
