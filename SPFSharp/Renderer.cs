@@ -162,6 +162,9 @@ namespace SPFSharp
                     overlay.X, overlay.Y, overlay.Z, overlay.W);
 			}
 
+			public static void DrawLine(in Vector2 from, in Vector2 to, in Vector4 color)
+				=> Native.Renderer.SPF_DrawLine(from.X, from.Y, to.X, to.Y, (byte)(color.X * 255), (byte)(color.Y * 255), (byte)(color.Z * 255), (byte)(color.W * 255));
+
 			public static void SetBlending(BlendMode blendMode = BlendMode.Alpha)
 				=> Native.Renderer.SPF_SetBlending((int)blendMode);
 		}

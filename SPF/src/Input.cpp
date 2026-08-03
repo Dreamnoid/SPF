@@ -88,6 +88,8 @@ namespace SPF
 		LeftShoulder = 10,
 		RightShoulder = 11,
 		Home = 12,
+		LeftTrigger = 13,
+		RightTrigger = 14,
 	};
 
 	enum class MouseButton : int
@@ -295,6 +297,8 @@ namespace SPF
 			case Button::LeftShoulder: return SDL_GAMEPAD_BUTTON_LEFT_SHOULDER;
 			case Button::RightShoulder: return SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER;
 			case Button::Home: return SDL_GAMEPAD_BUTTON_GUIDE;
+			case Button::LeftTrigger: return SDL_GAMEPAD_BUTTON_MISC3; // Using those because they already represent the "trigger click" on GameCube controllers
+			case Button::RightTrigger: return SDL_GAMEPAD_BUTTON_MISC4;
 			default: return SDL_GAMEPAD_BUTTON_SOUTH;
 			}
 		}
@@ -418,9 +422,19 @@ namespace SPF
 			}
 			else if (evt.type == SDL_EVENT_GAMEPAD_AXIS_MOTION)
 			{
-				if (fabs(NormalizeThumbstick(evt.gaxis.value)) > ThumbstickDeadzoneRatio)
+				const bool isPressed = fabs(NormalizeThumbstick(evt.gaxis.value)) > ThumbstickDeadzoneRatio;
+				if (isPressed)
 				{
 					UseGamepad(SDL_GetGamepadFromID(evt.gaxis.which));
+				}
+
+				if (evt.gaxis.axis == SDL_GAMEPAD_AXIS_LEFT_TRIGGER)
+				{
+					InputData.ButtonsDown[SDL_GAMEPAD_BUTTON_MISC3] = isPressed ? 1 : 0;
+				}
+				else if (evt.gaxis.axis == SDL_GAMEPAD_AXIS_RIGHT_TRIGGER)
+				{
+					InputData.ButtonsDown[SDL_GAMEPAD_BUTTON_MISC4] = isPressed ? 1 : 0;
 				}
 			}
 			if (evt.type == SDL_EVENT_MOUSE_WHEEL)

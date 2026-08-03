@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.11.35431.28
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32428.217
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SPF", "SPF\SPF.vcxproj", "{12693B46-308A-4E4E-A268-80FDD6183CF9}"
 EndProject
@@ -18,23 +18,37 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
+		Steam|Any CPU = Steam|Any CPU
+		Steam|x64 = Steam|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{12693B46-308A-4E4E-A268-80FDD6183CF9}.Release|Any CPU.ActiveCfg = Release|x64
 		{12693B46-308A-4E4E-A268-80FDD6183CF9}.Release|Any CPU.Build.0 = Release|x64
 		{12693B46-308A-4E4E-A268-80FDD6183CF9}.Release|x64.ActiveCfg = Release|x64
 		{12693B46-308A-4E4E-A268-80FDD6183CF9}.Release|x64.Build.0 = Release|x64
-		{E30427B3-E500-43DA-B92E-94F892A17B6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E30427B3-E500-43DA-B92E-94F892A17B6D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E30427B3-E500-43DA-B92E-94F892A17B6D}.Release|x64.ActiveCfg = Release|Any CPU
-		{E30427B3-E500-43DA-B92E-94F892A17B6D}.Release|x64.Build.0 = Release|Any CPU
+		{12693B46-308A-4E4E-A268-80FDD6183CF9}.Steam|Any CPU.ActiveCfg = Steam|x64
+		{12693B46-308A-4E4E-A268-80FDD6183CF9}.Steam|Any CPU.Build.0 = Steam|x64
+		{12693B46-308A-4E4E-A268-80FDD6183CF9}.Steam|x64.ActiveCfg = Steam|x64
+		{12693B46-308A-4E4E-A268-80FDD6183CF9}.Steam|x64.Build.0 = Steam|x64
+		{E30427B3-E500-43DA-B92E-94F892A17B6D}.Release|Any CPU.ActiveCfg = Steam|Any CPU
+		{E30427B3-E500-43DA-B92E-94F892A17B6D}.Release|Any CPU.Build.0 = Steam|Any CPU
+		{E30427B3-E500-43DA-B92E-94F892A17B6D}.Release|x64.ActiveCfg = Steam|Any CPU
+		{E30427B3-E500-43DA-B92E-94F892A17B6D}.Steam|Any CPU.ActiveCfg = Steam|Any CPU
+		{E30427B3-E500-43DA-B92E-94F892A17B6D}.Steam|Any CPU.Build.0 = Steam|Any CPU
+		{E30427B3-E500-43DA-B92E-94F892A17B6D}.Steam|x64.ActiveCfg = Steam|Any CPU
+		{E30427B3-E500-43DA-B92E-94F892A17B6D}.Steam|x64.Build.0 = Steam|Any CPU
 		{B3967218-119C-4A66-A6CA-4C2A61EF8AAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3967218-119C-4A66-A6CA-4C2A61EF8AAE}.Release|x64.ActiveCfg = Release|Any CPU
 		{B3967218-119C-4A66-A6CA-4C2A61EF8AAE}.Release|x64.Build.0 = Release|Any CPU
-		{63A427FA-C01D-4676-8695-025598F1ED6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{63A427FA-C01D-4676-8695-025598F1ED6D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{63A427FA-C01D-4676-8695-025598F1ED6D}.Release|x64.ActiveCfg = Release|Any CPU
-		{63A427FA-C01D-4676-8695-025598F1ED6D}.Release|x64.Build.0 = Release|Any CPU
+		{B3967218-119C-4A66-A6CA-4C2A61EF8AAE}.Steam|Any CPU.ActiveCfg = Release|Any CPU
+		{B3967218-119C-4A66-A6CA-4C2A61EF8AAE}.Steam|x64.ActiveCfg = Release|Any CPU
+		{63A427FA-C01D-4676-8695-025598F1ED6D}.Release|Any CPU.ActiveCfg = Steam|Any CPU
+		{63A427FA-C01D-4676-8695-025598F1ED6D}.Release|Any CPU.Build.0 = Steam|Any CPU
+		{63A427FA-C01D-4676-8695-025598F1ED6D}.Release|x64.ActiveCfg = Steam|Any CPU
+		{63A427FA-C01D-4676-8695-025598F1ED6D}.Steam|Any CPU.ActiveCfg = Steam|Any CPU
+		{63A427FA-C01D-4676-8695-025598F1ED6D}.Steam|Any CPU.Build.0 = Steam|Any CPU
+		{63A427FA-C01D-4676-8695-025598F1ED6D}.Steam|x64.ActiveCfg = Steam|Any CPU
+		{63A427FA-C01D-4676-8695-025598F1ED6D}.Steam|x64.Build.0 = Steam|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
