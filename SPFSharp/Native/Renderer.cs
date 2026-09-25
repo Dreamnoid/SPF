@@ -31,6 +31,19 @@ namespace SPFSharp
                 float overlayR, float overlayG, float ovelayB, float overlayA);
 
             [SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SPF_DrawTriangle(
+                int texture,
+                float aX, float aY,
+                float bX, float bY,
+                float cX, float cY,
+                float uvAX, float uvAY,
+                float uvBX, float uvBY,
+                float uvCX, float uvCY,
+                float aColorR, float aColorG, float aColorB, float aColorA,
+                float bColorR, float bColorG, float bColorB, float bColorA,
+                float cColorR, float cColorG, float cColorB, float cColorA);
+
+            [SuppressUnmanagedCodeSecurity, DllImport(DLLName, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SPF_DrawLine(float fromX, float fromY, float toX, float toY, byte r, byte g, byte b, byte a);
         }
 	}

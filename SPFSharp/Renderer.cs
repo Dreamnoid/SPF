@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 
 namespace SPFSharp
 {
@@ -162,7 +163,22 @@ namespace SPFSharp
                     overlay.X, overlay.Y, overlay.Z, overlay.W);
 			}
 
-			public static void DrawLine(in Vector2 from, in Vector2 to, in Vector4 color)
+			public static void DrawTriangle(Texture tex,
+				in Vector2 a, in Vector2 b, in Vector2 c,
+				in Vector2 uvA, in Vector2 uvB, in Vector2 uvC,
+				in Vector4 aColor, in Vector4 bColor, in Vector4 cColor)
+				=> Native.Renderer.SPF_DrawTriangle(tex.ID,
+					a.X, a.Y,
+					b.X, b.Y,
+					c.X, c.Y,
+					uvA.X, uvA.Y,
+					uvB.X, uvB.Y,
+					uvC.X, uvC.Y,
+					aColor.X, aColor.Y, aColor.Z, aColor.W,
+					bColor.X, bColor.Y, bColor.Z, bColor.W,
+					cColor.X, cColor.Y, cColor.Z, cColor.W);
+
+            public static void DrawLine(in Vector2 from, in Vector2 to, in Vector4 color)
 				=> Native.Renderer.SPF_DrawLine(from.X, from.Y, to.X, to.Y, (byte)(color.X * 255), (byte)(color.Y * 255), (byte)(color.Z * 255), (byte)(color.W * 255));
 
 			public static void SetBlending(BlendMode blendMode = BlendMode.Alpha)

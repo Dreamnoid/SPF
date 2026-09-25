@@ -129,6 +129,30 @@ namespace SPF
 			}
 		}
 
+		void DrawTriangle(
+			ResourceIndex texture,
+			Vector2 a, Vector2 b, Vector2 c,
+			Vector2 uvA, Vector2 uvB, Vector2 uvC,
+			RGBA colorA, RGBA colorB, RGBA colorC)
+		{
+			SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND;
+			SDL_GetRenderDrawBlendMode(RendererData.Renderer, &blendMode);
+
+			const static int indices[3]{ 0, 1, 2 };
+
+			const SDL_Vertex vertices[3]
+			{
+				{ ToSDL(a), ToSDL(colorA), ToSDL(uvA) },
+				{ ToSDL(b), ToSDL(colorB), ToSDL(uvB) },
+				{ ToSDL(c), ToSDL(colorC), ToSDL(uvC) },
+			};
+
+			const SPF::Texture& texInfo = Resources.Textures[texture];
+			SDL_Texture* tex = (SDL_Texture*)texInfo.Pointer;
+			SDL_SetTextureBlendMode(tex, blendMode);
+			SDL_RenderGeometry(RendererData.Renderer, tex, vertices, 3, indices, 3);
+		}
+
 		void FillRectangle(Rect dest, Color color)
 		{
 			SDL_FRect fillRect = ToSDL(dest);
@@ -190,6 +214,27 @@ extern "C"
 			{ cColorR, cColorG, cColorB, cColorA },
 			{ dColorR, dColorG, dColorB, dColorA },
 			{ overlayR, overlayG, ovelayB, overlayA });
+	}
+
+
+	DLLExport void SPF_DrawTriangle(
+		int texture,
+		float aX, float aY,
+		float bX, float bY,
+		float cX, float cY,
+		float uvAX, float uvAY, 
+		float uvBX, float uvBY, 
+		float uvCX, float uvCY,
+		float aColorR, float aColorG, float aColorB, float aColorA,
+		float bColorR, float bColorG, float bColorB, float bColorA,
+		float cColorR, float cColorG, float cColorB, float cColorA)
+	{
+		SPF::Renderer::DrawTriangle(texture,
+			{ aX, aY }, { bX, bY }, { cX, cY },
+			{ uvAX, uvAY }, { uvBX, uvBY }, { uvCX, uvCY },
+			{ aColorR, aColorG, aColorB, aColorA },
+			{ bColorR, bColorG, bColorB, bColorA },
+			{ cColorR, cColorG, cColorB, cColorA });
 	}
 
 	DLLExport void SPF_FillRectangle(int x, int y, int w, int h, unsigned char r, unsigned char g, unsigned char b, unsigned char a)

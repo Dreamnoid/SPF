@@ -3,10 +3,10 @@ using System.Numerics;
 
 namespace Sample
 {
-    public static class Program
-    {
-        const int WindowWidth = 1280;
-        const int WindowHeight = 720;
+	public static class Program
+	{
+		const int WindowWidth = 1280;
+		const int WindowHeight = 720;
 
 		public static void Main()
 		{
@@ -27,7 +27,7 @@ namespace Sample
 							if (SPF.Input.IsCurrentInputLost())
 							{
 								paused = true;
-                            }
+							}
 
 							if (!paused)
 							{
@@ -37,10 +37,10 @@ namespace Sample
 							SPF.Renderer.Begin(surface, true);
 							SPF.Renderer.FillRectangle(0, 0, surface.Width, surface.Height, new System.Numerics.Vector4(1, 0, 0, 1));
 
-                            SPF.Renderer.FillRectangle(10, 10, 24, 24, new System.Numerics.Vector4(1f, 0, 0, 1f));
+							SPF.Renderer.FillRectangle(10, 10, 24, 24, new System.Numerics.Vector4(1f, 0, 0, 1f));
 
 							//SPF.Renderer.FillRectangle(10, 10, WindowWidth-20, WindowHeight-20, new System.Numerics.Vector4(1, 1, 0, 1));
-                            SPF.Renderer.DrawTexture(tex, 100, 100);
+							SPF.Renderer.DrawTexture(tex, 100, 100);
 							//SPF.Renderer.DrawTexture(tex, 120, 120);
 							//SPF.Renderer.DrawTexture(surface.Texture, 10, 10);
 
@@ -48,6 +48,15 @@ namespace Sample
 
 							SPF.Renderer.Begin(null, true);
 							SPF.Renderer.DrawTexture(surface.Texture, 32, 32);
+
+							SPF.Renderer.DrawTriangle(tex,
+								new Vector2(250, 260), new Vector2(300, 232), new Vector2(200, 200),
+								new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 1),
+								new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1), new Vector4(0, 0, 1, 1));
+
+							SPF.Renderer.DrawLine(new Vector2(200, 200), new Vector2(300, 232), new Vector4(1, 0, 0, 1));
+							SPF.Renderer.DrawLine(new Vector2(300, 232), new Vector2(250, 260), new Vector4(0, 1, 0, 1));
+							SPF.Renderer.DrawLine(new Vector2(250, 260), new Vector2(200, 200), new Vector4(0, 0, 1, 1));
 
 							if (paused)
 							{
@@ -69,5 +78,5 @@ namespace Sample
 				}
 			}
 		}
-    }
+	}
 }
