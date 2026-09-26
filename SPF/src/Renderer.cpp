@@ -153,6 +153,17 @@ namespace SPF
 			SDL_RenderGeometry(RendererData.Renderer, tex, vertices, 3, indices, 3);
 		}
 
+		void DrawTriangles(ResourceIndex texture, const float* positions, const float* uvs, const float* colors, int count)
+		{
+			SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND;
+			SDL_GetRenderDrawBlendMode(RendererData.Renderer, &blendMode);
+
+			const SPF::Texture& texInfo = Resources.Textures[texture];
+			SDL_Texture* tex = (SDL_Texture*)texInfo.Pointer;
+			SDL_SetTextureBlendMode(tex, blendMode);
+			SDL_RenderGeometryRaw(RendererData.Renderer, tex, positions, 2 * sizeof(float), (const SDL_FColor*)colors, 4 * sizeof(float), uvs, 2 * sizeof(float), count, NULL, 0, 4);
+		}
+
 		void FillRectangle(Rect dest, Color color)
 		{
 			SDL_FRect fillRect = ToSDL(dest);
@@ -245,5 +256,10 @@ extern "C"
 	DLLExport void SPF_DrawLine(float fromX, float fromY, float toX, float toY, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 	{
 		SPF::Renderer::DrawLine({ fromX, fromY }, { toX, toY }, { r, g, b, a });
+	}
+
+	DLLExport void SPF_DrawTriangles(int texture, const float* positions, const float* uvs, const float* colors, int count)
+	{
+		SPF::Renderer::DrawTriangles(texture, positions, uvs, colors, count);
 	}
 }

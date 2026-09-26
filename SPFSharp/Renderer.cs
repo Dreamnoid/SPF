@@ -178,7 +178,10 @@ namespace SPFSharp
 					bColor.X, bColor.Y, bColor.Z, bColor.W,
 					cColor.X, cColor.Y, cColor.Z, cColor.W);
 
-            public static void DrawLine(in Vector2 from, in Vector2 to, in Vector4 color)
+			public static void DrawTriangles(Texture texture, float[] positions, float[] uvs, float[] colors, int count)
+				=> Native.Renderer.SPF_DrawTriangles(texture.ID, positions, uvs, colors, count);
+
+			public static void DrawLine(in Vector2 from, in Vector2 to, in Vector4 color)
 				=> Native.Renderer.SPF_DrawLine(from.X, from.Y, to.X, to.Y, (byte)(color.X * 255), (byte)(color.Y * 255), (byte)(color.Z * 255), (byte)(color.W * 255));
 
 			public static void SetBlending(BlendMode blendMode = BlendMode.Alpha)
