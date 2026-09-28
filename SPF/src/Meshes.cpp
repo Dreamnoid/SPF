@@ -40,7 +40,7 @@ namespace SPF
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
 
-			return CreateResource(Resources.Meshes, { true, vao, vbo, count });
+			return CreateResource(Resources.Meshes, { true, vao, vbo, count, dynamic });
 		}
 
 		void Update(ResourceIndex mesh, Vertex* vertices, int count)

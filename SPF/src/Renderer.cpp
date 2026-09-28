@@ -30,9 +30,6 @@ namespace SPF
 		int CurrentVertexCount = 0;
 		PrimitiveType CurrentPrimitiveType = PrimitiveType::Triangle;
 
-		float TransformsSSBO[FloatsPerTransform * MaxInstances];
-		float OverlaysSSBO[FloatsPerOverlay * MaxInstances];
-
 		RenderState::ModelData Instances[MaxInstances];
 		int CurrentInstanceCount = 0;
 		ResourceIndex CurrentInstanceMesh = InvalidResource;
@@ -52,21 +49,6 @@ namespace SPF
 	namespace Renderer
 	{
 		void FlushDrawCalls();
-
-		void CopyModelData(int index, const RenderState::ModelData& modelData)
-		{
-			int start = index * FloatsPerTransform;
-			for (int j = 0; j < FloatsPerTransform; ++j)
-			{
-				RendererData.TransformsSSBO[start + j] = modelData.WorldMatrix.M[j];
-			}
-
-			start = index * FloatsPerOverlay;
-			RendererData.OverlaysSSBO[start + 0] = modelData.Overlay.R;
-			RendererData.OverlaysSSBO[start + 1] = modelData.Overlay.G;
-			RendererData.OverlaysSSBO[start + 2] = modelData.Overlay.B;
-			RendererData.OverlaysSSBO[start + 3] = modelData.Overlay.A;
-		}
 
 		void Begin(ResourceIndex surface, bool clear)
 		{
@@ -327,8 +309,8 @@ namespace SPF
 
 		void UploadSSBO(int instancesCount)
 		{
-			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, (uint64_t)instancesCount * FloatsPerTransform * sizeof(float), &RendererData.TransformsSSBO[0]);
-			glBufferSubData(GL_SHADER_STORAGE_BUFFER, MaxInstances * FloatsPerTransform * sizeof(float), (uint64_t)instancesCount * FloatsPerOverlay * sizeof(float), &RendererData.OverlaysSSBO[0]);
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, RendererData.WorldMatrixSSBO);
+			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, (uint64_t)instancesCount * sizeof(RenderState::ModelData), &RendererData.Instances[0]);
 		}
 
 		void SendDrawCall(GLenum mode, GLint first, GLsizei count)
@@ -336,7 +318,7 @@ namespace SPF
 			SetupDrawCall();
 
 			static RenderState::ModelData emptyModelData = { Matrix::Identity, RGBA::TransparentBlack };
-			CopyModelData(0, emptyModelData);
+			RendererData.Instances[0] = emptyModelData;
 			UploadSSBO(1);
 
 			glDrawArrays(mode, first, count);
@@ -345,13 +327,7 @@ namespace SPF
 		void SendInstancedDrawCall(ResourceIndex mesh, int first, int count, int instancesCount)
 		{
 			SetupDrawCall();
-
-			for (int i = 0; i < instancesCount; ++i)
-			{
-				CopyModelData(i, RendererData.Instances[i]);
-			}
 			UploadSSBO(instancesCount);
-
 			glDrawArraysInstanced(GL_TRIANGLES, first, count, instancesCount);
 		}
 
@@ -372,6 +348,10 @@ namespace SPF
 			//if (RendererData.CurrentInstanceCount < MaxInstances)
 			{
 				RendererData.Instances[RendererData.CurrentInstanceCount++] = modelData;
+			}
+			if (Resources.Meshes[mesh].IsDynamic)
+			{
+				FlushDrawCalls(); // The content of this mesh may get overwritten, so flush it now
 			}
 		}
 
@@ -427,8 +407,8 @@ namespace SPF
 			GLuint ssbo;
 			glGenBuffers(1, &ssbo);
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-			glBufferData(GL_SHADER_STORAGE_BUFFER, MaxInstances * (FloatsPerTransform + FloatsPerOverlay) * sizeof(float), nullptr, GL_STREAM_DRAW);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
+			glBufferData(GL_SHADER_STORAGE_BUFFER, MaxInstances * sizeof(RenderState::ModelData), nullptr, GL_DYNAMIC_DRAW);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo); // Global assignation, does not depend on current program
 			RendererData.WorldMatrixSSBO = ssbo;
 
 			RendererData.DefaultShader = Shaders::Create(

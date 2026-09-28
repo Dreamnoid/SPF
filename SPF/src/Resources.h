@@ -10,6 +10,7 @@ namespace SPF
 		HardwareID VertexArrayGLID;
 		HardwareID VertexBufferGLID;
 		int VerticesCount = 0;
+		bool IsDynamic = false;
 	};
 
 	struct Surface
