@@ -110,6 +110,11 @@ namespace SPF
 			SDL_SetWindowFullscreen(WindowData.Window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 		}
 
+		void SetVSync(bool vsync)
+		{
+			SDL_GL_SetSwapInterval(vsync ? 1 : 0);
+		}
+
 		void SetWindowSize(int w, int h)
 		{
 			SDL_SetWindowSize(WindowData.Window, w, h);
@@ -302,6 +307,11 @@ extern "C"
 	DLLExport void SPF_SetFullscreen(bool fullscreen)
 	{
 		SPF::Window::SetFullscreen(fullscreen);
+	}
+
+	DLLExport void SPF_SetVSync(bool vsync)
+	{
+		SPF::Window::SetVSync(vsync);
 	}
 
 	DLLExport int SPF_GetWindowWidth()

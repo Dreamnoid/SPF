@@ -43,8 +43,16 @@ namespace SPF
 			}
 			else
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				if (HasFlag(flags, TextureFlags::Flipped))
+				{
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+				}
+				else
+				{
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				}
 
 				const bool isHighPrecision = HasFlag(flags, TextureFlags::HighPrecision);
 				glTexImage2D(GL_TEXTURE_2D, 0, isHighPrecision ? GL_RGBA32F : GL_RGBA, w, h, 0, GL_RGBA, isHighPrecision ? GL_FLOAT : GL_UNSIGNED_BYTE, pixels);

@@ -100,6 +100,8 @@ namespace SPFSharp
 			RefreshWindowSize();
 		}
 
+		public static void SetVSync(bool vsync) => Native.Window.SPF_SetVSync(vsync);
+
 		public static int GetWindowWidth() => _windowWidth;
 
 		public static int GetWindowHeight() => _windowHeight;
